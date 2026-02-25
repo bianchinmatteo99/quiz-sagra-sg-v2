@@ -6,10 +6,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // firebase.database().ref('/path/to/ref').on('value', snapshot => { });
 
     try {
-        let features = [
-            'auth',
-            'database',
-        ].filter(feature => typeof (app as any)[feature] === 'function');
+        let features: string[] = [];
+        if (auth) features.push('auth');
+        if (database) features.push('database');
 
         if (loadEl) {
             loadEl.textContent = `Firebase SDK loaded with ${features.join(', ')}`;
