@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
-    "target": "es2017",
-    "module": "es2020",
-    "moduleResolution": "node",
-    "rootDir": "src",
-    "outDir": "public/js",
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "strict": true,
+    "isolatedModules": true,
+    "rootDir": "src",
+    "outDir": "public",
     "sourceMap": true,
     "esModuleInterop": true
   },
