@@ -1,5 +1,5 @@
 {
-  "DISABLED__hosting": {
+  "hosting": {
     "public": "dist",
     "ignore": [
       "firebase.json",
