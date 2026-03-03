@@ -52,3 +52,6 @@ lib-cov
 coverage
 .nyc_output
 .node_repl_history
+
+# Others
+*.old*
