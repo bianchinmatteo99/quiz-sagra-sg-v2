@@ -1,8 +1,6 @@
 import { database } from "../../firebase-init";
 import { ref, remove } from "firebase/database";
 import { QuizStatus, QuizState, Quiz } from "./quiz.definition";
-import { ReazioneCatenaGame } from "../games/catena/catena";
-import { Game } from "../games/games.definition";
 import { showChoiceDialog } from "./ui.utils";
 
 class QuizManager {

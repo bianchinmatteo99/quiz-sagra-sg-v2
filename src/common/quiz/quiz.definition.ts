@@ -1,6 +1,7 @@
 import { database } from "../../firebase-init";
 import { ref, get, onValue, set, update, remove, off } from "firebase/database";
-import { existingGames, Game } from "../games/games.definition";
+import { existingGames } from "../games/games.definition";
+import { Game } from "../games/game.base";
 
 enum QuizStatus {
     Booting, // Loading quiz definition and setting up the database

@@ -1,5 +1,4 @@
-import { Game } from "../games.definition";
-
+import { Game } from "../game.base";
 
 export class ReazioneCatenaGame extends Game {
     name = "catena";
