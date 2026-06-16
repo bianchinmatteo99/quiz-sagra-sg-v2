@@ -12,6 +12,8 @@ class QuizManager {
     async start(): Promise<void> {
         await this.init();
         document.getElementById("quiz-title")!.textContent = this.quiz?.state.title || "Quiz";
+        console.log(this);
+        this.quiz?.state.saveToDatabase();
     }
 
     async init(): Promise<void> {
