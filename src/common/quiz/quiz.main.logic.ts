@@ -1,6 +1,7 @@
 import { database } from "../../firebase-init";
 import { ref, remove } from "firebase/database";
 import { QuizStatus, Game, ReazioneCatenaGame, QuizState, Quiz } from "./quiz.definition";
+import { showChoiceDialog } from "./ui.utils";
 
 class QuizManager {
     quiz: Quiz | null = null;

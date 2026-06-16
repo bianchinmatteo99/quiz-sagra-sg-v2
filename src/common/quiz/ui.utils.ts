@@ -50,3 +50,5 @@ async function showChoiceDialog(hasDatabase: boolean, hasFile: boolean): Promise
         dialog.showModal();
     });
 }
+
+export { showChoiceDialog };
