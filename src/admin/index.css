@@ -32,11 +32,15 @@ html, body {
 
 /* Resizers */
 .resizer {
-  background: rgba(0,0,0,0.08);
+  background: color-mix(
+    in srgb,
+    var(--pico-background-color),
+    var(--pico-color) 12%
+  );
 }
 
 .resizer:hover {
-  background: rgba(0,0,0,0.2);
+  background: var(--pico-primary);
 }
 
 .col-resizer {

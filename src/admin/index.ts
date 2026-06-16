@@ -1,31 +1,16 @@
+import { QuizManager } from "../common/quiz/quiz.main.logic";
 import { app , auth, database } from "../firebase-init";
 
 document.addEventListener('DOMContentLoaded', function () {
-    const loadEl = document.querySelector('#load');
-    // firebase.auth().onAuthStateChanged(user => { });
-    // firebase.database().ref('/path/to/ref').on('value', snapshot => { });
-
-    try {
-        let features: string[] = [];
-        if (auth) features.push('auth');
-        if (database) features.push('database');
-
-        if (loadEl) {
-            loadEl.textContent = `Firebase SDK loaded with ${features.join(', ')}`;
-        }
-    } catch (e) {
-        console.error(e);
-        if (loadEl) {
-            loadEl.textContent = 'Error loading the Firebase SDK, check the console.';
-        }
-    }
+    const quizManager = new QuizManager();
+    quizManager.start();
 });
 
 
+/* ---------------- RESIZABLE CONTAINERS ---------------- */
+
 const container = document.querySelector<HTMLDivElement>("#main-container");
 if (!container) throw new Error("Missing #main-container element");
-
-/* ---------------- TYPES ---------------- */
 
 type ColResizeState = {
   startX: number;
@@ -39,18 +24,12 @@ type RowResizeState = {
   startGrid: number[];
 };
 
-/* ---------------- STATE ---------------- */
-
 let activeColResizer: ColResizeState | null = null;
 let activeRow: RowResizeState | null = null;
-
-/* ---------------- HELPERS ---------------- */
 
 function parseGrid(value: string): number[] {
   return value.split(" ").map(v => parseFloat(v));
 }
-
-/* ---------------- COLUMN RESIZING ---------------- */
 
 const colResizers = document.querySelectorAll<HTMLElement>(".col-resizer");
 
@@ -96,8 +75,6 @@ window.addEventListener("mousemove", (e: MouseEvent) => {
 window.addEventListener("mouseup", () => {
   activeColResizer = null;
 });
-
-/* ---------------- ROW RESIZING ---------------- */
 
 const cols = document.querySelectorAll<HTMLElement>(".col");
 

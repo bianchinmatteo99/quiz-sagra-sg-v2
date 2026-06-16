@@ -17,7 +17,7 @@
         <h1>Admin Dashboard</h1>
     </header>
     <main id="main-container" class="container-fluid">
-        <aside class="sidebar">
+        <aside id="quiz-timeline" class="sidebar">
             Sidebar
         </aside>
 
@@ -37,6 +37,21 @@
             <section class="panel bottom">B - Bottom</section>
         </main>
     </main>
+
+    <dialog id="quiz-choice-dialog">
+        <article>
+            <header>
+                <h2>Quiz Load Choice</h2>
+            </header>
+            <p>Select which quiz source to load:</p>
+            <p><strong>Note:</strong> Loading from file will delete the database quiz.</p>
+            <footer>
+                <button id="quiz-load-file" type="button">Load from File</button>
+                <button id="quiz-load-db-continue" type="button">Load from Database (Continue)</button>
+                <button id="quiz-load-db-restart" type="button">Load from Database (Restart)</button>
+            </footer>
+        </article>
+    </dialog>
 
     <script type="module" src="../auth/check-auth.ts"></script>
     <script type="module" src="./index.ts"></script>
