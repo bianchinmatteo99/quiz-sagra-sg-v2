@@ -30,11 +30,12 @@ html, body {
   padding: 0.75rem 1rem;
   border: 2px solid var(--pico-border-color);
   border-radius: 0.5rem;
-  background: var(--pico-background-color);
+  background: var(--pico-secondary-background);
   color: var(--pico-color);
   cursor: pointer;
   transition: all 0.15s ease;
   user-select: none;
+  position: relative;
 }
 
 .quiz-game-item:hover:not(.disabled) {
@@ -53,16 +54,43 @@ html, body {
 
 .quiz-game-item.current {
   border-color: var(--pico-primary);
-  background: color-mix(in srgb, var(--pico-primary) 15%, var(--pico-background-color));
+  background: var(--pico-primary-background);
   color: var(--pico-primary);
   font-weight: 600;
 }
 
+.quiz-game-item.current::after {
+  content: "ATTIVO";
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  padding: 0.25rem 0.5rem;
+  background: var(--pico-primary);
+  color: white;
+  border-radius: 0.25rem;
+  letter-spacing: 0.5px;
+}
+
 .quiz-game-item.past {
-  border-color: var(--pico-border-color);
-  background: var(--pico-muted-background);
+  background: var(--pico-muted-color);
   color: rgba(33, 37, 41, 0.6);
   opacity: 0.6;
+}
+
+.quiz-game-item.past::after {
+  content: "Finito";
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  padding: 0.25rem 0.5rem;
+  background: rgba(108, 117, 125, 0.5);
+  color: rgba(255, 255, 255, 0.8);
+  border-radius: 0.25rem;
+  letter-spacing: 0.5px;
 }
 
 .quiz-game-item.disabled {

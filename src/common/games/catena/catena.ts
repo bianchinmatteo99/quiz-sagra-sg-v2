@@ -2,7 +2,7 @@ import { Game } from "../games.definition";
 
 
 export class ReazioneCatenaGame extends Game {
-    static name = "catena";
+    name = "catena";
     timeForAnswer: number;
     canRetryForSameWord: boolean;
     words: string[];

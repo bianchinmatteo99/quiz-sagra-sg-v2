@@ -11,7 +11,7 @@ export interface GameConstructor {
     parseFromJSON(data: any): Game;
 }
 export abstract class Game {
-    static name: string;
+    abstract name: string;
     abstract toJSON(): any;
 }
 
