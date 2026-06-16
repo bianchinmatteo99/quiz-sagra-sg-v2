@@ -13,7 +13,6 @@ class QuizManager {
         await this.init();
         document.getElementById("quiz-title")!.textContent = this.quiz?.state.title || "Quiz";
         console.log(this);
-        this.quiz?.state.saveToDatabase();
     }
 
     async init(): Promise<void> {
@@ -26,12 +25,12 @@ class QuizManager {
         
         if (choice === 'file') {
             // Load from file and delete database quiz
-            this.quiz = new Quiz(fileState!);
             remove(ref(database, "/"))
+            this.quiz = new Quiz(fileState!);
         } else if (choice === 'database-restart') {
             // Load from database and restart
-            this.quiz = new Quiz(new QuizState(databaseState!.title, databaseState!.games));
             remove(ref(database, "/"))
+            this.quiz = new Quiz(new QuizState(databaseState!.title, databaseState!.games));
         } else if (choice === 'database-continue') {
             // Load from database and continue as is
             this.quiz = new Quiz(databaseState!);

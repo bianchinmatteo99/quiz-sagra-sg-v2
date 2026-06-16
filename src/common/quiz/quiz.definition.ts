@@ -219,6 +219,8 @@ class Quiz {
 
     constructor(state: QuizState) {
         this.state = state;
+        this.state.saveToDatabase();
+        this.render();
     }
 
     render(): void {
@@ -288,15 +290,14 @@ class Quiz {
         };
 
         const renderGameItem = (game: Game, position: number | null, stateType: "past" | "current" | "future") => {
-            const item = document.createElement("button");
-            item.type = "button";
+            const item = document.createElement("div");
             item.className = "quiz-game-item";
             if (stateType === "current") {
                 item.classList.add("current");
-                item.disabled = true;
+                item.classList.add("disabled");
             } else if (stateType === "past") {
                 item.classList.add("past");
-                item.disabled = true;
+                item.classList.add("disabled");
             } else {
                 item.classList.add("draggable");
                 item.draggable = true;
@@ -307,7 +308,7 @@ class Quiz {
                 item.addEventListener("drop", handleDrop);
                 item.addEventListener("dragend", handleDragEnd);
             }
-            item.textContent = Quiz.getGameTitle(game);
+            item.textContent = game.constructor.name; // You can customize this to show more game details
             return item;
         };
 
@@ -330,13 +331,6 @@ class Quiz {
         timeline.appendChild(listContainer);
     }
 
-    private static getGameTitle(game: Game): string {
-        const maybeTitle = (game as any).title ?? (game as any).name ?? (game as any).toJSON?.()?.name;
-        const rawTitle = typeof maybeTitle === "string" && maybeTitle.length > 0 ? maybeTitle : "Game";
-        return String(rawTitle)
-            .replace(/_/g, " ")
-            .replace(/\b\w/g, char => char.toUpperCase());
-    }
 }
 
 export { QuizStatus, QuizState, Quiz };
