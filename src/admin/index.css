@@ -1,0 +1,48 @@
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+#main-container {
+  height: 100vh;
+  display: grid;
+  grid-template-columns: 260px 6px 1fr 6px 1fr;
+  overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+  overflow: auto;
+  padding: 1rem;
+  background: var(--pico-muted-background);
+}
+
+/* Columns */
+.col {
+  display: grid;
+  grid-template-rows: 1fr 6px 1fr;
+  overflow: hidden;
+}
+
+/* Panels */
+.panel {
+  overflow: auto;
+  padding: 1rem;
+}
+
+/* Resizers */
+.resizer {
+  background: rgba(0,0,0,0.08);
+}
+
+.resizer:hover {
+  background: rgba(0,0,0,0.2);
+}
+
+.col-resizer {
+  cursor: col-resize;
+}
+
+.row-resizer {
+  cursor: row-resize;
+}

@@ -13,12 +13,29 @@
 </head>
 
 <body>
-    <header>
+    <header class="container-fluid">
         <h1>Admin Dashboard</h1>
     </header>
-    <main class="container-fluid">
-        <h2>Dashboard Content</h2>
-        <p>Welcome to your admin dashboard!</p>
+    <main id="main-container" class="container-fluid">
+        <aside class="sidebar">
+            Sidebar
+        </aside>
+
+        <div class="resizer col-resizer"></div>
+
+        <main class="col">
+            <section class="panel top">A - Top</section>
+            <div class="resizer row-resizer"></div>
+            <section class="panel bottom">A - Bottom</section>
+        </main>
+
+        <div class="resizer col-resizer"></div>
+
+        <main class="col">
+            <section class="panel top">B - Top</section>
+            <div class="resizer row-resizer"></div>
+            <section class="panel bottom">B - Bottom</section>
+        </main>
     </main>
 
     <script type="module" src="../auth/check-auth.ts"></script>
