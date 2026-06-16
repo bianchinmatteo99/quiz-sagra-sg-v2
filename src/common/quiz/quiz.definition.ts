@@ -87,14 +87,16 @@ const existingGames: { [key: string]: GameConstructor } = {
 class QuizState {
     title: string;
     games: Game[];
-    gameOrder: number[];
+    pastGamesOrder: number[];
+    futureGamesOrder: number[];
     status: QuizStatus;
     currentGame: number | null;
 
     constructor(title: string, games: Game[]) {
         this.title = title;
         this.games = games;
-        this.gameOrder = [];
+        this.pastGamesOrder = [];
+        this.futureGamesOrder = [...Array(games.length).keys()]; // Default order is sequential
         this.status = QuizStatus.Booting;
         this.currentGame = null;
     }
@@ -188,7 +190,8 @@ class QuizState {
                 return existingGames[gameData.name as string].parseFromJSON(gameData);
             });
             const quizState = new QuizState(title, games);
-            quizState.gameOrder = data.gameOrder || [];
+            quizState.pastGamesOrder = data.pastGamesOrder ?? [];
+            quizState.futureGamesOrder = data.futureGamesOrder ?? [...Array(games.length).keys()];
             quizState.status = data.status || QuizStatus.Booting;
             quizState.currentGame = data.currentGame || null;
             return quizState;
@@ -203,21 +206,137 @@ class QuizState {
         return {
             title: this.title,
             games: this.games.map(game => game.toJSON()),
-            gameOrder: this.gameOrder,
+            pastGamesOrder: this.pastGamesOrder,
+            futureGamesOrder: this.futureGamesOrder,
             status: this.status,
             currentGame: this.currentGame,
         };
     }
 }
 
-class Quiz{
+class Quiz {
     state: QuizState;
 
     constructor(state: QuizState) {
         this.state = state;
     }
 
+    render(): void {
+        const timeline = document.getElementById("quiz-timeline");
+        if (!timeline) return;
 
+        const currentGameId = this.state.currentGame;
+        const listContainer = document.createElement("div");
+        listContainer.className = "quiz-game-list";
+
+        let dragSourcePosition: number | null = null;
+
+        const handleDragStart = (event: DragEvent) => {
+            const target = event.currentTarget as HTMLElement | null;
+            if (!target) return;
+            dragSourcePosition = Number(target.dataset.position);
+            event.dataTransfer?.setData("text/plain", String(dragSourcePosition));
+            if (event.dataTransfer) {
+                event.dataTransfer.effectAllowed = "move";
+            }
+        };
+
+        const handleDragOver = (event: DragEvent) => {
+            event.preventDefault();
+            if (!(event.currentTarget instanceof HTMLElement)) return;
+            if (event.dataTransfer) {
+                event.dataTransfer.dropEffect = "move";
+            }
+            event.currentTarget.classList.add("drag-over");
+        };
+
+        const handleDragLeave = (event: DragEvent) => {
+            if (event.currentTarget instanceof HTMLElement) {
+                event.currentTarget.classList.remove("drag-over");
+            }
+        };
+
+        const moveFutureGame = (from: number, to: number): void => {
+            if (from === to) return;
+            const updated = [...this.state.futureGamesOrder];
+            const [moved] = updated.splice(from, 1);
+            updated.splice(to, 0, moved);
+            this.state.futureGamesOrder = updated;
+            this.render();
+        };
+
+        const handleDrop = (event: DragEvent) => {
+            event.preventDefault();
+            const target = event.currentTarget as HTMLElement | null;
+            if (!target) return;
+            target.classList.remove("drag-over");
+            const targetPosition = Number(target.dataset.position);
+            const sourcePosition = dragSourcePosition !== null
+                ? dragSourcePosition
+                : Number(event.dataTransfer?.getData("text/plain"));
+
+            if (Number.isNaN(sourcePosition) || Number.isNaN(targetPosition) || sourcePosition === targetPosition) {
+                return;
+            }
+
+            moveFutureGame(sourcePosition, targetPosition);
+        };
+
+        const handleDragEnd = (): void => {
+            listContainer.querySelectorAll(".drag-over").forEach(item => item.classList.remove("drag-over"));
+            dragSourcePosition = null;
+        };
+
+        const renderGameItem = (game: Game, position: number | null, stateType: "past" | "current" | "future") => {
+            const item = document.createElement("button");
+            item.type = "button";
+            item.className = "quiz-game-item";
+            if (stateType === "current") {
+                item.classList.add("current");
+                item.disabled = true;
+            } else if (stateType === "past") {
+                item.classList.add("past");
+                item.disabled = true;
+            } else {
+                item.classList.add("draggable");
+                item.draggable = true;
+                item.dataset.position = String(position);
+                item.addEventListener("dragstart", handleDragStart);
+                item.addEventListener("dragover", handleDragOver);
+                item.addEventListener("dragleave", handleDragLeave);
+                item.addEventListener("drop", handleDrop);
+                item.addEventListener("dragend", handleDragEnd);
+            }
+            item.textContent = Quiz.getGameTitle(game);
+            return item;
+        };
+
+        this.state.pastGamesOrder.forEach((gameIndex) => {
+            const game = this.state.games[gameIndex];
+            listContainer.appendChild(renderGameItem(game, null, "past"));
+        });
+
+        if (currentGameId !== null && this.state.games[currentGameId]) {
+            const currentGame = this.state.games[currentGameId];
+            listContainer.appendChild(renderGameItem(currentGame, null, "current"));
+        }
+
+        this.state.futureGamesOrder.forEach((gameIndex, position) => {
+            const game = this.state.games[gameIndex];
+            listContainer.appendChild(renderGameItem(game, position, "future"));
+        });
+
+        timeline.innerHTML = "";
+        timeline.appendChild(listContainer);
+    }
+
+    private static getGameTitle(game: Game): string {
+        const maybeTitle = (game as any).title ?? (game as any).name ?? (game as any).toJSON?.()?.name;
+        const rawTitle = typeof maybeTitle === "string" && maybeTitle.length > 0 ? maybeTitle : "Game";
+        return String(rawTitle)
+            .replace(/_/g, " ")
+            .replace(/\b\w/g, char => char.toUpperCase());
+    }
 }
 
-export { QuizStatus, Game, ReazioneCatenaGame, QuizState, Quiz };
+export { QuizStatus, QuizState, Quiz };

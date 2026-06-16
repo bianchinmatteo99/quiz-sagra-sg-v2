@@ -1,13 +1,13 @@
 import { database } from "../../firebase-init";
 import { ref, remove } from "firebase/database";
-import { QuizStatus, Game, ReazioneCatenaGame, QuizState, Quiz } from "./quiz.definition";
+import { QuizStatus, QuizState, Quiz } from "./quiz.definition";
+import { ReazioneCatenaGame } from "../games/catena/catena";
+import { Game } from "../games/games.definition";
 import { showChoiceDialog } from "./ui.utils";
 
 class QuizManager {
     quiz: Quiz | null = null;
     people: any;
-    currentGame: Game | null = null;
-    currentQuestion: any;
 
     async start(): Promise<void> {
         await this.init();

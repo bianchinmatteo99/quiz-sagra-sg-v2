@@ -17,6 +17,56 @@ html, body {
   background: var(--pico-muted-background);
 }
 
+.quiz-game-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.quiz-game-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--pico-border-color);
+  border-radius: 0.5rem;
+  background: var(--pico-background-color);
+  color: var(--pico-color);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.quiz-game-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+.quiz-game-item.draggable {
+  cursor: grab;
+}
+
+.quiz-game-item.draggable:active {
+  cursor: grabbing;
+}
+
+.quiz-game-item.current {
+  border-color: var(--pico-primary);
+  background: color-mix(in srgb, var(--pico-primary) 12%, var(--pico-background-color));
+  color: var(--pico-primary-contrast, var(--pico-background-color));
+}
+
+.quiz-game-item.past,
+.quiz-game-item.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--pico-muted-background);
+}
+
+.quiz-game-item.drag-over {
+  border-color: var(--pico-secondary);
+  background: color-mix(in srgb, var(--pico-secondary) 12%, var(--pico-background-color));
+}
+
 /* Columns */
 .col {
   display: grid;
