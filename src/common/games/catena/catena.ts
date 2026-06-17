@@ -53,7 +53,7 @@ export class ReazioneCatenaGame extends Game {
 
     toJSON(): any {
         return {
-            name: ReazioneCatenaGame.name,
+            name: this.name,
             time_for_answer: this.timeForAnswer,
             can_retry_for_same_word: this.canRetryForSameWord,
             words: this.words,
