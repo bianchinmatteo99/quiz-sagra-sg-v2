@@ -45,11 +45,13 @@ class QuizController implements QuizViewContext, QuizModelContext {
         if (choice === 'file' && !!file) {
             // Load from file and delete database quiz
             this.context.getDatabase().remove("/");
+            file.saveToDatabase(this.context.getDatabase());
             this.model = new QuizModel(this, file);
             return 'new';
         } else if (choice === 'database-restart' && !!db) {
             // Load from database and restart
             this.context.getDatabase().remove("/");
+            db.saveToDatabase(this.context.getDatabase());
             this.model = new QuizModel(this, db);
             return 'new';
         } else if (choice === 'database-continue' && !!db) {
