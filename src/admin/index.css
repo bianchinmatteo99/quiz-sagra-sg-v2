@@ -14,55 +14,88 @@ html, body {
 .sidebar {
   overflow: auto;
   padding: 1rem;
-  background: var(--pico-muted-background);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent),
+    var(--pico-muted-background);
 }
 
 .quiz-game-list {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
 .quiz-game-item {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   width: 100%;
   text-align: left;
-  padding: 0.75rem 1rem;
-  border: 2px solid var(--pico-border-color);
-  border-radius: 0.5rem;
-  background: var(--pico-secondary-background);
+  padding: 0.9rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--pico-border-color) 78%, transparent);
+  border-radius: 0.9rem;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--pico-background-color) 18%, transparent), transparent),
+    var(--pico-secondary-background);
   color: var(--pico-color);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
   user-select: none;
   position: relative;
+  overflow: hidden;
+}
+
+.quiz-game-item::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: linear-gradient(180deg, var(--pico-primary), color-mix(in srgb, var(--pico-primary) 55%, transparent));
+  opacity: 0;
+  transition: opacity 0.18s ease;
 }
 
 .quiz-game-item:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
   border-color: var(--pico-primary);
+}
+
+.quiz-game-item:hover::before {
+  opacity: 1;
+}
+
+.quiz-game-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.3;
 }
 
 .quiz-game-item.current {
   border-color: var(--pico-primary);
-  background: var(--pico-primary-background);
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--pico-primary) 12%, var(--pico-secondary-background)), var(--pico-primary-background));
   color: var(--pico-primary);
-  font-weight: 600;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 8px 18px rgba(0, 0, 0, 0.08);
+}
+
+.quiz-game-item.current::before {
+  opacity: 1;
 }
 
 .quiz-game-item.completed {
-  background: var(--pico-muted-color);
-  color: rgba(33, 37, 41, 0.6);
-  opacity: 0.6;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--pico-muted-background) 70%, transparent), color-mix(in srgb, var(--pico-border-color) 12%, transparent));
+  color: color-mix(in srgb, var(--pico-color) 62%, transparent);
+  opacity: 0.78;
 }
 
 .quiz-game-item.disabled-status {
-  opacity: 0.65;
+  opacity: 0.72;
 }
 
 .quiz-game-item.not-started {
-  opacity: 0.9;
+  opacity: 0.94;
 }
 
 .quiz-game-actions {
@@ -70,26 +103,36 @@ html, body {
   align-items: center;
   justify-content: flex-end;
   gap: 0.35rem;
-  margin-top: 0.35rem;
+  margin-top: 0.4rem;
+  width: 100%;
 }
 
 .quiz-game-toggle,
 .quiz-game-start {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: none;
   border-radius: 999px;
-  padding: 0.2rem 0.5rem;
+  padding: 0.38rem 0.5rem;
   font-size: 0.8rem;
   line-height: 1;
   cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.quiz-game-toggle:hover,
+.quiz-game-start:hover {
+  transform: scale(1.04);
 }
 
 .quiz-game-toggle {
-  background: var(--pico-secondary-background);
+  background: color-mix(in srgb, var(--pico-background-color) 70%, transparent);
   color: var(--pico-color);
 }
 
 .quiz-game-start {
-  background: var(--pico-primary-background);
+  background: linear-gradient(90deg, var(--pico-primary), color-mix(in srgb, var(--pico-primary) 78%, black));
   color: var(--pico-primary-inverse);
 }
 
