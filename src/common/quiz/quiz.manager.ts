@@ -30,6 +30,11 @@ class QuizManager implements QuizControllerContext {
         }
     }
 
+    async startGame(game: any): Promise<void> {
+        // TODO: Implement logic to start the game, e.g., navigate to the game page or initialize game state
+        console.log("Starting game:", game);
+    }
+
     getDatabase(): IDatabaseAdapter {
         return this.db;
     }

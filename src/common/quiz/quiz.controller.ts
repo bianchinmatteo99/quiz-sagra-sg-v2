@@ -1,10 +1,12 @@
 import { getDatabase } from "firebase/database";
-import { QuizDefinition, QuizModel, QuizModelContext, QuizStatus } from "./quiz.model";
+import { GameStatus, QuizDefinition, QuizModel, QuizModelContext, QuizStatus } from "./quiz.model";
 import { QuizView, QuizViewContext } from "./quiz.view";
 import { IDatabaseAdapter } from "../database/database.types.old";
+import { Game } from "../games/game.base";
 
 interface QuizControllerContext {
     getDatabase(): IDatabaseAdapter;
+    startGame(game: Game): void;
 }
 
 class QuizController implements QuizViewContext, QuizModelContext {
@@ -21,6 +23,27 @@ class QuizController implements QuizViewContext, QuizModelContext {
     setStatus(status: QuizStatus): void {
         this.model.status = status;
         this.stateUpdated();
+    }
+
+    setGameStatus(gameIndex: number, status: GameStatus): void {
+        if (gameIndex < 0 || gameIndex >= this.model.gamesStatuses.length) {
+            console.error(`Invalid game index: ${gameIndex}`);
+            return;
+        }
+        this.model.gamesStatuses[gameIndex] = status;
+        this.stateUpdated();
+    }
+
+    startGame(gameIndex: number): void {
+        if (gameIndex < 0 || gameIndex >= this.model.gamesStatuses.length) {
+            console.error(`Invalid game index: ${gameIndex}`);
+            return;
+        }
+        this.model.currentGame = gameIndex;
+        this.model.gamesStatuses[gameIndex] = GameStatus.InProgress;
+        this.stateUpdated();
+        const gameToStart = this.model.definition.games[gameIndex];
+        this.context.startGame(gameToStart);
     }
 
     async decideSourceAndLoad(filename: string): Promise<'new' | 'restore' | 'error'> {

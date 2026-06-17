@@ -3,6 +3,8 @@ import { Game } from "../games/game.base";
 
 interface QuizViewContext {
     model: QuizModel;
+    setGameStatus(gameIndex: number, status: GameStatus): void;
+    startGame(gameIndex: number): void;
 }
 
 class QuizView {
@@ -52,16 +54,12 @@ class QuizView {
                 toggleButton.type = "button";
                 toggleButton.className = "quiz-game-toggle";
                 toggleButton.setAttribute("aria-label", status === GameStatus.Disabled ? "Enable game" : "Disable game");
-                toggleButton.textContent = status === GameStatus.Disabled ? "⏵" : "⏸";
+                toggleButton.innerHTML = status === GameStatus.Disabled ? "<span class='material-symbols-outlined'>check_box_outline_blank</span>" : "<span class='material-symbols-outlined'>check_box</span>";
                 toggleButton.addEventListener("click", (event) => {
                     event.stopPropagation();
                     const gameIndex = Number(item.dataset.index);
                     const currentStatus = this.context.model.gamesStatuses[gameIndex];
-                    this.context.model.gamesStatuses[gameIndex] = currentStatus === GameStatus.Disabled
-                        ? GameStatus.NotStarted
-                        : GameStatus.Disabled;
-                    void this.context.model.saveToDatabase();
-                    this.render();
+                    this.context.setGameStatus(gameIndex, currentStatus === GameStatus.Disabled ? GameStatus.NotStarted : GameStatus.Disabled);
                 });
                 controls.appendChild(toggleButton);
             }
@@ -70,14 +68,11 @@ class QuizView {
                 const startButton = document.createElement("button");
                 startButton.type = "button";
                 startButton.className = "quiz-game-start";
-                startButton.textContent = "start";
+                startButton.innerHTML = "<span class='material-symbols-outlined'>play_arrow</span>";
                 startButton.addEventListener("click", (event) => {
                     event.stopPropagation();
                     const gameIndex = Number(item.dataset.index);
-                    this.context.model.currentGame = gameIndex;
-                    this.context.model.gamesStatuses[gameIndex] = GameStatus.InProgress;
-                    void this.context.model.saveToDatabase();
-                    this.render();
+                    this.context.startGame(gameIndex);
                 });
                 controls.appendChild(startButton);
             }
