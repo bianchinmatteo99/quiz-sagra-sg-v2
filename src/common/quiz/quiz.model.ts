@@ -59,8 +59,7 @@ class QuizModel {
     async loadFromDatabase(): Promise<boolean> {
         // Load quiz definition from the database and initialize state
         try {
-            const snapshot = await this.context.getDatabase().get<any>("/quiz");
-            const data = snapshot.val();
+            const data = await this.context.getDatabase().get<any>("/quiz");
             if (data) {
                 return this.parseFromJSON(data);
             }
