@@ -18,15 +18,6 @@ class QuizController implements QuizViewContext, QuizModelContext {
         this.view = new QuizView(this);
     }
 
-    moveFutureGame(from: number, to: number): void {
-        if (from === to) return;
-        const updated = [...this.model.futureGamesOrder];
-        const [moved] = updated.splice(from, 1);
-        updated.splice(to, 0, moved);
-        this.model.futureGamesOrder = updated;
-        this.stateUpdated();
-    }
-
     setStatus(status: QuizStatus): void {
         this.model.status = status;
         this.stateUpdated();

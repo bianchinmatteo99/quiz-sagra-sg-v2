@@ -1,9 +1,8 @@
-import { QuizModel } from "./quiz.model";
+import { QuizModel, GameStatus } from "./quiz.model";
 import { Game } from "../games/game.base";
 
 interface QuizViewContext {
     model: QuizModel;
-    moveFutureGame(from: number, to: number): void;
 }
 
 class QuizView {
@@ -17,95 +16,81 @@ class QuizView {
         const timeline = document.getElementById("quiz-timeline");
         if (!timeline) return;
 
-        const currentGameId = this.context.model.currentGame;
         const listContainer = document.createElement("div");
         listContainer.className = "quiz-game-list";
 
-        let dragSourcePosition: number | null = null;
+        const games = this.context.model.definition.games;
+        const statuses = this.context.model.gamesStatuses;
+        const hasActiveGame = this.context.model.currentGame !== null || statuses.some(status => status === GameStatus.InProgress);
 
-        const handleDragStart = (event: DragEvent) => {
-            const target = event.currentTarget as HTMLElement | null;
-            if (!target) return;
-            dragSourcePosition = Number(target.dataset.position);
-            event.dataTransfer?.setData("text/plain", String(dragSourcePosition));
-            if (event.dataTransfer) {
-                event.dataTransfer.effectAllowed = "move";
-            }
-        };
-
-        const handleDragOver = (event: DragEvent) => {
-            event.preventDefault();
-            if (!(event.currentTarget instanceof HTMLElement)) return;
-            if (event.dataTransfer) {
-                event.dataTransfer.dropEffect = "move";
-            }
-            event.currentTarget.classList.add("drag-over");
-        };
-
-        const handleDragLeave = (event: DragEvent) => {
-            if (event.currentTarget instanceof HTMLElement) {
-                event.currentTarget.classList.remove("drag-over");
-            }
-        };
-
-        const handleDrop = (event: DragEvent) => {
-            event.preventDefault();
-            const target = event.currentTarget as HTMLElement | null;
-            if (!target) return;
-            target.classList.remove("drag-over");
-            const targetPosition = Number(target.dataset.position);
-            const sourcePosition = dragSourcePosition !== null
-                ? dragSourcePosition
-                : Number(event.dataTransfer?.getData("text/plain"));
-
-            if (Number.isNaN(sourcePosition) || Number.isNaN(targetPosition) || sourcePosition === targetPosition) {
-                return;
-            }
-
-            this.context.moveFutureGame(sourcePosition, targetPosition);
-        };
-
-        const handleDragEnd = (): void => {
-            listContainer.querySelectorAll(".drag-over").forEach(item => item.classList.remove("drag-over"));
-            dragSourcePosition = null;
-        };
-
-        const renderGameItem = (game: Game, position: number | null, stateType: "past" | "current" | "future") => {
+        const renderGameItem = (game: Game, index: number) => {
             const item = document.createElement("div");
             item.className = "quiz-game-item";
-            if (stateType === "current") {
+            item.dataset.index = String(index);
+
+            const status = statuses[index] ?? GameStatus.NotStarted;
+            if (status === GameStatus.InProgress) {
                 item.classList.add("current");
-                item.classList.add("disabled");
-            } else if (stateType === "past") {
-                item.classList.add("past");
-                item.classList.add("disabled");
+            } else if (status === GameStatus.Completed) {
+                item.classList.add("completed");
+            } else if (status === GameStatus.Disabled) {
+                item.classList.add("disabled-status");
             } else {
-                item.classList.add("draggable");
-                item.draggable = true;
-                item.dataset.position = String(position);
-                item.addEventListener("dragstart", handleDragStart);
-                item.addEventListener("dragover", handleDragOver);
-                item.addEventListener("dragleave", handleDragLeave);
-                item.addEventListener("drop", handleDrop);
-                item.addEventListener("dragend", handleDragEnd);
+                item.classList.add("not-started");
             }
-            item.textContent = game.name; // You can customize this to show more game details
+
+            const name = document.createElement("span");
+            name.className = "quiz-game-name";
+            name.textContent = game.name;
+            item.appendChild(name);
+
+            const controls = document.createElement("div");
+            controls.className = "quiz-game-actions";
+
+            if (status === GameStatus.NotStarted || status === GameStatus.Disabled) {
+                const toggleButton = document.createElement("button");
+                toggleButton.type = "button";
+                toggleButton.className = "quiz-game-toggle";
+                toggleButton.setAttribute("aria-label", status === GameStatus.Disabled ? "Enable game" : "Disable game");
+                toggleButton.textContent = status === GameStatus.Disabled ? "⏵" : "⏸";
+                toggleButton.addEventListener("click", (event) => {
+                    event.stopPropagation();
+                    const gameIndex = Number(item.dataset.index);
+                    const currentStatus = this.context.model.gamesStatuses[gameIndex];
+                    this.context.model.gamesStatuses[gameIndex] = currentStatus === GameStatus.Disabled
+                        ? GameStatus.NotStarted
+                        : GameStatus.Disabled;
+                    void this.context.model.saveToDatabase();
+                    this.render();
+                });
+                controls.appendChild(toggleButton);
+            }
+
+            if (!hasActiveGame && status === GameStatus.NotStarted) {
+                const startButton = document.createElement("button");
+                startButton.type = "button";
+                startButton.className = "quiz-game-start";
+                startButton.textContent = "start";
+                startButton.addEventListener("click", (event) => {
+                    event.stopPropagation();
+                    const gameIndex = Number(item.dataset.index);
+                    this.context.model.currentGame = gameIndex;
+                    this.context.model.gamesStatuses[gameIndex] = GameStatus.InProgress;
+                    void this.context.model.saveToDatabase();
+                    this.render();
+                });
+                controls.appendChild(startButton);
+            }
+
+            if (controls.childElementCount > 0) {
+                item.appendChild(controls);
+            }
+
             return item;
         };
 
-        this.context.model.pastGamesOrder.forEach((gameIndex) => {
-            const game = this.context.model.definition.games[gameIndex];
-            listContainer.appendChild(renderGameItem(game, null, "past"));
-        });
-
-        if (currentGameId !== null && this.context.model.definition.games[currentGameId]) {
-            const currentGame = this.context.model.definition.games[currentGameId];
-            listContainer.appendChild(renderGameItem(currentGame, null, "current"));
-        }
-
-        this.context.model.futureGamesOrder.forEach((gameIndex, position) => {
-            const game = this.context.model.definition.games[gameIndex];
-            listContainer.appendChild(renderGameItem(game, position, "future"));
+        games.forEach((game, index) => {
+            listContainer.appendChild(renderGameItem(game, index));
         });
 
         timeline.innerHTML = "";

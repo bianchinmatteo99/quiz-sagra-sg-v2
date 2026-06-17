@@ -38,18 +38,10 @@ html, body {
   position: relative;
 }
 
-.quiz-game-item:hover:not(.disabled) {
+.quiz-game-item:hover {
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border-color: var(--pico-primary);
-}
-
-.quiz-game-item.draggable {
-  cursor: grab;
-}
-
-.quiz-game-item.draggable:active {
-  cursor: grabbing;
 }
 
 .quiz-game-item.current {
@@ -59,49 +51,46 @@ html, body {
   font-weight: 600;
 }
 
-.quiz-game-item.current::after {
-  content: "ATTIVO";
-  position: absolute;
-  top: 0.5rem;
-  right: 0.75rem;
-  font-size: 0.625rem;
-  font-weight: 700;
-  padding: 0.25rem 0.5rem;
-  background: var(--pico-primary);
-  color: white;
-  border-radius: 0.25rem;
-  letter-spacing: 0.5px;
-}
-
-.quiz-game-item.past {
+.quiz-game-item.completed {
   background: var(--pico-muted-color);
   color: rgba(33, 37, 41, 0.6);
   opacity: 0.6;
 }
 
-.quiz-game-item.past::after {
-  content: "Finito";
-  position: absolute;
-  top: 0.5rem;
-  right: 0.75rem;
-  font-size: 0.625rem;
-  font-weight: 700;
-  padding: 0.25rem 0.5rem;
-  background: rgba(108, 117, 125, 0.5);
-  color: rgba(255, 255, 255, 0.8);
-  border-radius: 0.25rem;
-  letter-spacing: 0.5px;
+.quiz-game-item.disabled-status {
+  opacity: 0.65;
 }
 
-.quiz-game-item.disabled {
-  cursor: not-allowed;
-  pointer-events: none;
+.quiz-game-item.not-started {
+  opacity: 0.9;
 }
 
-.quiz-game-item.drag-over {
-  border-color: var(--pico-secondary);
-  background: color-mix(in srgb, var(--pico-secondary) 12%, var(--pico-background-color));
-  box-shadow: 0 0 0 3px rgba(108, 117, 125, 0.2);
+.quiz-game-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.35rem;
+  margin-top: 0.35rem;
+}
+
+.quiz-game-toggle,
+.quiz-game-start {
+  border: none;
+  border-radius: 999px;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.quiz-game-toggle {
+  background: var(--pico-secondary-background);
+  color: var(--pico-color);
+}
+
+.quiz-game-start {
+  background: var(--pico-primary-background);
+  color: var(--pico-primary-inverse);
 }
 
 /* Columns */

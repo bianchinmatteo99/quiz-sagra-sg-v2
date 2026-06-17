@@ -130,20 +130,25 @@ export class QuizDefinition{
         return new QuizDefinition("Empty Quiz", []);
     }
 }
+
+enum GameStatus {
+    NotStarted,
+    Disabled,
+    InProgress,
+    Completed,
+}
     
 class QuizModel {
     definition: QuizDefinition;
-    pastGamesOrder: number[];
-    futureGamesOrder: number[];
     status: QuizStatus;
     currentGame: number | null;
+    gamesStatuses: GameStatus[];
 
     context: QuizModelContext;
 
     constructor(ctx: QuizModelContext, def: QuizDefinition, restoreState: boolean = false) {
         this.definition = def;
-        this.pastGamesOrder = [];
-        this.futureGamesOrder = [...Array(def.games.length).keys()]; // Default order is sequential
+        this.gamesStatuses = [...Array(def.games.length).fill(GameStatus.NotStarted)];
         this.status = QuizStatus.Booting;
         this.currentGame = null;
         this.context = ctx;
@@ -178,10 +183,9 @@ class QuizModel {
     parseFromJSON(data: any): boolean {
         // Parse quiz definition from JSON data
         try {
-            this.pastGamesOrder = data.pastGamesOrder ?? [];
-            this.futureGamesOrder = data.futureGamesOrder ?? [...Array(this.definition.games.length).keys()];
-            this.status = data.status || QuizStatus.Booting;
-            this.currentGame = data.currentGame || null;
+            this.gamesStatuses = data.gamesStatuses ?? [...Array(this.definition.games.length).fill(GameStatus.NotStarted)];
+            this.status = data.status ?? QuizStatus.Booting;
+            this.currentGame = data.currentGame ?? null;
             return true;
         } catch (error) {
             console.error('Error parsing quiz from JSON:', error);
@@ -192,13 +196,12 @@ class QuizModel {
     toJSON(): any {
         // Convert quiz state to JSON for saving to the database
         return {
-            pastGamesOrder: this.pastGamesOrder,
-            futureGamesOrder: this.futureGamesOrder,
+            gamesStatuses: this.gamesStatuses,
             status: this.status,
             currentGame: this.currentGame,
         };
     }
 }
 
-export { QuizModel, QuizStatus };
+export { QuizModel, QuizStatus, GameStatus };
 export type { QuizModelContext };
