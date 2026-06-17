@@ -1,12 +1,13 @@
 import { getDatabase } from "firebase/database";
-import { GameStatus, QuizDefinition, QuizModel, QuizModelContext, QuizStatus } from "./quiz.model";
+import { GameStatus, QuizModel, QuizModelContext, QuizStatus } from "./quiz.model";
+import { QuizDefinition, QuizDefinitionBuilder } from "./quiz.definition";
 import { QuizView, QuizViewContext } from "./quiz.view";
 import { IDatabaseAdapter } from "../database/database.types.old";
-import { Game } from "../games/game.base";
+import { GameDefinition } from "../games/game.base";
 
 interface QuizControllerContext {
     getDatabase(): IDatabaseAdapter;
-    startGame(game: Game): void;
+    startGame(game: GameDefinition): void;
 }
 
 class QuizController implements QuizViewContext, QuizModelContext {
@@ -48,9 +49,10 @@ class QuizController implements QuizViewContext, QuizModelContext {
 
     async decideSourceAndLoad(filename: string): Promise<'new' | 'restore' | 'error'> {
         
+        const builder = new QuizDefinitionBuilder();
         const [db, file] = await Promise.all([
-            QuizDefinition.loadFromDatabase(this.context.getDatabase()),
-            QuizDefinition.loadFromFile(filename)
+            builder.loadFromDatabase(this.context.getDatabase()),
+            builder.loadFromFile(filename)
         ]);
 
         // Show dialog with available options

@@ -1,7 +1,7 @@
-import { Game } from "../game.base";
+import { GameDefinition, GameDefinitionBuilder } from "../game.base";
 
-export class ReazioneCatenaGame extends Game {
-    name = "catena";
+export class ReazioneCatenaGameDefinition extends GameDefinition {
+    readonly name = "catena";
     timeForAnswer: number;
     canRetryForSameWord: boolean;
     words: string[];
@@ -15,8 +15,19 @@ export class ReazioneCatenaGame extends Game {
             String(data.can_retry_for_same_word).toLowerCase() === "true";
         this.words = Array.isArray(data.words) ? data.words.map(String) : [];
     }
+ 
+    toJSON(): any {
+        return {
+            name: this.name,
+            time_for_answer: this.timeForAnswer,
+            can_retry_for_same_word: this.canRetryForSameWord,
+            words: this.words,
+        };
+    }
+}
 
-    static parseFromMD(md: string): ReazioneCatenaGame {
+export class ReazioneCatenaGameDefinitionBuilder implements GameDefinitionBuilder<ReazioneCatenaGameDefinition> {
+    parseFromMD(md: string): ReazioneCatenaGameDefinition {
         const lines = md.split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
         const titleLine = lines[0] || "";
         const gameTitle = titleLine.startsWith("## ") ? titleLine.substring(3).trim().toLowerCase() : "";
@@ -44,19 +55,10 @@ export class ReazioneCatenaGame extends Game {
         }
 
         sectionData.words = words;
-        return new ReazioneCatenaGame(sectionData);
+        return new ReazioneCatenaGameDefinition(sectionData);
     }
 
-    static parseFromJSON(data: any): ReazioneCatenaGame {
-        return new ReazioneCatenaGame(data);
-    }
-
-    toJSON(): any {
-        return {
-            name: this.name,
-            time_for_answer: this.timeForAnswer,
-            can_retry_for_same_word: this.canRetryForSameWord,
-            words: this.words,
-        };
+    parseFromJSON(data: any): ReazioneCatenaGameDefinition {
+        return new ReazioneCatenaGameDefinition(data);
     }
 }

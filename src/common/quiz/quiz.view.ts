@@ -1,5 +1,5 @@
 import { QuizModel, GameStatus } from "./quiz.model";
-import { Game } from "../games/game.base";
+import { GameDefinition } from "../games/game.base";
 
 interface QuizViewContext {
     model: QuizModel;
@@ -25,7 +25,7 @@ class QuizView {
         const statuses = this.context.model.gamesStatuses;
         const hasActiveGame = this.context.model.currentGame !== null || statuses.some(status => status === GameStatus.InProgress);
 
-        const renderGameItem = (game: Game, index: number) => {
+        const renderGameItem = (game: GameDefinition, index: number) => {
             const item = document.createElement("div");
             item.className = "quiz-game-item";
             item.dataset.index = String(index);
