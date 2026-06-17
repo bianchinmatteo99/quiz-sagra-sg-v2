@@ -1,5 +1,5 @@
 import { FirebaseDatabaseAdapter } from "../common/database/firebase.adapter";
-import { QuizManager } from "../common/quiz/quiz.main.logic";
+import { QuizManager } from "../common/quiz/quiz.manager";
 import { app , auth, database } from "../firebase-init";
 
 document.addEventListener('DOMContentLoaded', function () {

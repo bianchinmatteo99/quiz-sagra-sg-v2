@@ -94,17 +94,17 @@ class QuizView {
         };
 
         this.context.model.pastGamesOrder.forEach((gameIndex) => {
-            const game = this.context.model.games[gameIndex];
+            const game = this.context.model.definition.games[gameIndex];
             listContainer.appendChild(renderGameItem(game, null, "past"));
         });
 
-        if (currentGameId !== null && this.context.model.games[currentGameId]) {
-            const currentGame = this.context.model.games[currentGameId];
+        if (currentGameId !== null && this.context.model.definition.games[currentGameId]) {
+            const currentGame = this.context.model.definition.games[currentGameId];
             listContainer.appendChild(renderGameItem(currentGame, null, "current"));
         }
 
         this.context.model.futureGamesOrder.forEach((gameIndex, position) => {
-            const game = this.context.model.games[gameIndex];
+            const game = this.context.model.definition.games[gameIndex];
             listContainer.appendChild(renderGameItem(game, position, "future"));
         });
 

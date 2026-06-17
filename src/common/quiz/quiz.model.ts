@@ -14,37 +14,17 @@ enum QuizStatus {
 interface QuizModelContext {
     getDatabase(): IDatabaseAdapter;
 }
-    
-class QuizModel {
+
+export class QuizDefinition{
     title: string;
     games: Game[];
-    pastGamesOrder: number[];
-    futureGamesOrder: number[];
-    status: QuizStatus;
-    currentGame: number | null;
 
-    context: QuizModelContext;
-
-    constructor(ctx: QuizModelContext) {
-        this.title = "Empty";
-        this.games = [];
-        this.pastGamesOrder = [];
-        this.futureGamesOrder = [];
-        this.status = QuizStatus.Booting;
-        this.currentGame = null;
-        this.context = ctx;
-    }
-
-    initialize(title: string, games: Game[]): void {
+    constructor(title: string, games: Game[]){
         this.title = title;
         this.games = games;
-        this.pastGamesOrder = [];
-        this.futureGamesOrder = [...Array(games.length).keys()]; // Default order is sequential
-        this.status = QuizStatus.Booting;
-        this.currentGame = null;
     }
 
-    async loadFromFile(filename: string): Promise<boolean> {
+    static async loadFromFile(filename: string): Promise<QuizDefinition | null> {
         // Load quiz definition from a JSON file and initialize state
         try {
             const response = await fetch(filename);
@@ -52,33 +32,24 @@ class QuizModel {
             return this.parseFromMD(text);
         } catch (error) {
             console.error('Error loading quiz from file:', error);
-            return false;
+            return null;
         }
     }
 
-    async loadFromDatabase(): Promise<boolean> {
+    static async loadFromDatabase(db: IDatabaseAdapter): Promise<QuizDefinition | null> {
         // Load quiz definition from the database and initialize state
         try {
-            const data = await this.context.getDatabase().get<any>("/quiz");
+            const data = await db.get<any>("/definition");
             if (data) {
-                return this.parseFromJSON(data);
+                return QuizDefinition.parseFromJSON(data);
             }
         } catch (error) {
             console.error('Error loading quiz from database:', error);
         }
-        return false;
+        return null;
     }
 
-    async saveToDatabase(): Promise<void> {
-        // Save the current quiz state to the database
-        try {
-            await this.context.getDatabase().set("/quiz", this.toJSON());
-        } catch (error) {
-            console.error('Error saving quiz to database:', error);
-        }
-    }
-
-    parseFromMD(md: string): boolean {
+    static parseFromMD(md: string): QuizDefinition | null {
         // Parse quiz definition from Markdown text
         try {
             const lines = md.split(/\r?\n/);
@@ -115,15 +86,14 @@ class QuizModel {
                 return existingGames[gameTitle].parseFromMD(section);
             });
 
-            this.initialize(title, games);
-            return true;
+            return new QuizDefinition(title, games);
         } catch (error) {
             console.error('Error parsing quiz from Markdown:', error);
-            return false;
+            return null;
         }
     }
 
-    parseFromJSON(data: any): boolean {
+    static parseFromJSON(data: any): QuizDefinition | null {
         // Parse quiz definition from JSON data
         try {
             const title = data.title;
@@ -132,9 +102,84 @@ class QuizModel {
                 if (!(gameData.name in existingGames)) throw new Error(`Unknown game type: ${gameData.name}`);
                 return existingGames[gameData.name as string].parseFromJSON(gameData);
             });
-            this.initialize(title, games);
+            return new QuizDefinition(title, games);
+        } catch (error) {
+            console.error('Error parsing quiz from JSON:', error);
+            return null;
+        }
+    }
+
+    async saveToDatabase(db: IDatabaseAdapter): Promise<void> {
+        // Save the current quiz state to the database
+        try {
+            await db.set("/definition", this.toJSON());
+        } catch (error) {
+            console.error('Error saving quiz to database:', error);
+        }
+    }
+
+    toJSON(): any {
+        // Convert quiz state to JSON for saving to the database
+        return {
+            title: this.title,
+            games: this.games.map(game => game.toJSON()),
+        };
+    }
+
+    static placeholder(): QuizDefinition {
+        return new QuizDefinition("Empty Quiz", []);
+    }
+}
+    
+class QuizModel {
+    definition: QuizDefinition;
+    pastGamesOrder: number[];
+    futureGamesOrder: number[];
+    status: QuizStatus;
+    currentGame: number | null;
+
+    context: QuizModelContext;
+
+    constructor(ctx: QuizModelContext, def: QuizDefinition, restoreState: boolean = false) {
+        this.definition = def;
+        this.pastGamesOrder = [];
+        this.futureGamesOrder = [...Array(def.games.length).keys()]; // Default order is sequential
+        this.status = QuizStatus.Booting;
+        this.currentGame = null;
+        this.context = ctx;
+        if (restoreState) {
+            // Load state from database if needed
+            this.loadFromDatabase();
+        }
+    }
+
+    async loadFromDatabase(): Promise<boolean> {
+        // Load quiz definition from the database and initialize state
+        try {
+            const data = await this.context.getDatabase().get<any>("/state/quiz");
+            if (data) {
+                return this.parseFromJSON(data);
+            }
+        } catch (error) {
+            console.error('Error loading quiz from database:', error);
+        }
+        return false;
+    }
+
+    async saveToDatabase(): Promise<void> {
+        // Save the current quiz state to the database
+        try {
+            await this.context.getDatabase().set("/state/quiz", this.toJSON());
+        } catch (error) {
+            console.error('Error saving quiz to database:', error);
+        }
+    }
+
+    parseFromJSON(data: any): boolean {
+        // Parse quiz definition from JSON data
+        try {
             this.pastGamesOrder = data.pastGamesOrder ?? [];
-            this.futureGamesOrder = data.futureGamesOrder ?? [...Array(games.length).keys()];
+            this.futureGamesOrder = data.futureGamesOrder ?? [...Array(this.definition.games.length).keys()];
             this.status = data.status || QuizStatus.Booting;
             this.currentGame = data.currentGame || null;
             return true;
@@ -147,8 +192,6 @@ class QuizModel {
     toJSON(): any {
         // Convert quiz state to JSON for saving to the database
         return {
-            title: this.title,
-            games: this.games.map(game => game.toJSON()),
             pastGamesOrder: this.pastGamesOrder,
             futureGamesOrder: this.futureGamesOrder,
             status: this.status,

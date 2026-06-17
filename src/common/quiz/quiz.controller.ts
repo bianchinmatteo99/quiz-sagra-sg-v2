@@ -1,5 +1,5 @@
 import { getDatabase } from "firebase/database";
-import { QuizModel, QuizModelContext, QuizStatus } from "./quiz.model";
+import { QuizDefinition, QuizModel, QuizModelContext, QuizStatus } from "./quiz.model";
 import { QuizView, QuizViewContext } from "./quiz.view";
 import { IDatabaseAdapter } from "../database/database.types.old";
 
@@ -14,7 +14,7 @@ class QuizController implements QuizViewContext, QuizModelContext {
 
     constructor(context: QuizControllerContext) {
         this.context = context;
-        this.model = new QuizModel(this);
+        this.model = new QuizModel(this, QuizDefinition.placeholder());
         this.view = new QuizView(this);
     }
 
@@ -33,32 +33,28 @@ class QuizController implements QuizViewContext, QuizModelContext {
     }
 
     async decideSourceAndLoad(filename: string): Promise<'new' | 'restore' | 'error'> {
-        // Load quiz from both sources if possible
-        const databaseState = new QuizModel(this);
-        const fileState = new QuizModel(this);
-
+        
         const [db, file] = await Promise.all([
-            databaseState.loadFromDatabase(),
-            fileState.loadFromFile(filename)
+            QuizDefinition.loadFromDatabase(this.context.getDatabase()),
+            QuizDefinition.loadFromFile(filename)
         ]);
 
         // Show dialog with available options
-        const choice = await this.view.showChoiceDialog(db, file);
+        const choice = await this.view.showChoiceDialog(!!db, !!file);
         
-        if (choice === 'file') {
+        if (choice === 'file' && !!file) {
             // Load from file and delete database quiz
             this.context.getDatabase().remove("/");
-            this.model = fileState;
+            this.model = new QuizModel(this, file);
             return 'new';
-        } else if (choice === 'database-restart') {
+        } else if (choice === 'database-restart' && !!db) {
             // Load from database and restart
             this.context.getDatabase().remove("/");
-            this.model = new QuizModel(this);
-            this.model.initialize(databaseState.title, databaseState.games);
+            this.model = new QuizModel(this, db);
             return 'new';
-        } else if (choice === 'database-continue') {
+        } else if (choice === 'database-continue' && !!db) {
             // Load from database and continue as is
-            this.model = databaseState;
+            this.model = new QuizModel(this, db, true);
             // TODO: Implement restore logic
             return 'restore';
         }
