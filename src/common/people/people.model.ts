@@ -10,8 +10,8 @@ export class Person {
         this.points = points;
     }
 
-    static parseFromJSON(data: any) {
-        return new Person(data.id, data.name, data.points)
+    static parseFromJSON(id : string, data: any) {
+        return new Person(id, data.name, data.points)
     }
     toJSON() {
         return {
@@ -30,12 +30,12 @@ export class PeopleModel extends BaseModel {
     readonly DBPATH = "/people";
     context: PeopleModelContext;
     allowOnboarding: boolean;
-    list: Person[];
+    list: Map<string, Person>;
 
     constructor(ctx: PeopleModelContext) {
         super();
         this.context = ctx;
-        this.list = [new Person("test", "Name")]; // TODO: remove mock person definition
+        this.list = new Map([["test", new Person("test", "Name")]]); // TODO: remove mock person definition
         this.allowOnboarding = false;
         this.setupTwoWayBinding();
     }
@@ -43,7 +43,7 @@ export class PeopleModel extends BaseModel {
     parseFromJSON(data: any): boolean {
         try {
             this.allowOnboarding = data.allowOnboarding || false;
-            this.list = (data.list || []).map((p : any) => Person.parseFromJSON(p));
+            this.list = new Map(Object.entries(data.list || {}).map(([id, p]) => [id, Person.parseFromJSON(id, p),]));
             return true;
         } catch (error) {
             console.error('Error parsing quiz from JSON:', error);
@@ -53,7 +53,7 @@ export class PeopleModel extends BaseModel {
     toJSON() {
         return {
             allowOnboarding: this.allowOnboarding,
-            list: this.list.map(p => p.toJSON())
+            list: Object.fromEntries([...this.list.entries()].map(([id, person]) => [id,person.toJSON()])),
         };
     }
 
