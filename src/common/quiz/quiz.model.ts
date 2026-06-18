@@ -1,4 +1,5 @@
 import { IDatabaseAdapter } from "../database/database.types";
+import { BaseModel } from "../general.interfaces";
 import { QuizDefinition } from "./quiz.definition";
 
 enum QuizStatus {
@@ -21,7 +22,8 @@ enum GameStatus {
     Completed,
 }
     
-class QuizModel {
+class QuizModel extends BaseModel {
+    readonly DBPATH = "/state/quiz";
     definition: QuizDefinition;
     status: QuizStatus;
     currentGame: number | null;
@@ -30,6 +32,7 @@ class QuizModel {
     context: QuizModelContext;
 
     constructor(ctx: QuizModelContext, def: QuizDefinition, restoreState: boolean = false) {
+        super();
         this.definition = def;
         this.gamesStatuses = [...Array(def.games.length).fill(GameStatus.NotStarted)];
         this.status = QuizStatus.Booting;
@@ -41,10 +44,10 @@ class QuizModel {
         }
     }
 
-    async loadFromDatabase(): Promise<boolean> {
+    /* async loadFromDatabase(): Promise<boolean> {
         // Load quiz definition from the database and initialize state
         try {
-            const data = await this.context.getDatabase().get<any>("/state/quiz");
+            const data = await this.context.getDatabase().get<any>(QuizModel.DBPATH);
             if (data) {
                 return this.parseFromJSON(data);
             }
@@ -57,12 +60,12 @@ class QuizModel {
     async saveToDatabase(): Promise<void> {
         // Save the current quiz state to the database
         try {
-            await this.context.getDatabase().set("/state/quiz", this.toJSON());
+            await this.context.getDatabase().set(QuizModel.DBPATH, this.toJSON());
         } catch (error) {
             console.error('Error saving quiz to database:', error);
         }
     }
-
+ */
     parseFromJSON(data: any): boolean {
         // Parse quiz definition from JSON data
         try {

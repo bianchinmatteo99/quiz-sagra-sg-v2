@@ -91,12 +91,12 @@ export class QuizDefinitionBuilder {
 
             if (gameSections.length === 0) throw new Error("Quiz definition contains no game sections");
 
-            const games = gameSections.map(section => {
+            const games = gameSections.entries().toArray().map(([id, section]) => {
                 const sectionLines = section.split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
                 const header = sectionLines[0] || "";
                 const gameTitle = header.startsWith("## ") ? header.substring(3).trim().toLowerCase() : "";
                 if (!(gameTitle in gamesDefBuilders)) throw new Error(`Unknown game type: ${gameTitle}`);
-                return gamesDefBuilders[gameTitle].parseFromMD(section);
+                return gamesDefBuilders[gameTitle].parseFromMD(id, section);
             });
 
             return new QuizDefinition(title, games);
@@ -110,10 +110,10 @@ export class QuizDefinitionBuilder {
         // Parse quiz definition from JSON data
         try {
             const title = data.title;
-            const games = (data.games || []).map((gameData: any) => {
+            const games = (data.games || []).entries().toArray().map(([id, gameData]:[number, any]) => {
                 if (!gameData.name) throw new Error("Game data missing 'name' property");
                 if (!(gameData.name in gamesDefBuilders)) throw new Error(`Unknown game type: ${gameData.name}`);
-                return gamesDefBuilders[gameData.name as string].parseFromJSON(gameData);
+                return gamesDefBuilders[gameData.name as string].parseFromJSON(id, gameData);
             });
             return new QuizDefinition(title, games);
         } catch (error) {

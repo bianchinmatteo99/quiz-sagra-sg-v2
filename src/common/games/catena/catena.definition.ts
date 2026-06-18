@@ -6,8 +6,8 @@ export class ReazioneCatenaGameDefinition extends GameDefinition {
     canRetryForSameWord: boolean;
     words: string[];
 
-    constructor(data: any = {}) {
-        super();
+    constructor(id:number, data: any = {}) {
+        super(id);
         this.timeForAnswer = Number(data.time_for_answer ?? data.timeForAnswer ?? 0);
         this.canRetryForSameWord =
             data.can_retry_for_same_word === true ||
@@ -27,7 +27,7 @@ export class ReazioneCatenaGameDefinition extends GameDefinition {
 }
 
 export class ReazioneCatenaGameDefinitionBuilder implements GameDefinitionBuilder<ReazioneCatenaGameDefinition> {
-    parseFromMD(md: string): ReazioneCatenaGameDefinition {
+    parseFromMD(id: number, md: string): ReazioneCatenaGameDefinition {
         const lines = md.split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
         const titleLine = lines[0] || "";
         const gameTitle = titleLine.startsWith("## ") ? titleLine.substring(3).trim().toLowerCase() : "";
@@ -55,10 +55,10 @@ export class ReazioneCatenaGameDefinitionBuilder implements GameDefinitionBuilde
         }
 
         sectionData.words = words;
-        return new ReazioneCatenaGameDefinition(sectionData);
+        return new ReazioneCatenaGameDefinition(id, sectionData);
     }
 
-    parseFromJSON(data: any): ReazioneCatenaGameDefinition {
-        return new ReazioneCatenaGameDefinition(data);
+    parseFromJSON(id: number, data: any): ReazioneCatenaGameDefinition {
+        return new ReazioneCatenaGameDefinition(id, data);
     }
 }

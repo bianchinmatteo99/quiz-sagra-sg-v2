@@ -4,6 +4,7 @@ import { QuizStatus } from "./quiz.model";
 
 class QuizManager implements QuizControllerContext {
     quiz: QuizController;
+    activeGame: any;
     people: any;
     db: IDatabaseAdapter;
 
@@ -42,6 +43,8 @@ class QuizManager implements QuizControllerContext {
     async restoreState(): Promise<void> {
         // TODO: Restore local models to reflect database state
     }
+
+    setGameTimelineDisplaysCurrent(boolean: boolean): void {}
 }
 
 export { QuizManager };
