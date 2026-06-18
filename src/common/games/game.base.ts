@@ -100,14 +100,17 @@ export interface GameManagerContext {
 
 export abstract class GameManager implements GameControllerContext {
     context: GameManagerContext;
-    getDatabase: () => IDatabaseAdapter;
-    
+
     abstract controller: GameController;
 
     constructor(ctx: GameManagerContext) {
         this.context = ctx;
-        this.getDatabase = ctx.getDatabase;
     }
+
+    getDatabase(): IDatabaseAdapter {
+        return this.context.getDatabase();
+    }
+
     abstract startGame(): void;
     abstract endGame(): void;
 }
