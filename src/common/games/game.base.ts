@@ -20,6 +20,7 @@ export interface GameModelContext {
     getDatabase(): IDatabaseAdapter;
 }
 
+// TODO ADD SECRET DB PATH HANDLING
 export abstract class GameModel extends BaseModel {
     readonly DBPATH = "/state/game";
     abstract definition: GameDefinition;
@@ -41,11 +42,8 @@ export abstract class GameView {
     readonly timelineContainer = "#game-timeline";
     readonly currentStateContainer = "#game-current-state";
     isDisplayingLiveTimeline: boolean = false;
-    activeGameContext: GameViewContext | null;
-    constructor(ctx: GameViewContext | null) {
-        this.activeGameContext = ctx;
-    }
-
+    abstract activeGameContext: GameViewContext | null;
+    
     shouldRenderTimeline(): boolean {
         return !this.activeGameContext || this.isDisplayingLiveTimeline;
     }
@@ -56,8 +54,21 @@ export abstract class GameView {
         this.isDisplayingLiveTimeline = isLive;
     }
 
-    abstract renderTimeline(): void;
-    abstract renderCurrentState(): void;
+    render(){
+        if(this.shouldRenderTimeline()) {
+            const container = document.getElementById(this.timelineContainer);
+            if(!container) return;
+            this.renderTimeline(container);
+        }
+        if(this.shouldRenderCurrentState()) {
+            const container = document.getElementById(this.currentStateContainer);
+            if(!container) return;
+            this.renderCurrentState(container)
+        }
+    }
+
+    abstract renderTimeline(container : HTMLElement): void;
+    abstract renderCurrentState(container : HTMLElement): void;
 }
 
 export interface GameControllerContext {
@@ -74,20 +85,28 @@ export abstract class GameController implements GameViewContext, GameModelContex
     getDatabase(): IDatabaseAdapter {
         return this.context.getDatabase();
     }
+
+    stateUpdated(): void {
+        this.model.saveToDatabase();
+        this.view.render();
+    }
 }
 
 export interface GameManagerContext {
+    getDatabase(): IDatabaseAdapter;
     updateRanking(ranking: any): void;
     notifyGameEnd(game: GameDefinition): void;
 }
 
-export abstract class GameManager {
+export abstract class GameManager implements GameControllerContext {
     context: GameManagerContext;
-    abstract definition: GameDefinition;
+    getDatabase: () => IDatabaseAdapter;
+    
     abstract controller: GameController;
 
     constructor(ctx: GameManagerContext) {
         this.context = ctx;
+        this.getDatabase = ctx.getDatabase;
     }
     abstract startGame(): void;
     abstract endGame(): void;
