@@ -5,13 +5,14 @@ import { IDatabaseAdapter } from "./database/database.types.old";
  */
 export type CancelHandle = () => void;
 
-export interface dbProvider {
+export interface BaseModelContext {
     getDatabase(): IDatabaseAdapter;
+    stateUpdated(remote : boolean): void;
 }
 
 export abstract class BaseModel {
     abstract readonly DBPATH: string;
-    abstract context: dbProvider;
+    abstract context: BaseModelContext;
 
     abstract parseFromJSON(data: any): boolean;
     abstract toJSON(): any;
@@ -36,5 +37,31 @@ export abstract class BaseModel {
         } catch (error) {
             console.error('Error saving ' + this.DBPATH + ' to database:', error);
         }
+    }
+
+    async restoreOrSave(): Promise<void> {
+        try {
+            const data = await this.context.getDatabase().get<any>(this.DBPATH);
+            if (data !== null && data !== undefined) {
+                this.parseFromJSON(data);
+            } else {
+                await this.saveToDatabase();
+            }
+        } catch (error) {
+            console.error('Error restoring or saving ' + this.DBPATH + ' from database:', error);
+        }
+    }
+
+    async setupTwoWayBinding(): Promise<CancelHandle> {
+        await this.restoreOrSave();
+
+        return this.context.getDatabase().onValue<any>(this.DBPATH, (data) => {
+            if (data !== null && data !== undefined) {
+                const parsed = this.parseFromJSON(data);
+                if (parsed) {
+                    this.context.stateUpdated(true);
+                }
+            }
+        });
     }
 }

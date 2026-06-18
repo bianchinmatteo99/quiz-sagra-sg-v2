@@ -1,5 +1,5 @@
 import { IDatabaseAdapter } from "../database/database.types";
-import { BaseModel } from "../general.interfaces";
+import { BaseModel, BaseModelContext } from "../general.interfaces";
 import { QuizDefinition } from "./quiz.definition";
 
 enum QuizStatus {
@@ -11,8 +11,8 @@ enum QuizStatus {
     Ended, // The quiz has ended
 }
 
-interface QuizModelContext {
-    getDatabase(): IDatabaseAdapter;
+interface QuizModelContext extends BaseModelContext{
+    
 }
 
 enum GameStatus {
@@ -44,28 +44,6 @@ class QuizModel extends BaseModel {
         }
     }
 
-    /* async loadFromDatabase(): Promise<boolean> {
-        // Load quiz definition from the database and initialize state
-        try {
-            const data = await this.context.getDatabase().get<any>(QuizModel.DBPATH);
-            if (data) {
-                return this.parseFromJSON(data);
-            }
-        } catch (error) {
-            console.error('Error loading quiz from database:', error);
-        }
-        return false;
-    }
-
-    async saveToDatabase(): Promise<void> {
-        // Save the current quiz state to the database
-        try {
-            await this.context.getDatabase().set(QuizModel.DBPATH, this.toJSON());
-        } catch (error) {
-            console.error('Error saving quiz to database:', error);
-        }
-    }
- */
     parseFromJSON(data: any): boolean {
         // Parse quiz definition from JSON data
         try {

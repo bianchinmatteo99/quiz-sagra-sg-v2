@@ -1,6 +1,6 @@
 import { getDatabase } from "firebase/database";
 import { IDatabaseAdapter } from "../database/database.types.old";
-import { BaseModel } from "../general.interfaces";
+import { BaseModel, BaseModelContext } from "../general.interfaces";
 
 export abstract class GameDefinition {
     abstract readonly name: string;
@@ -16,8 +16,8 @@ export interface GameDefinitionBuilder<T extends GameDefinition> {
     parseFromJSON(id: number, data: any): T;
 }
 
-export interface GameModelContext {
-    getDatabase(): IDatabaseAdapter;
+export interface GameModelContext extends BaseModelContext {
+    
 }
 
 // TODO ADD SECRET DB PATH HANDLING
@@ -86,8 +86,8 @@ export abstract class GameController implements GameViewContext, GameModelContex
         return this.context.getDatabase();
     }
 
-    stateUpdated(): void {
-        this.model.saveToDatabase();
+    stateUpdated(remote : boolean = false): void {
+        if(!remote) this.model.saveToDatabase();
         this.view.render();
     }
 }

@@ -1,18 +1,20 @@
 import { IDatabaseAdapter } from "../database/database.types";
 import { GameDefinition, GameManager, GameManagerContext } from "../games/game.base";
 import { instantiateGameManagerFor } from "../games/games.register";
+import { PeopleController, PeopleControllerContext } from "../people/people.controller";
 import { QuizController, QuizControllerContext } from "./quiz.controller";
 import { QuizStatus } from "./quiz.model";
 
-class QuizManager implements QuizControllerContext, GameManagerContext {
+class QuizManager implements QuizControllerContext, GameManagerContext, PeopleControllerContext {
     quiz: QuizController;
     activeGameManager: GameManager|null = null;
-    people: any;
+    people: PeopleController;
     db: IDatabaseAdapter;
 
     constructor(db: IDatabaseAdapter) {
         this.db = db;
         this.quiz = new QuizController(this);
+        this.people = new PeopleController(this);
         console.log(this);
     }
 

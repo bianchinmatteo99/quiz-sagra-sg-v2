@@ -83,8 +83,8 @@ class QuizController implements QuizViewContext, QuizModelContext {
         return this.context.getDatabase();
     }
 
-    stateUpdated(): void {
-        this.model.saveToDatabase();
+    stateUpdated(remote : boolean = false): void {
+        if(!remote) this.model.saveToDatabase();
         this.view.render();
     }
 
