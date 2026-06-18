@@ -39,8 +39,8 @@ export interface GameViewContext {
 }
 
 export abstract class GameView {
-    readonly timelineContainer = "#game-timeline";
-    readonly currentStateContainer = "#game-current-state";
+    readonly timelineContainer = "game-timeline";
+    readonly currentStateContainer = "game-current-state";
     isDisplayingLiveTimeline: boolean = false;
     abstract activeGameContext: GameViewContext | null;
     

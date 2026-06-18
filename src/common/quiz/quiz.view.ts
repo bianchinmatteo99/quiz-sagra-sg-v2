@@ -8,6 +8,7 @@ interface QuizViewContext {
 }
 
 class QuizView {
+    readonly quizTimelineContainer = "quiz-timeline";
     context: QuizViewContext;
 
     constructor(context: QuizViewContext) {
@@ -15,7 +16,7 @@ class QuizView {
     }
 
     render(): void {
-        const timeline = document.getElementById("quiz-timeline");
+        const timeline = document.getElementById(this.quizTimelineContainer);
         if (!timeline) return;
 
         const listContainer = document.createElement("div");
