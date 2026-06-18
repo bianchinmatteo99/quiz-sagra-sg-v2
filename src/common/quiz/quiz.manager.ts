@@ -8,13 +8,12 @@ import { QuizStatus } from "./quiz.model";
 class QuizManager implements QuizControllerContext, GameManagerContext, PeopleControllerContext {
     quiz: QuizController;
     activeGameManager: GameManager|null = null;
-    people: PeopleController;
+    people: PeopleController|null = null;
     db: IDatabaseAdapter;
 
     constructor(db: IDatabaseAdapter) {
         this.db = db;
         this.quiz = new QuizController(this);
-        this.people = new PeopleController(this);
         console.log(this);
     }
 
@@ -33,6 +32,7 @@ class QuizManager implements QuizControllerContext, GameManagerContext, PeopleCo
                 console.error("Failed to load quiz from both sources.");
                 break;
         }
+        this.people = new PeopleController(this);
     }
 
     async startGame(game: GameDefinition): Promise<void> {
