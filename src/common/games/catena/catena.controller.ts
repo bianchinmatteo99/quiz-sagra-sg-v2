@@ -12,5 +12,6 @@ export class ReazioneCatenaGameController extends GameController implements Cate
         super(ctx);
         this.model = new ReazioneCatenaGameModel(this, def, restoreState);
         this.view = new ReazioneCatenaGameView(this);
+        this.stateUpdated();
     }
 }

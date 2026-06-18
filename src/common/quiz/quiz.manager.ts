@@ -1,12 +1,12 @@
 import { IDatabaseAdapter } from "../database/database.types";
-import { GameDefinition, GameManagerContext } from "../games/game.base";
+import { GameDefinition, GameManager, GameManagerContext } from "../games/game.base";
 import { instantiateGameManagerFor } from "../games/games.register";
 import { QuizController, QuizControllerContext } from "./quiz.controller";
 import { QuizStatus } from "./quiz.model";
 
 class QuizManager implements QuizControllerContext, GameManagerContext {
     quiz: QuizController;
-    activeGame: any;
+    activeGameManager: GameManager|null = null;
     people: any;
     db: IDatabaseAdapter;
 
@@ -33,10 +33,10 @@ class QuizManager implements QuizControllerContext, GameManagerContext {
         }
     }
 
-    async startGame(game: any): Promise<void> {
+    async startGame(game: GameDefinition): Promise<void> {
         // TODO: Implement logic to start the game, e.g., navigate to the game page or initialize game state
-        const manager = instantiateGameManagerFor(game, this);
-        manager.startGame();
+        this.activeGameManager = instantiateGameManagerFor(game, this);
+        this.activeGameManager.startGame();
     }
 
     getDatabase(): IDatabaseAdapter {
