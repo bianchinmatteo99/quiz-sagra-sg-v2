@@ -15,12 +15,14 @@ export class PeopleController implements PeopleModelContext { //PeopleViewContex
         this.model = new PeopleModel(this);
     }
 
+    
+
     getDatabase(): IDatabaseAdapter {
         return this.context.getDatabase();
     }
 
     stateUpdated(remote: boolean): void {
         if(!remote) this.model.saveToDatabase();
-        // this.view.render();
+        // this.view.render();  // TRY TO UPDATE BY DIFF, UNLESS PEOPLE ARE ADDED/REMOVED
     }
 }

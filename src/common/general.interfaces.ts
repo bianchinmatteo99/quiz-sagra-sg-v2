@@ -5,13 +5,25 @@ import { IDatabaseAdapter } from "./database/database.types.old";
  */
 export type CancelHandle = () => void;
 
+/* type WithDatabaseContext = {
+  context: { getDatabase: () => IDatabaseAdapter };
+};
+
+export function withDatabase<T extends WithDatabaseContext>(obj: T) {
+  return Object.assign(obj, {
+    getDatabase() {
+      return obj.context.getDatabase();
+    },
+  });
+} */
+
 export interface BaseModelContext {
     getDatabase(): IDatabaseAdapter;
     stateUpdated(remote : boolean): void;
 }
 
 export abstract class BaseModel {
-    abstract readonly DBPATH: string;
+    abstract readonly DBPATH: string | Map<string, string>; // object key -> destination db
     abstract context: BaseModelContext;
 
     abstract parseFromJSON(data: any): boolean;
@@ -20,7 +32,15 @@ export abstract class BaseModel {
     async loadFromDatabase(): Promise<boolean> {
         // Load quiz definition from the database and initialize state
         try {
-            const data = await this.context.getDatabase().get<any>(this.DBPATH);
+            var data: any;
+            if(typeof this.DBPATH == "string"){
+                data = await this.context.getDatabase().get<any>(this.DBPATH);
+            } else {
+                for(const [key, path] of this.DBPATH.entries()){
+                    const ret = await this.context.getDatabase().get<any>(path)
+                    if(ret !== null && ret !== undefined) data = {...data, [key]: ret}
+                }
+            }            
             if (data) {
                 return this.parseFromJSON(data);
             }
@@ -33,7 +53,14 @@ export abstract class BaseModel {
     async saveToDatabase(): Promise<void> {
         // Save the current quiz state to the database
         try {
-            await this.context.getDatabase().set(this.DBPATH, this.toJSON());
+            const json = this.toJSON();
+            if(typeof this.DBPATH == "string"){
+                await this.context.getDatabase().set(this.DBPATH, json);
+            } else {
+                for(const [key, path] of this.DBPATH.entries()){
+                    if (json[key]!==undefined) await this.context.getDatabase().set(path, json[key]);
+                }
+            }       
         } catch (error) {
             console.error('Error saving ' + this.DBPATH + ' to database:', error);
         }
@@ -41,10 +68,8 @@ export abstract class BaseModel {
 
     async restoreOrSave(): Promise<void> {
         try {
-            const data = await this.context.getDatabase().get<any>(this.DBPATH);
-            if (data !== null && data !== undefined) {
-                this.parseFromJSON(data);
-            } else {
+            const restore = await this.loadFromDatabase();
+            if (!restore) {
                 await this.saveToDatabase();
             }
         } catch (error) {
@@ -52,16 +77,29 @@ export abstract class BaseModel {
         }
     }
 
-    async setupTwoWayBinding(): Promise<CancelHandle> {
+    async setupTwoWayBinding(): Promise<CancelHandle[]> {
         await this.restoreOrSave();
 
-        return this.context.getDatabase().onValue<any>(this.DBPATH, (data) => {
-            if (data !== null && data !== undefined) {
-                const parsed = this.parseFromJSON(data);
-                if (parsed) {
-                    this.context.stateUpdated(true);
+        if(typeof this.DBPATH == "string"){
+            return [this.context.getDatabase().onValue<any>(this.DBPATH, (data) => {
+                if (data !== null && data !== undefined) {
+                    const parsed = this.parseFromJSON(data);
+                    if (parsed) {
+                        this.context.stateUpdated(true);
+                    }
                 }
-            }
-        });
+            })];
+        } else {
+            return this.DBPATH.entries().toArray().map(([key, path])=>
+                this.context.getDatabase().onValue<any>(path, (data) => {
+                    if (data !== null && data !== undefined) {
+                        const parsed = this.parseFromJSON({[key]: data});
+                        if (parsed) {
+                            this.context.stateUpdated(true);
+                        }
+                    }
+                })
+            )
+        }
     }
 }
