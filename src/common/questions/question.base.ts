@@ -31,13 +31,45 @@ export abstract class QuestionModel extends BaseModel {
         this.timer = null;
     }
 
-    /* parseFromJSON(data: any): boolean {
+    parseFromJSON(data: any): boolean {
+        try{
+            var some = false;
+            if("question" in data){
+                some = true;
+                if(data.name != this.name) throw new Error("Question name conflict")
+                this.deny = data.deny;
+                this.enableAnswers = Boolean(data.enableAnswers);
+                this.enableManualEvaluation = Boolean(data.enableManualEvaluation);
+            }
+            if("answers" in data){
+                some = true;
+                const a: QuestionAnswers = new Map()
+                for (const id in data.answers){
+                    a.set(id, {time: new Date(data.time), answer: data.answer});
+                }
+            }
+            if("results" in data){
+                some = true;
+                this.results = data.results;
+            }
+            return some;
+        } catch {
+            return false;
+        }
         
     }
 
     toJSON() {
-        
-    } */
+        return { // answers is only updated by users
+            question: {
+                name: this.name,
+                deny: this.deny,
+                enableAnswers: this.enableAnswers,
+                enableManualEvaluation: this.enableManualEvaluation,
+            },
+            results: this.results,
+        }
+    }
 
 }
 

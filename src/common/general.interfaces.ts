@@ -58,7 +58,7 @@ export abstract class BaseModel {
                 await this.context.getDatabase().set(this.DBPATH, json);
             } else {
                 for(const [key, path] of this.DBPATH.entries()){
-                    if (json[key]!==undefined) await this.context.getDatabase().set(path, json[key]);
+                    if (key in json) await this.context.getDatabase().set(path, json[key]);
                 }
             }       
         } catch (error) {
@@ -77,7 +77,7 @@ export abstract class BaseModel {
         }
     }
 
-    async setupTwoWayBinding(): Promise<CancelHandle[]> {
+    async setupTwoWayBinding(only?: string[]): Promise<CancelHandle[]> {
         await this.restoreOrSave();
 
         if(typeof this.DBPATH == "string"){
@@ -90,7 +90,8 @@ export abstract class BaseModel {
                 }
             })];
         } else {
-            return this.DBPATH.entries().toArray().map(([key, path])=>
+            const o = only ?? this.DBPATH.keys().toArray();
+            return this.DBPATH.entries().toArray().filter(([key, _])=>o.includes(key)).map(([key, path])=>
                 this.context.getDatabase().onValue<any>(path, (data) => {
                     if (data !== null && data !== undefined) {
                         const parsed = this.parseFromJSON({[key]: data});
