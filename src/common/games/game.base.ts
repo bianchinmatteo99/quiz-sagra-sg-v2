@@ -111,6 +111,6 @@ export abstract class GameManager implements GameControllerContext {
         return this.context.getDatabase();
     }
 
-    abstract startGame(): void;
+    abstract startGame(): Promise<void>;
     abstract endGame(): void;
 }

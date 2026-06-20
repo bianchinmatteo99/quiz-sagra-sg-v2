@@ -1,10 +1,17 @@
-import { Question, QuestionModel } from "../question.base";
+import { Ender, Evaluator, Question, QuestionContext, QuestionModel, QuestionResult } from "../question.base";
 
 
-/* class TextInputQuestionModel extends QuestionModel{
-
+class TextInputQuestionModel extends QuestionModel{
+    readonly name = "text-input";
 }
 
-class TextInputQuestion extends Question {
+export class TextInputQuestion extends Question {
     
-} */
+    readonly model : TextInputQuestionModel;
+
+    constructor(ctx: QuestionContext, evaluate: Evaluator, stopAnswersCriteria: Ender, deny: string[]=[]){
+        super(ctx, evaluate, stopAnswersCriteria);
+        this.model = new TextInputQuestionModel(this, deny);
+    }
+
+}
