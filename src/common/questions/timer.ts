@@ -21,8 +21,17 @@ export class Timer {
 
     async start() {
         this.current = this.seconds;
+        this.listeners.forEach(fn => fn());
+
+        const start = performance.now();
+        let tick = 0;
         while (this.current > 0) {
-            await delay(1000);
+            tick++;
+            const target = start + tick * 1000;
+            const delayMs = Math.max(0, target - performance.now());
+            
+            await delay(delayMs);
+
             this.current--;
             this.listeners.forEach(fn => fn(this.current!));
         }
