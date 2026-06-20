@@ -2,10 +2,11 @@ import { IDatabaseAdapter } from "../database/database.types";
 import { GameDefinition, GameManager, GameManagerContext } from "../games/game.base";
 import { instantiateGameManagerFor } from "../games/games.register";
 import { PeopleController, PeopleControllerContext } from "../people/people.controller";
+import { QuestionContext } from "../questions/question.base";
 import { QuizController, QuizControllerContext } from "./quiz.controller";
 import { QuizStatus } from "./quiz.model";
 
-class QuizManager implements QuizControllerContext, GameManagerContext, PeopleControllerContext {
+class QuizManager implements QuizControllerContext, GameManagerContext, PeopleControllerContext, QuestionContext {
     quiz: QuizController;
     activeGameManager: GameManager|null = null;
     people: PeopleController|null = null;

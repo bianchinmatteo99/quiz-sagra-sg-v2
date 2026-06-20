@@ -16,7 +16,7 @@ export class Timer {
         this.seconds = seconds;
         this.current = null;
         this.db = db;
-        this.listeners = [this.pushToDB, this.pushToUI];
+        this.listeners = [(t)=>this.pushToDB(t), (t)=>this.pushToUI(t)];
     }
 
     async start() {
