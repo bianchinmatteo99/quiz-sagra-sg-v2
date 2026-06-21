@@ -1,7 +1,5 @@
 import { IDatabaseAdapter } from "../database/database.types";
-
-const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
-
+import { delay } from "../general.interfaces";
 
 export class Timer {
     readonly DBPATH = "/timer";

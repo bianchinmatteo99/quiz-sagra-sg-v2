@@ -3,6 +3,7 @@ import { TextInputQuestion } from "../../questions/text_input/text_input.questio
 import { GameManager, GameManagerContext } from "../game.base";
 import { ReazioneCatenaGameController } from "./catena.controller";
 import { ReazioneCatenaGameDefinition } from "./catena.definition";
+import { CatenaState } from "./catena.model";
 
 
 export class ReazioneCatenaGameManager extends GameManager {
@@ -16,9 +17,47 @@ export class ReazioneCatenaGameManager extends GameManager {
 
     async startGame(): Promise<void> {
         console.log("Game started!");
-        this.currentQ = new TextInputQuestion(this, {auto: "Risposta"}, {timer: 20});
-        await this.currentQ.ask();
+        this.controller.setState(CatenaState.DISPLAYCOVER);
+        await this.controller.adminInteraction({advancebtn: "Mostra la catena"});
+
+        this.controller.setState(CatenaState.DISPLAYCHAIN);
+        await this.controller.adminInteraction({advancebtn: "Inizia con la prima parola"});
+
+        while(this.controller.nextWord()){
+            const w = this.controller.model.getCurrentWord();
+            const deny: string[] = [];
+            while(await this.controller.nextLetter(1000)){
+                this.controller.setState(CatenaState.ASKINGQUESTION);
+                this.currentQ = new TextInputQuestion(this, {auto: w}, {timer: this.controller.model.definition.timeForAnswer}, deny);
+                const res = await this.currentQ.ask();
+
+                const correct = res.filter((v)=>v.correct).map((v)=>v.id);
+                if (correct.length>0){
+                    await this.controller.completeWord(5000);
+                    // this.context.updateRanking(null)
+                    // this.controller.displayWinners(); and await adminInteraction
+                    break;
+                }
+                
+                if(await this.controller.adminInteraction({advancebtn: "Passa alla prossima lettera"})=="skipword"){
+                    await this.controller.completeWord(5000);
+                    break;
+                }
+
+                if(!this.controller.model.definition.canRetryForSameWord){
+                    for(const r of res){
+                        if(!r.correct && !deny.includes(r.id)){
+                            deny.push(r.id)
+                        }
+                    }
+                }
+            }
+            this.controller.setState(CatenaState.DISPLAYCHAIN);
+            await this.controller.adminInteraction({advancebtn: "Passa alla prossima parola o termina"});
+        }
+        this.controller.setState(CatenaState.ENDING);        
     }
+
     endGame(): void {
         throw new Error("Method not implemented.");
     }
