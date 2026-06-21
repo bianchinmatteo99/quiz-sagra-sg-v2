@@ -10,48 +10,49 @@ export class Timer {
     db: IDatabaseAdapter;
     seconds: number;
     private current: number | null;
-    private listeners: ((t?: number)=>void)[];
+    private listeners: ((t?: number) => void)[];
 
     constructor(seconds: number, db: IDatabaseAdapter) {
         this.seconds = seconds;
         this.current = null;
         this.db = db;
-        this.listeners = [(t)=>this.pushToDB(t), (t)=>this.pushToUI(t)];
+        this.listeners = [(t) => this.pushToUI(t)];
     }
 
+    
     async start() {
-        this.current = this.seconds;
-        this.listeners.forEach(fn => fn());
-
-        const start = performance.now();
-        let tick = 0;
-        while (this.current > 0) {
-            tick++;
-            const target = start + tick * 1000;
-            const delayMs = Math.max(0, target - performance.now());
-            
-            await delay(delayMs);
-
-            this.current--;
-            this.listeners.forEach(fn => fn(this.current!));
+        const end = Date.now() + this.seconds * 1000 + 50; // added 50 ms for ui delay
+        this.pushToDB(end)
+        let remaining = end - Date.now();
+        let last : number|null = null;
+        while (remaining > 0) {
+            const current = Math.max(0, Math.ceil(remaining / 1000));
+            if (current !== last) {
+                last = current;
+                this.current = current;
+                this.listeners.forEach(fn => fn(current));
+            }
+            await delay(Math.min(50, remaining));
+            remaining = end - Date.now();
         }
+        this.pushToDB()
         this.current = null;
         this.listeners.forEach(fn => fn());
     }
 
-    addListener(fn: (t?: number)=>void){
+    addListener(fn: (t?: number) => void) {
         this.listeners.push(fn);
     }
 
-    private pushToDB(t?: number){
-        if(t === undefined){
+    private pushToDB(t?: number) {
+        if (t === undefined) {
             this.db.set(this.DBPATH, -1);
         } else {
             this.db.set(this.DBPATH, this.current);
         }
     }
 
-    private pushToUI(t?: number){
+    private pushToUI(t?: number) {
         console.log("Timer " + t);
     }
 

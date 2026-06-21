@@ -5,17 +5,6 @@ import { IDatabaseAdapter } from "./database/database.types.old";
  */
 export type CancelHandle = () => void;
 
-/* type WithDatabaseContext = {
-  context: { getDatabase: () => IDatabaseAdapter };
-};
-
-export function withDatabase<T extends WithDatabaseContext>(obj: T) {
-  return Object.assign(obj, {
-    getDatabase() {
-      return obj.context.getDatabase();
-    },
-  });
-} */
 
 export interface BaseModelContext {
     getDatabase(): IDatabaseAdapter;
