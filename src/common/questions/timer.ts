@@ -26,7 +26,7 @@ export class Timer {
         let remaining = end - Date.now();
         let last : number|null = null;
         while (remaining > 0) {
-            const current = Math.max(0, Math.ceil(remaining / 1000));
+            const current = Math.min(Math.max(0, Math.ceil(remaining / 1000)), this.seconds);
             if (current !== last) {
                 last = current;
                 this.current = current;
@@ -48,7 +48,7 @@ export class Timer {
         if (t === undefined) {
             this.db.set(this.DBPATH, -1);
         } else {
-            this.db.set(this.DBPATH, this.current);
+            this.db.set(this.DBPATH, t);
         }
     }
 
