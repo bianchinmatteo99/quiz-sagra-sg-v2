@@ -1,4 +1,4 @@
-import { CancelHandle } from "../general.interfaces";
+import { CancelHandle } from "../general.utils";
 
 /**
  * Represents a source of state updates.

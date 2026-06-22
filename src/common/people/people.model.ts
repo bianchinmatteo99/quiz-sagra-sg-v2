@@ -1,4 +1,4 @@
-import { BaseModel, BaseModelContext } from "../general.interfaces";
+import { BaseModel, BaseModelContext } from "../general.utils";
 
 export class Person {
     readonly id: string;

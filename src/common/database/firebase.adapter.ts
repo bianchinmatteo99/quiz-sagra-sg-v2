@@ -1,7 +1,7 @@
 // firebase.adapter.ts
 import { getDatabase, ref, get, onValue, set, update, remove, off } from "firebase/database";
 import { IDatabaseAdapter } from "./database.types";
-import { CancelHandle } from "../general.interfaces";
+import { CancelHandle } from "../general.utils";
 
 export class FirebaseDatabaseAdapter implements IDatabaseAdapter {
     private db = getDatabase();

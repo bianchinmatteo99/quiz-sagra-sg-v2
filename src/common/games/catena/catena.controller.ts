@@ -1,4 +1,4 @@
-import { delay } from "../../general.interfaces";
+import { delay } from "../../general.utils";
 import { GameController, GameControllerContext } from "../game.base";
 import { ReazioneCatenaGameDefinition } from "./catena.definition";
 import { CatenaState, ReazioneCatenaGameModel } from "./catena.model";
@@ -14,10 +14,6 @@ export class ReazioneCatenaGameController extends GameController implements Cate
         this.model = new ReazioneCatenaGameModel(this, def, restoreState);
         this.view = new ReazioneCatenaGameView(this);
         this.stateUpdated();
-    }
-
-    async adminInteraction(options: {advancebtn : string}): Promise<any>{
-        throw new Error("Not implemented admin interaction")
     }
 
     nextWord() : boolean{

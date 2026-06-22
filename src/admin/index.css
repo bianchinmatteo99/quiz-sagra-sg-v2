@@ -45,6 +45,18 @@ button.active{
   border-color: rgb(255, 191, 0);
 }
 
+#game-current-state{
+  margin:0;
+  display: flex;
+  flex-direction: column;
+}
+#game-current-state>div{
+  flex: 1;
+}
+#game-current-state>footer{
+  flex: 0;
+}
+
 
 /* Columns */
 .col {

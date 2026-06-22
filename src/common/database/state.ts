@@ -1,4 +1,4 @@
-import { CancelHandle } from "../general.interfaces";
+import { CancelHandle } from "../general.utils";
 import { IDatabaseAdapter, AppState } from "./database.types";
 
 // ---------------------------------------------------------------------------

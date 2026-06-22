@@ -1,5 +1,5 @@
 import { IDatabaseAdapter } from "../database/database.types.old";
-import { BaseModel, BaseModelContext } from "../general.interfaces";
+import { BaseModel, BaseModelContext } from "../general.utils";
 import { Timer } from "./timer";
 
 

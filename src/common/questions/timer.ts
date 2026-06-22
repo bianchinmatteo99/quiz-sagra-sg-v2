@@ -1,5 +1,5 @@
 import { IDatabaseAdapter } from "../database/database.types";
-import { delay } from "../general.interfaces";
+import { delay } from "../general.utils";
 
 export class Timer {
     readonly DBPATH = "/timer";

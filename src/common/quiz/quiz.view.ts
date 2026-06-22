@@ -1,17 +1,12 @@
 import { QuizModel, GameStatus } from "./quiz.model";
 import { GameDefinition } from "../games/game.base";
+import { toHtml } from "../general.utils";
 
 interface QuizViewContext {
     model: QuizModel;
     // setGameStatus(gameIndex: number, status: GameStatus): void;
     startGame(gameIndex: number): void;
     viewGame(gameIndex: number): void;
-}
-
-function toHtml<T extends HTMLElement>(markup: string): T {
-    const template = document.createElement("template");
-    template.innerHTML = markup.trim();
-    return template.content.firstElementChild as T;
 }
 
 class QuizView {

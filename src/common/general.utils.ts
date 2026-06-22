@@ -95,3 +95,11 @@ export abstract class BaseModel {
 }
 
 export const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+
+export function toHtml<T extends HTMLElement>(markup: string): T {
+    const template = document.createElement("template");
+    template.innerHTML = markup.trim();
+    return template.content.firstElementChild as T;
+}
+

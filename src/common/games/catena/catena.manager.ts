@@ -18,10 +18,10 @@ export class ReazioneCatenaGameManager extends GameManager {
     async startGame(): Promise<void> {
         console.log("Game started!");
         this.controller.setState(CatenaState.DISPLAYCOVER);
-        await this.controller.adminInteraction({advancebtn: "Mostra la catena"});
+        await this.controller.adminInteraction({advanceBtn: "Mostra la catena"});
 
         this.controller.setState(CatenaState.DISPLAYCHAIN);
-        await this.controller.adminInteraction({advancebtn: "Inizia con la prima parola"});
+        await this.controller.adminInteraction({advanceBtn: "Inizia con la prima parola"});
 
         while(this.controller.nextWord()){
             const w = this.controller.model.getCurrentWord();
@@ -39,7 +39,7 @@ export class ReazioneCatenaGameManager extends GameManager {
                     break;
                 }
                 
-                if(await this.controller.adminInteraction({advancebtn: "Passa alla prossima lettera"})=="skipword"){
+                if(! await this.controller.adminInteraction({advanceBtn: "Passa alla prossima lettera", otherBtn: "Completa la parola e vai alla prossima"})){
                     await this.controller.completeWord(5000);
                     break;
                 }
@@ -53,7 +53,7 @@ export class ReazioneCatenaGameManager extends GameManager {
                 }
             }
             this.controller.setState(CatenaState.DISPLAYCHAIN);
-            await this.controller.adminInteraction({advancebtn: "Passa alla prossima parola o termina"});
+            await this.controller.adminInteraction({advanceBtn: "Passa alla prossima parola"});
         }
         this.controller.setState(CatenaState.ENDING);        
     }

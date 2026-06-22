@@ -1,7 +1,7 @@
 import { IDatabaseAdapter } from "./database.types.old";
 import { auth } from "../../firebase-init";
 import { Auth } from "firebase/auth";
-import { CancelHandle } from "../general.interfaces";
+import { CancelHandle } from "../general.utils";
 
 
 export type Role = "admin" | "player" | "presenter" | "viewer";

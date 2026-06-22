@@ -1,4 +1,4 @@
-import { CancelHandle } from "../general.interfaces";
+import { CancelHandle } from "../general.utils";
 
 export interface IDatabaseAdapter {
     get<T>(path: string): Promise<T | null>;
