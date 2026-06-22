@@ -110,6 +110,13 @@ export abstract class GameView {
         this._activeFooter = element;
         container?.appendChild(element);
     }
+
+    clearViews(){
+        const safeRemove = (element: HTMLElement|null) => {if(element!=null) element.innerHTML = ""};
+        safeRemove(document.getElementById(this.currentStateContent));
+        safeRemove(document.getElementById(this.timelineContainer));
+        if(!!this._activeFooter) this._activeFooter.safeRemove(null);
+    }
 }
 
 export interface GameControllerContext {
@@ -143,12 +150,16 @@ export abstract class GameController implements GameViewContext, GameModelContex
             })
         });
     }
+
+    clearAll(){
+        this.view.clearViews();
+        this.model.clearDatabase();
+    }
 }
 
 export interface GameManagerContext {
     getDatabase(): IDatabaseAdapter;
     updateRanking(ranking: any): void;
-    notifyGameEnd(game: GameDefinition): void;
 }
 
 export abstract class GameManager implements GameControllerContext {
@@ -165,5 +176,8 @@ export abstract class GameManager implements GameControllerContext {
     }
 
     abstract startGame(): Promise<void>;
-    abstract endGame(): void;
+
+    endGame(){
+        this.controller.clearAll();
+    }
 }

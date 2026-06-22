@@ -55,6 +55,16 @@ export abstract class BaseModel {
         }
     }
 
+    async clearDatabase(){
+        this._bindingCancel.forEach((c)=>c());
+        this._bindingCancel = [];
+        if(typeof this.DBPATH == "string"){
+            await this.context.getDatabase().remove(this.DBPATH);
+        } else {
+            this.DBPATH.forEach((path=> this.context.getDatabase().remove(path)));
+        }
+    }
+
     async restoreOrSave(): Promise<void> {
         try {
             const restore = await this.loadFromDatabase();
@@ -66,11 +76,12 @@ export abstract class BaseModel {
         }
     }
 
+    private _bindingCancel : CancelHandle[] = [];
     async setupTwoWayBinding(only?: string[]): Promise<CancelHandle[]> {
         await this.restoreOrSave();
 
         if(typeof this.DBPATH == "string"){
-            return [this.context.getDatabase().onValue<any>(this.DBPATH, (data) => {
+            this._bindingCancel = [this.context.getDatabase().onValue<any>(this.DBPATH, (data) => {
                 if (data !== null && data !== undefined) {
                     const parsed = this.parseFromJSON(data);
                     if (parsed) {
@@ -78,9 +89,10 @@ export abstract class BaseModel {
                     }
                 }
             })];
+            return this._bindingCancel;
         } else {
             const o = only ?? this.DBPATH.keys().toArray();
-            return this.DBPATH.entries().toArray().filter(([key, _])=>o.includes(key)).map(([key, path])=>
+            this._bindingCancel = this.DBPATH.entries().toArray().filter(([key, _])=>o.includes(key)).map(([key, path])=>
                 this.context.getDatabase().onValue<any>(path, (data) => {
                     if (data !== null && data !== undefined) {
                         const parsed = this.parseFromJSON({[key]: data});
@@ -89,7 +101,8 @@ export abstract class BaseModel {
                         }
                     }
                 })
-            )
+            );
+            return this._bindingCancel;
         }
     }
 }

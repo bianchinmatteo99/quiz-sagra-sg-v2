@@ -46,6 +46,15 @@ class QuizController implements QuizViewContext, QuizModelContext {
         const gameToStart = this.model.definition.games[gameIndex];
         this.context.startGame(gameToStart);
     }
+    gameEnded(){
+        const id = this.model.currentGame;
+        if(id==null){
+            throw new Error("Ending non-started game");
+        }
+        this.model.currentGame = null;
+        this.model.gamesStatuses[id] = GameStatus.Completed;
+        this.stateUpdated();
+    }
 
     viewGame(gameIndex: number): void {
         console.log("View game " + gameIndex)

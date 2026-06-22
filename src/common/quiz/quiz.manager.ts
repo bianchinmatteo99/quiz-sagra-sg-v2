@@ -37,9 +37,11 @@ class QuizManager implements QuizControllerContext, GameManagerContext, PeopleCo
     }
 
     async startGame(game: GameDefinition): Promise<void> {
-        // TODO: Implement logic to start the game, e.g., navigate to the game page or initialize game state
         this.activeGameManager = instantiateGameManagerFor(game, this);
-        this.activeGameManager.startGame();
+        this.quiz.setStatus(QuizStatus.RunningGame);
+        await this.activeGameManager.startGame();
+        this.quiz.gameEnded();
+        this.quiz.setStatus(QuizStatus.Idle);
     }
 
     getDatabase(): IDatabaseAdapter {
@@ -52,9 +54,6 @@ class QuizManager implements QuizControllerContext, GameManagerContext, PeopleCo
 
     setGameTimelineDisplaysCurrent(boolean: boolean): void {}
     updateRanking(ranking: any): void {
-        throw new Error("Method not implemented.");
-    }
-    notifyGameEnd(game: GameDefinition): void {
         throw new Error("Method not implemented.");
     }
 }

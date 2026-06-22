@@ -57,10 +57,12 @@ button.active{
   flex: 0;
 }
 .game-admin-interaction-other, .game-admin-interaction-advance {
-  flex: 1 1 0;
+  flex: 1 1 0 !important;
+}
+button {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 6px; /* spacing between text and icon */
   justify-content: center;
 }
 
