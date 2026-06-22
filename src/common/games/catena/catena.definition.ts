@@ -2,6 +2,7 @@ import { GameDefinition, GameDefinitionBuilder } from "../game.base";
 
 export class ReazioneCatenaGameDefinition extends GameDefinition {
     readonly name = "catena";
+    readonly displayName = "Reazione a catena";
     timeForAnswer: number;
     canRetryForSameWord: boolean;
     words: string[];

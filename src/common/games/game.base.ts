@@ -4,6 +4,7 @@ import { BaseModel, BaseModelContext } from "../general.interfaces";
 
 export abstract class GameDefinition {
     abstract readonly name: string;
+    abstract readonly displayName: string;
     abstract toJSON(): any;
     readonly id: number;
     constructor(id: number){

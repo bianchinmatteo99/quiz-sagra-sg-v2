@@ -6,7 +6,7 @@ html, body {
 #main-container {
   height: 100vh;
   display: grid;
-  grid-template-columns: 260px 6px 1fr 6px 1fr;
+  grid-template-columns: 300px 6px 1fr 6px 1fr;
   overflow: hidden;
 }
 
@@ -24,6 +24,9 @@ html, body {
 
 article.active, button.active {
   border-color: var(--pico-color-amber-200);
+}
+button.active{
+  background-color: var(--pico-color-amber-200);
 }
 
 /*.quiz-game-list {
