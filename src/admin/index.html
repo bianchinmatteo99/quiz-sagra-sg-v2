@@ -10,7 +10,8 @@
 
     <link rel="stylesheet" href="../css/pico/css/pico.min.css">
     <link rel="stylesheet" media="screen" href="index.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 </head>
 
 <body>
@@ -36,7 +37,7 @@
         <div class="resizer col-resizer"></div>
 
         <main class="col">
-            <section class="panel top">B - Top</section>
+            <section class="panel top" id="people-list-container">B - Top</section>
             <div class="resizer row-resizer"></div>
             <section class="panel bottom">B - Bottom</section>
         </main>
@@ -54,6 +55,19 @@
                 <button id="quiz-load-db-continue" type="button">Load from Database (Continue)</button>
                 <button id="quiz-load-db-restart" type="button">Load from Database (Restart)</button>
             </footer>
+        </article>
+    </dialog>
+
+    <dialog id="person-actions-dialog">
+        <article>
+            <header>
+                <h2>Azioni per <span id="person-dialog-name"></span></h2>
+            </header>
+            <fieldset role="group" aria-describedby="points-label">
+                <input type="number" name="points" value="100"/>
+                <input type="submit" value="Salva" />
+            </fieldset>
+            <small id="points-label">Modifica il punteggio</small>
         </article>
     </dialog>
 
