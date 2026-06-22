@@ -22,6 +22,7 @@ export class PeopleView {
 
     render(): void {
         const container = document.getElementById(this.peopleListContainer)!;
+        container.innerHTML = "";
         for (const pr of this.context.getPeopleAndRank()) {
             const row = toHtml(`
                 <tr data-id="${pr.person.id}">
