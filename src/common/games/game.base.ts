@@ -42,6 +42,7 @@ export interface GameViewContext {
 export abstract class GameView {
     readonly timelineContainer = "game-timeline";
     readonly currentStateContainer = "game-current-state";
+    readonly currentStateContent = "game-current-state-content"
     isDisplayingLiveTimeline: boolean = false;
     abstract activeGameContext: GameViewContext | null;
 
@@ -62,7 +63,7 @@ export abstract class GameView {
             this.renderTimeline(container);
         }
         if (this.shouldRenderCurrentState()) {
-            const container = document.getElementById(this.currentStateContainer);
+            const container = document.getElementById(this.currentStateContent);
             if (!container) return;
             this.renderCurrentState(container)
         }
@@ -82,7 +83,7 @@ export abstract class GameView {
                 <footer>
                     <div role="group">
                         <button class="game-admin-interaction-other contrast" ${options.otherBtn ? "" : "disabled"}>${options.otherBtn ?? "<span class='material-symbols-outlined'>block</span>"}</button>
-                        <button class="game-admin-interaction-advance active>${options.advanceBtn} <span class='material-symbols-outlined'>arrow_forward</span></button>
+                        <button class="game-admin-interaction-advance active">${options.advanceBtn} <span class='material-symbols-outlined'>arrow_forward</span></button>
                     </div>
                 </footer>
         `) as HTMLElement & { safeRemove: (result: boolean | null) => void };
