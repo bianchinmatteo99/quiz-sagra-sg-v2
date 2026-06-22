@@ -34,7 +34,7 @@ class QuizView {
         const hasActiveGame = this.context.model.currentGame !== null || statuses.some(status => status === GameStatus.InProgress);
 
         games.forEach((game, index) => {
-            listContainer.appendChild(this.buildQuizListItem(index, game.name, statuses[index], hasActiveGame));
+            listContainer.appendChild(this.buildQuizListItem(index, game.displayName, statuses[index], hasActiveGame));
         });
 
         timeline.innerHTML = "";
