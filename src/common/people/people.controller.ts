@@ -20,7 +20,7 @@ export class PeopleController implements PeopleModelContext, PeopleViewContext {
 
     updateRanking(diff: RankingDiff){
         const tempList: [string, Rank][] = [];
-        for (const id in this.model.list){
+        for (const id of this.model.list.keys()){
             const update = diff.get(id) ?? 0;
             const current = this.model.ranking.get(id) ?? new Rank();
             const next = new Rank(current.points+update, update, -1, current.position)
