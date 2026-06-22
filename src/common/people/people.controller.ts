@@ -52,6 +52,7 @@ export class PeopleController implements PeopleModelContext, PeopleViewContext {
 
     deletePerson(id: string){
         this.model.list.delete(id);
+        this.model.ranking.delete(id);
         this.stateUpdated();
     }
     updatePersonPoints(id: string, points: number){

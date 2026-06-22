@@ -125,6 +125,7 @@ export abstract class Question implements QuestionModelContext {
         this.model.results = await this.evaluate();
         this.model.state = QuestionState.ENDED;
         this.stateUpdated();
+        this.model.clearDatabase();
         // detatch view?
         return this.model.results;
     }
