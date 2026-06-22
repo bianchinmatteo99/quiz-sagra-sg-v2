@@ -1,19 +1,21 @@
 import { IDatabaseAdapter } from "../database/database.types";
 import { PeopleModel, PeopleModelContext, Person, PersonRankList, Rank } from "./people.model";
+import { PeopleView, PeopleViewContext } from "./people.view";
 
 export interface PeopleControllerContext{
     getDatabase(): IDatabaseAdapter
 }
 
 export type RankingDiff = Map<string, number>;
-export class PeopleController implements PeopleModelContext { //PeopleViewContext
+export class PeopleController implements PeopleModelContext, PeopleViewContext {
     model: PeopleModel;
-    //view: PeopleView;
+    view: PeopleView;
     context: PeopleControllerContext;
 
     constructor(ctx : PeopleControllerContext){
         this.context = ctx;
         this.model = new PeopleModel(this);
+        this.view = new PeopleView(this);
     }
 
     updateRanking(diff: RankingDiff){
@@ -49,12 +51,22 @@ export class PeopleController implements PeopleModelContext { //PeopleViewContex
         })
     }
 
+    deletePerson(id: string){
+        this.model.list.delete(id);
+        this.stateUpdated();
+    }
+    updatePersonPoints(id: string, points: number){
+        const now = this.model.ranking.get(id) ?? new Rank();
+        if(now.points==points) return;
+        this.updateRanking(new Map([[id, points-now.points]]));
+    }
+
     getDatabase(): IDatabaseAdapter {
         return this.context.getDatabase();
     }
 
     stateUpdated(remote: boolean = false): void {
         if(!remote) this.model.saveToDatabase();
-        // this.view.render();  // TRY TO UPDATE BY DIFF, UNLESS PEOPLE ARE ADDED/REMOVED
+        this.view.render(); 
     }
 }

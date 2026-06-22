@@ -37,7 +37,24 @@
         <div class="resizer col-resizer"></div>
 
         <main class="col">
-            <section class="panel top" id="people-list-container">B - Top</section>
+            <section class="panel top">
+                <table class="striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">Nome</th>
+                            <th scope="col">Punti</th>
+                            <th scope="col"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="people-list-container">
+                        <tr>
+                            <th scope="row">Mercury</th>
+                            <td>4,880</td>
+                            <td><button>Azioni</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
             <div class="resizer row-resizer"></div>
             <section class="panel bottom">B - Bottom</section>
         </main>
@@ -64,10 +81,14 @@
                 <h2>Azioni per <span id="person-dialog-name"></span></h2>
             </header>
             <fieldset role="group" aria-describedby="points-label">
-                <input type="number" name="points" value="100"/>
+                <input type="number" name="points" value="100" />
                 <input type="submit" value="Salva" />
             </fieldset>
             <small id="points-label">Modifica il punteggio</small>
+            <div role="group">
+                <button id="person-dialog-cancel" class="secondary">Annulla</button>
+                <button id="person-dialog-delete" class="delete">Elimina</button>
+            </div>
         </article>
     </dialog>
 
