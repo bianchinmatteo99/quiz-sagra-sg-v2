@@ -53,7 +53,7 @@ export class ReazioneCatenaGameManager extends GameManager {
                 }
             }
             this.controller.setState(CatenaState.DISPLAYCHAIN);
-            await this.controller.adminInteraction({advanceBtn: "Passa alla prossima parola"});
+            await this.controller.adminInteraction({advanceBtn: "Passa alla prossima parola o concludi"});
         }
         this.controller.setState(CatenaState.ENDING);        
     }

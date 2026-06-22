@@ -82,7 +82,7 @@ export abstract class GameView {
         const element = toHtml(`
                 <footer>
                     <div role="group">
-                        <button class="game-admin-interaction-other contrast" ${options.otherBtn ? "" : "disabled"}>${options.otherBtn ?? "<span class='material-symbols-outlined'>block</span>"}</button>
+                        ${!!options.otherBtn ? "<button class='game-admin-interaction-other contrast'>"+options.otherBtn+"</button>" : ""}
                         <button class="game-admin-interaction-advance active">${options.advanceBtn} <span class='material-symbols-outlined'>arrow_forward</span></button>
                     </div>
                 </footer>
