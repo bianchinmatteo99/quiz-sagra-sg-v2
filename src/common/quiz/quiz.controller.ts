@@ -47,6 +47,10 @@ class QuizController implements QuizViewContext, QuizModelContext {
         this.context.startGame(gameToStart);
     }
 
+    viewGame(gameIndex: number): void {
+        console.log("View game " + gameIndex)
+    }
+
     async decideSourceAndLoad(filename: string): Promise<'new' | 'restore' | 'error'> {
         
         const builder = new QuizDefinitionBuilder();

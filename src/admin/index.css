@@ -17,9 +17,16 @@ html, body {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent),
     var(--pico-muted-background);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
-.quiz-game-list {
+article.active, button.active {
+  border-color: var(--pico-color-amber-200);
+}
+
+/*.quiz-game-list {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -134,7 +141,7 @@ html, body {
 .quiz-game-start {
   background: linear-gradient(90deg, var(--pico-primary), color-mix(in srgb, var(--pico-primary) 78%, black));
   color: var(--pico-primary-inverse);
-}
+}*/
 
 /* Columns */
 .col {
