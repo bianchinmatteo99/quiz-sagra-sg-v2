@@ -21,7 +21,7 @@ export abstract class QuestionModel extends BaseModel {
     abstract readonly displayName: string;
 
     state: QuestionState;
-    answers: QuestionAnswers = new Map(); // ONLY PROPERTY TO LISTEN FOR REMOTE CHANGES
+    answers: QuestionAnswers = new Map([["test", {time: new Date(Date.now()), answer: "catena"}]]); // ONLY PROPERTY TO LISTEN FOR REMOTE CHANGES // TODO: Remove test answer
     results: QuestionResult = [];
     deny: string[] = [];
     enableAnswers: boolean = false;
