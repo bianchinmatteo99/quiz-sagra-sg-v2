@@ -48,6 +48,7 @@ export abstract class GameView {
     readonly currentStateContent = "game-current-state-content"
     isDisplayingLiveTimeline: boolean = false;
     abstract activeGameContext: GameViewContext | null;
+    abstract gameDef: GameDefinition;
 
     private listenerController = new AbortController();
     constructor(){
