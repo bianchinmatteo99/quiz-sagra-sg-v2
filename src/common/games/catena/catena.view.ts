@@ -18,11 +18,11 @@ export class ReazioneCatenaGameView extends GameView {
     }
     renderCurrentState(container : HTMLElement): void {
         if(!this.activeGameContext) return;
-        const s = this.canDisplaySecrets();
-        const secret = (text:string):string => s ? text : "***";
         const word = this.activeGameContext.model.getCurrentWord();
         const lett = this.activeGameContext.model.currentWordLetters;
-        container.textContent = `
+        const s = this.canDisplaySecrets() || word?.length == lett;
+        const secret = (text:string):string => s ? text : "***";
+        container.innerHTML = `
             Parola in corso: ${this.activeGameContext.model.currentWordIndex+1} di ${this.activeGameContext.model.definition.words.length}<br/>
             Lettere ${lett} di ${secret(String(word?.length ?? "?"))}<br/>
             Parola corretta: ${!!word ? word.slice(0,lett).toUpperCase() + secret(word.slice(lett)).toUpperCase() : "?"}
