@@ -22,8 +22,7 @@ header {
 
 h1 {
   margin: 0 !important;
-  width: fit-content;
-  flex: 0
+  flex: 0 0 50%;
 }
 
 #main-container {

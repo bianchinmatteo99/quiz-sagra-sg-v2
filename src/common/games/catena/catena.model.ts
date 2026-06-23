@@ -39,8 +39,8 @@ export class ReazioneCatenaGameModel extends GameModel {
             return null;
         }
     }
-    getCurrentWord(): string {
-        return this.getWord(this.currentWordIndex)!;
+    getCurrentWord(): string|null {
+        return this.getWord(this.currentWordIndex);
     }
 
     parseFromJSON(data: any): boolean {

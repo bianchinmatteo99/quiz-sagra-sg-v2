@@ -31,7 +31,7 @@ export class ReazioneCatenaGameController extends GameController implements Cate
 
     async nextLetter(transitionT: number = 0): Promise<boolean>{
         this.model.wordtransitiontime = transitionT;
-        const w = this.model.getCurrentWord();
+        const w = this.model.getCurrentWord()!;
         if(this.model.currentWordLetters < w.length){
             this.model.currentWordLetters+=1;
             this.stateUpdated();
@@ -42,7 +42,7 @@ export class ReazioneCatenaGameController extends GameController implements Cate
 
     async completeWord(transitionT : number = 0): Promise<void>{
         this.model.wordtransitiontime = transitionT;
-        const w = this.model.getCurrentWord();
+        const w = this.model.getCurrentWord()!;
         this.model.currentWordLetters = w.length;
         this.stateUpdated();
         await delay(transitionT);

@@ -27,7 +27,7 @@ export class ReazioneCatenaGameManager extends GameManager {
             this.controller.model.currentDenyList = [];
             while (await this.controller.nextLetter(1000)) {
                 this.controller.setState(CatenaState.ASKINGQUESTION);
-                this.currentQ = new TextInputQuestion(this, { auto: w, manual: true }, { timer: this.controller.model.definition.timeForAnswer }, this.controller.model.currentDenyList);
+                this.currentQ = new TextInputQuestion(this, { auto: w!, manual: true }, { timer: this.controller.model.definition.timeForAnswer }, this.controller.model.currentDenyList);
                 const res = await this.currentQ.ask();
 
                 const correct = res.filter((v) => v.correct).map((v) => v.id);
