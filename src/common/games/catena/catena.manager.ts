@@ -38,6 +38,9 @@ export class ReazioneCatenaGameManager extends GameManager {
                     // this.controller.displayWinners(); and await adminInteraction
                     break;
                 }
+
+                this.currentQ.clear();
+                this.currentQ = null;
                 
                 if(! await this.controller.adminInteraction({advanceBtn: "Passa alla prossima lettera", otherBtn: "Completa la parola e vai alla prossima"})){
                     await this.controller.completeWord(5000);

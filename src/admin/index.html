@@ -19,9 +19,7 @@
         <h1>Admin Dashboard - <span id="quiz-title"></span></h1>
     </header>
     <main id="main-container" class="container-fluid">
-        <aside id="quiz-timeline" class="sidebar">
-            Sidebar
-        </aside>
+        <aside id="quiz-timeline" class="sidebar"></aside>
 
         <div class="resizer col-resizer"></div>
 
@@ -50,7 +48,21 @@
                 </table>
             </section>
             <div class="resizer row-resizer"></div>
-            <section class="panel bottom">B - Bottom</section>
+            <article id="question-container" class="panel bottom">
+                <div id="question-answers-container">
+                    <table class="striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">Nome</th>
+                                <th scope="col">Risposta</th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="question-answers"></tbody>
+                    </table>
+                </div>
+                <footer id="question-actions"></footer>
+            </article>
         </main>
     </main>
 

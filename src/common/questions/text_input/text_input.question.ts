@@ -3,6 +3,7 @@ import { Ender, Evaluator, Question, QuestionContext, QuestionModel, QuestionRes
 
 class TextInputQuestionModel extends QuestionModel{
     readonly name = "text-input";
+    readonly displayName = "Risposta testuale";
 }
 
 export class TextInputQuestion extends Question {

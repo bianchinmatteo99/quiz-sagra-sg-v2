@@ -23,6 +23,7 @@ h1 {
   display: grid;
   grid-template-columns: 300px 6px 1fr 6px 1fr;
   overflow: hidden;
+  padding-bottom: 0;
 }
 
 /* Sidebar */
@@ -45,16 +46,26 @@ button.active{
   border-color: rgb(255, 191, 0);
 }
 
-#game-current-state{
+#game-current-state, #question-container{
   margin:0;
   display: flex;
   flex-direction: column;
 }
-#game-current-state>div{
+#game-current-state>div, #question-answers-container{
   flex: 1;
+  min-height: 0;
+  overflow: auto;
 }
-#game-current-state>footer{
+#game-current-state>footer>div, #question-actions>div{
+  margin-bottom: 0;
+}
+#game-current-state>footer, #question-actions{
   flex: 0;
+}
+#question-actions {
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: space-between;
 }
 .game-admin-interaction-other, .game-admin-interaction-advance, #person-dialog-cancel, #person-dialog-delete {
   flex: 1 1 0 !important;
