@@ -49,6 +49,11 @@ export abstract class GameView {
     isDisplayingLiveTimeline: boolean = false;
     abstract activeGameContext: GameViewContext | null;
 
+    private listenerController = new AbortController();
+    constructor(){
+        (document.getElementById("mostra-segreti") as HTMLInputElement).addEventListener("change", (e) => this.render(), { signal: this.listenerController.signal })
+    }
+
     shouldRenderTimeline(): boolean {
         return !this.activeGameContext || this.isDisplayingLiveTimeline;
     }
@@ -118,6 +123,7 @@ export abstract class GameView {
     }
 
     clearViews(){
+        this.listenerController.abort();
         const safeRemove = (element: HTMLElement|null) => {if(element!=null) element.innerHTML = ""};
         safeRemove(document.getElementById(this.currentStateContent));
         safeRemove(document.getElementById(this.timelineContainer));
