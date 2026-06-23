@@ -181,6 +181,8 @@ export class QuestionView {
         this.listenerController.abort();
         const container = document.getElementById(this.questionAnswersContainer) as HTMLElement;
         container.innerHTML = "";
+        const footer = document.getElementById(this.questionFooter) as HTMLElement;
+        footer.innerHTML = "";
     }
 }
 

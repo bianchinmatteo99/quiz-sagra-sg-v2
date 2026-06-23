@@ -24,7 +24,7 @@ export class ReazioneCatenaGameView extends GameView {
 
     renderTimeline(container: HTMLElement): void {
         const currentStep = (this.activeGameContext?.model.currentWordIndex ?? Infinity) + 1;
-        const steps = ["Mostra titolo e catena vuota", ...this.gameDef.words.entries().map(([i, word]) => `Parola: ${i + 1 < currentStep ? word : "***"}`), "Conclusione"];
+        const steps = ["Mostra titolo e catena vuota", ...this.gameDef.words.entries().map(([i, word]) => `Parola: ${(i + 1 < currentStep || this.canDisplaySecrets()) ? word : "***"}`), "Conclusione"];
 
         const stepHtmlBuilder = (title: string, state: string) => `
         <article class="game-steps-list-item ${state == "current" ? "active" : ""}">${title}</article>

@@ -132,11 +132,11 @@ export abstract class GameView {
         (document.getElementById(this.timelineContainer) as HTMLElement).innerHTML = "";
     }
     clearCurrentState(){
-        this.listenerController.abort();
         (document.getElementById(this.currentStateContent)as HTMLElement).innerHTML = "";;
         if(!!this._activeFooter) this._activeFooter.safeRemove(null);
     }
     clearViews(){
+        this.listenerController.abort();
         if(this.shouldRenderCurrentState()){
             this.clearCurrentState();
         }
