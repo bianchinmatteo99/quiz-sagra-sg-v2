@@ -48,6 +48,7 @@ class QuizController implements QuizViewContext, QuizModelContext {
         this.stateUpdated();
         const gameToStart = this.model.definition.games[gameIndex];
         this.context.startGame(gameToStart);
+        this.viewGame(gameIndex);
     }
     gameEnded(){
         const id = this.model.currentGame;
