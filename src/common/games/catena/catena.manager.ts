@@ -34,7 +34,7 @@ export class ReazioneCatenaGameManager extends GameManager {
                 const correct = res.filter((v)=>v.correct).map((v)=>v.id);
                 if (correct.length>0){
                     await this.controller.completeWord(5000);
-                    // this.context.updateRanking(null)
+                    this.context.updateRanking(new Map(correct.map((id)=>[id, this.controller.model.definition.pointsForCorrectAnswer])));
                     // this.controller.displayWinners(); and await adminInteraction
                     break;
                 }

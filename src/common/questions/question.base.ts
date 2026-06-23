@@ -135,18 +135,18 @@ export class QuestionView {
         }
 
         const footer = document.getElementById(this.questionFooter) as HTMLElement;
-        const hast = this.context.model.isTimerActive();
+        const hast = state == QuestionState.ASKING && this.context.model.isTimerActive();
         let button = "";
         if (this.context.model.enableManualStopAnswer && state == QuestionState.ASKING) {
             button = `<button>STOP</button>`
         } else if (this.context.model.enableManualEvaluation && state == QuestionState.EVALUATING) {
             button = `<button class="active">CONCLUDI</button>`
         }
-        footer.innerHTML = `<span>${this.context.model.displayName} - ${QuestionState[state]}</span><span>${hast ? "<span id='question-timer'></span>" : ""}${button}`;
+        footer.innerHTML = `<span>${this.context.model.displayName} - ${QuestionState[state]}</span><span>${hast ? "<span id='question-timer'>&infin;</span>" : ""}${button}`;
         if (hast) {
             const timerContainer = footer.querySelector("#question-timer")!
             this.context.model.setTimerClockListener((t) => {
-                timerContainer.textContent = String(t ?? 0)
+                if(state == QuestionState.ASKING) timerContainer.textContent = String(t ?? 0);
             });
         }
         if (button != "") {

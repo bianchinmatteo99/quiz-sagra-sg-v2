@@ -3,6 +3,7 @@ import { IDatabaseAdapter } from "../database/database.types.old";
 import { BaseModel, BaseModelContext, toHtml } from "../general.utils";
 import { Person } from "../people/people.model";
 import { QuestionContext } from "../questions/question.base";
+import { RankingDiff } from "../people/people.controller";
 
 export abstract class GameDefinition {
     abstract readonly name: string;
@@ -161,7 +162,7 @@ export abstract class GameController implements GameViewContext, GameModelContex
 
 export interface GameManagerContext {
     getDatabase(): IDatabaseAdapter;
-    updateRanking(ranking: any): void;
+    updateRanking(diff: RankingDiff): void;
     getPeopleList(): Map<string, Person>;
 }
 

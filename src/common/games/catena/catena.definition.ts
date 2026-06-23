@@ -6,6 +6,7 @@ export class ReazioneCatenaGameDefinition extends GameDefinition {
     timeForAnswer: number;
     canRetryForSameWord: boolean;
     words: string[];
+    pointsForCorrectAnswer: number;
 
     constructor(id:number, data: any = {}) {
         super(id);
@@ -15,6 +16,7 @@ export class ReazioneCatenaGameDefinition extends GameDefinition {
             data.canRetryForSameWord === true ||
             String(data.can_retry_for_same_word).toLowerCase() === "true";
         this.words = Array.isArray(data.words) ? data.words.map(String) : [];
+        this.pointsForCorrectAnswer = Number(data.points_for_correct_answer ?? 10);
     }
  
     toJSON(): any {
@@ -23,6 +25,7 @@ export class ReazioneCatenaGameDefinition extends GameDefinition {
             time_for_answer: this.timeForAnswer,
             can_retry_for_same_word: this.canRetryForSameWord,
             words: this.words,
+            points_for_correct_answer: this.pointsForCorrectAnswer,
         };
     }
 }
