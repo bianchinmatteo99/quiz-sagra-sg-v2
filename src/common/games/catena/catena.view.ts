@@ -17,7 +17,7 @@ export class ReazioneCatenaGameView extends GameView {
         container.textContent = "Timeline di Catena" + (!!this.activeGameContext ? (" (parola " + this.activeGameContext.model.currentWordIndex + ")") : "")
     }
     renderCurrentState(container : HTMLElement): void {
-        container.textContent = "Stato attuale di Catena" + (!!this.activeGameContext ? (" (parola " + this.activeGameContext.model.currentWordIndex + ")") : "")
+        container.textContent = "Stato attuale di Catena" + (!!this.activeGameContext ? (" (parola " + this.activeGameContext.model.currentWordIndex + (document.getElementById("mostra-segreti") as HTMLInputElement).checked ? this.activeGameContext.model.definition.words[this.activeGameContext.model.currentWordIndex ] : "" + ")") : "")
     }
     
 }
