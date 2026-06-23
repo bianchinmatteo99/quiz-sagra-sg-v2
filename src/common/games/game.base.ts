@@ -86,8 +86,29 @@ export abstract class GameView {
         }
     }
 
-    abstract renderTimeline(container: HTMLElement): void;
+    renderTimeline(container: HTMLElement): void {
+        const islive = !!this.activeGameContext;
+        const curr = this.getCurrentStep() ?? Infinity;
+        const s = this.canDisplaySecrets();
+        const getState = (i:number) => (islive ? (i == curr ? "current" : (i < curr ? "past" : "future")) : null);
+        const steps = this.getSteps().entries().map(([i,step])=>{
+            if(typeof step == "string"){
+                return {title: step, state: getState(i)};
+            } else {
+                return {title: step(!islive || i<curr || s), state: getState(i)}
+            }
+        }).toArray();
+
+        const stepHtmlBuilder = (step: {title: string, state: string|null}) => `
+        <article class="game-steps-list-item ${step.state == "current" ? "active" : ""}">${step.title}</article>
+        `;
+
+        container.innerHTML = steps.map(stepHtmlBuilder).join("\n")
+    }
+
     abstract renderCurrentState(container: HTMLElement): void;
+    abstract getSteps(): (string | ((s:boolean)=>string))[];
+    abstract getCurrentStep(): number|null;
 
     private _activeFooter: HTMLElement & { safeRemove: (result: boolean | null) => void } | null = null;
     renderFooterChoice(options: { advanceBtn: string, otherBtn?: string }, listener: (action: boolean | null) => void) {

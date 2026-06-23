@@ -22,7 +22,18 @@ export class ReazioneCatenaGameView extends GameView {
         }
     }
 
-    renderTimeline(container: HTMLElement): void {
+    getSteps(): (string | ((s: boolean) => string))[] {
+        return [
+            "Mostra titolo e catena vuota", 
+            ...this.gameDef.words.map(word => ((s:boolean)=>`Parola: ${s ? word : "***"}`)),
+            "Conclusione"]
+    }
+    getCurrentStep(): number | null {
+        if (!this.activeGameContext) return null;
+        return this.activeGameContext.model.currentWordIndex + 1;
+    }
+
+    /* renderTimeline(container: HTMLElement): void {
         const currentStep = (this.activeGameContext?.model.currentWordIndex ?? Infinity) + 1;
         const steps = ["Mostra titolo e catena vuota", ...this.gameDef.words.entries().map(([i, word]) => `Parola: ${(i + 1 < currentStep || this.canDisplaySecrets()) ? word : "***"}`), "Conclusione"];
 
@@ -31,7 +42,7 @@ export class ReazioneCatenaGameView extends GameView {
         `;
 
         container.innerHTML = steps.entries().map(([i, title])=>stepHtmlBuilder(title, (i == currentStep ? "current" : (i < currentStep ? "past" : "future")))).toArray().join("\n")
-    }
+    } */
     renderCurrentState(container: HTMLElement): void {
         if (!this.activeGameContext) return;
         const word = this.activeGameContext.model.getCurrentWord();
