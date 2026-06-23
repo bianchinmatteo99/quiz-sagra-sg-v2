@@ -24,10 +24,10 @@ export class ReazioneCatenaGameManager extends GameManager {
 
         while (this.controller.nextWord()) {
             const w = this.controller.model.getCurrentWord();
-            const deny: string[] = [];
+            this.controller.model.currentDenyList = [];
             while (await this.controller.nextLetter(1000)) {
                 this.controller.setState(CatenaState.ASKINGQUESTION);
-                this.currentQ = new TextInputQuestion(this, { auto: w, manual: true }, { timer: this.controller.model.definition.timeForAnswer }, deny);
+                this.currentQ = new TextInputQuestion(this, { auto: w, manual: true }, { timer: this.controller.model.definition.timeForAnswer }, this.controller.model.currentDenyList);
                 const res = await this.currentQ.ask();
 
                 const correct = res.filter((v) => v.correct).map((v) => v.id);
@@ -50,8 +50,8 @@ export class ReazioneCatenaGameManager extends GameManager {
 
                 if (!this.controller.model.definition.canRetryForSameWord) {
                     for (const r of res) {
-                        if (!r.correct && !deny.includes(r.id)) {
-                            deny.push(r.id)
+                        if (!r.correct && !this.controller.model.currentDenyList.includes(r.id)) {
+                            this.controller.model.currentDenyList.push(r.id)
                         }
                     }
                 }

@@ -16,6 +16,7 @@ export class ReazioneCatenaGameModel extends GameModel {
     currentWordIndex: number;
     currentWordLetters: number;
     wordtransitiontime: number;
+    currentDenyList: string[] = [];
     state: CatenaState;
 
     constructor(ctx: GameModelContext, def: ReazioneCatenaGameDefinition, restoreState: boolean = false) {

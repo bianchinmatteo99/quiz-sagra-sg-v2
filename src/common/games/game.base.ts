@@ -55,6 +55,9 @@ export abstract class GameView {
     shouldRenderCurrentState(): boolean {
         return !!this.activeGameContext;
     }
+    canDisplaySecrets(): boolean{
+        return (document.getElementById("mostra-segreti") as HTMLInputElement).checked;
+    }
     setIsDisplayingLiveTimeline(isLive: boolean): void {
         this.isDisplayingLiveTimeline = isLive;
     }
