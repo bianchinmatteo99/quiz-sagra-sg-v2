@@ -14,7 +14,7 @@ export class Timer {
         this.seconds = seconds;
         this.current = null;
         this.db = db;
-        this.listeners = [(t) => this.pushToUI(t)];
+        this.listeners = [];
     }
 
     
@@ -49,9 +49,4 @@ export class Timer {
             this.db.set(this.DBPATH, t);
         }
     }
-
-    private pushToUI(t?: number) {
-        console.log("Timer " + t);
-    }
-
 }
