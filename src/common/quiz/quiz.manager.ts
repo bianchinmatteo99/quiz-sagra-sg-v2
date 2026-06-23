@@ -53,7 +53,10 @@ class QuizManager implements QuizControllerContext, GameManagerContext, PeopleCo
         // TODO: Restore local models to reflect database state
     }
 
-    setGameTimelineDisplaysCurrent(boolean: boolean): void {}
+    setGameTimelineDisplaysCurrent(bool: boolean): void {
+        if(!this.activeGameManager) return;
+        this.activeGameManager.controller.view.setIsDisplayingTimeline(bool);
+    }
     updateRanking(diff: RankingDiff): void {
         this.people?.updateRanking(diff);
     }

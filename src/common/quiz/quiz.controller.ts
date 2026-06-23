@@ -3,17 +3,20 @@ import { GameStatus, QuizModel, QuizModelContext, QuizStatus } from "./quiz.mode
 import { QuizDefinition, QuizDefinitionBuilder } from "./quiz.definition";
 import { QuizView, QuizViewContext } from "./quiz.view";
 import { IDatabaseAdapter } from "../database/database.types.old";
-import { GameDefinition } from "../games/game.base";
+import { GameDefinition, GameView } from "../games/game.base";
+import { instantiateGameViewerFor } from "../games/games.register";
 
 interface QuizControllerContext {
     getDatabase(): IDatabaseAdapter;
-    startGame(game: GameDefinition): void;
+    startGame(game: GameDefinition): Promise<void>;
+    setGameTimelineDisplaysCurrent(boolean: boolean): void;
 }
 
 class QuizController implements QuizViewContext, QuizModelContext {
     model: QuizModel;
     view: QuizView;
     context: QuizControllerContext;
+    gameViewer: GameView | null = null;
 
     constructor(context: QuizControllerContext) {
         this.context = context;
@@ -57,7 +60,21 @@ class QuizController implements QuizViewContext, QuizModelContext {
     }
 
     viewGame(gameIndex: number): void {
-        console.log("View game " + gameIndex)
+        if (gameIndex < 0 || gameIndex >= this.model.gamesStatuses.length) {
+            console.error(`Invalid game index: ${gameIndex}`);
+            return;
+        }
+        if(!!this.gameViewer){
+            this.gameViewer.setIsDisplayingTimeline(false);
+            this.gameViewer = null;
+        }
+        if(gameIndex==this.model.currentGame){
+            this.context.setGameTimelineDisplaysCurrent(true);
+        } else {
+            this.context.setGameTimelineDisplaysCurrent(false);
+            this.gameViewer = instantiateGameViewerFor(this.model.definition.games[gameIndex]);
+            this.gameViewer.setIsDisplayingTimeline(true);
+        }
     }
 
     async decideSourceAndLoad(filename: string): Promise<'new' | 'restore' | 'error'> {

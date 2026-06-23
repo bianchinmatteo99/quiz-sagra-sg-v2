@@ -46,7 +46,7 @@ export abstract class GameView {
     readonly timelineContainer = "game-timeline";
     readonly currentStateContainer = "game-current-state";
     readonly currentStateContent = "game-current-state-content"
-    isDisplayingLiveTimeline: boolean = false;
+    isDisplayingTimeline: boolean = false;
     abstract activeGameContext: GameViewContext | null;
     abstract gameDef: GameDefinition;
 
@@ -56,7 +56,7 @@ export abstract class GameView {
     }
 
     shouldRenderTimeline(): boolean {
-        return !this.activeGameContext || this.isDisplayingLiveTimeline;
+        return this.isDisplayingTimeline;
     }
     shouldRenderCurrentState(): boolean {
         return !!this.activeGameContext;
@@ -64,8 +64,13 @@ export abstract class GameView {
     canDisplaySecrets(): boolean{
         return (document.getElementById("mostra-segreti") as HTMLInputElement).checked;
     }
-    setIsDisplayingLiveTimeline(isLive: boolean): void {
-        this.isDisplayingLiveTimeline = isLive;
+    setIsDisplayingTimeline(bool: boolean): void {
+        this.isDisplayingTimeline = bool;
+        if(bool){
+            this.render();
+        } else {
+            this.clearTimeline();
+        }
     }
 
     render() {
@@ -123,12 +128,21 @@ export abstract class GameView {
         container?.appendChild(element);
     }
 
-    clearViews(){
+    clearTimeline(){
+        (document.getElementById(this.timelineContainer) as HTMLElement).innerHTML = "";
+    }
+    clearCurrentState(){
         this.listenerController.abort();
-        const safeRemove = (element: HTMLElement|null) => {if(element!=null) element.innerHTML = ""};
-        safeRemove(document.getElementById(this.currentStateContent));
-        safeRemove(document.getElementById(this.timelineContainer));
+        (document.getElementById(this.currentStateContent)as HTMLElement).innerHTML = "";;
         if(!!this._activeFooter) this._activeFooter.safeRemove(null);
+    }
+    clearViews(){
+        if(this.shouldRenderCurrentState()){
+            this.clearCurrentState();
+        }
+        if(this.shouldRenderTimeline()){
+            this.clearTimeline();
+        }
     }
 }
 
