@@ -268,7 +268,7 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
 
     stateUpdated(remote: boolean = false): void {
         if (!remote) this.model.saveToDatabase();
-        // this.view.render();
+        this.view.render();
         if (remote && !!this.autoStop) this.autoStop(this.model.answers);
     }
 

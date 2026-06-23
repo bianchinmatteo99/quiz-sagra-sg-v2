@@ -66,6 +66,7 @@ button.active{
   display: inline-flex;
   flex-direction: row;
   justify-content: space-between;
+  align-items: center;
 }
 .game-admin-interaction-other, .game-admin-interaction-advance, #person-dialog-cancel, #person-dialog-delete {
   flex: 1 1 0 !important;

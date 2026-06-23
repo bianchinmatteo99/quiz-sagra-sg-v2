@@ -2,11 +2,12 @@ import { IDatabaseAdapter } from "../database/database.types";
 import { GameDefinition, GameManager, GameManagerContext } from "../games/game.base";
 import { instantiateGameManagerFor } from "../games/games.register";
 import { PeopleController, PeopleControllerContext } from "../people/people.controller";
+import { Person } from "../people/people.model";
 import { QuestionContext } from "../questions/question.base";
 import { QuizController, QuizControllerContext } from "./quiz.controller";
 import { QuizStatus } from "./quiz.model";
 
-class QuizManager implements QuizControllerContext, GameManagerContext, PeopleControllerContext, QuestionContext {
+class QuizManager implements QuizControllerContext, GameManagerContext, PeopleControllerContext {
     quiz: QuizController;
     activeGameManager: GameManager|null = null;
     people: PeopleController|null = null;
@@ -55,6 +56,9 @@ class QuizManager implements QuizControllerContext, GameManagerContext, PeopleCo
     setGameTimelineDisplaysCurrent(boolean: boolean): void {}
     updateRanking(ranking: any): void {
         throw new Error("Method not implemented.");
+    }
+    getPeopleList(): Map<string, Person> {
+        return this.people?.getPeopleList() ?? new Map();
     }
 }
 

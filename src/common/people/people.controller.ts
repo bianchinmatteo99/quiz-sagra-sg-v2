@@ -60,6 +60,9 @@ export class PeopleController implements PeopleModelContext, PeopleViewContext {
         if(now.points==points) return;
         this.updateRanking(new Map([[id, points-now.points]]));
     }
+    getPeopleList(): Map<string, Person>{
+        return this.model.list;
+    }
 
     getDatabase(): IDatabaseAdapter {
         return this.context.getDatabase();

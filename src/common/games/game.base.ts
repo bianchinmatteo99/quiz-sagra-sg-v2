@@ -1,6 +1,8 @@
 import { getDatabase } from "firebase/database";
 import { IDatabaseAdapter } from "../database/database.types.old";
 import { BaseModel, BaseModelContext, toHtml } from "../general.utils";
+import { Person } from "../people/people.model";
+import { QuestionContext } from "../questions/question.base";
 
 export abstract class GameDefinition {
     abstract readonly name: string;
@@ -160,9 +162,10 @@ export abstract class GameController implements GameViewContext, GameModelContex
 export interface GameManagerContext {
     getDatabase(): IDatabaseAdapter;
     updateRanking(ranking: any): void;
+    getPeopleList(): Map<string, Person>;
 }
 
-export abstract class GameManager implements GameControllerContext {
+export abstract class GameManager implements GameControllerContext, QuestionContext {
     context: GameManagerContext;
 
     abstract controller: GameController;
@@ -173,6 +176,9 @@ export abstract class GameManager implements GameControllerContext {
 
     getDatabase(): IDatabaseAdapter {
         return this.context.getDatabase();
+    }
+    getPeopleList(): Map<string, Person>{
+        return this.context.getPeopleList();
     }
 
     abstract startGame(): Promise<void>;
