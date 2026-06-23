@@ -1,0 +1,5 @@
+# Ignore CSS files in this directory and its subdirectories
+**/*.css
+
+# Exclude one file from being ignored
+!css/pico.min.css
