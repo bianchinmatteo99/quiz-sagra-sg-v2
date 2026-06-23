@@ -1,7 +1,9 @@
-html, body {
+html,
+body {
   width: 100%;
   height: 100%;
   margin: 0;
+  --active-color: rgb(255, 191, 0);
 }
 
 body {
@@ -39,44 +41,71 @@ h1 {
 }
 
 article.active {
-  border: rgb(255, 191, 0) 1px solid;
-}
-button.active{
-  background-color: rgb(255, 191, 0);
-  border-color: rgb(255, 191, 0);
+  border: var(--active-color) 1px solid;
 }
 
-#game-current-state, #question-container{
-  margin:0;
+button.active {
+  background-color: var(--active-color);
+  border-color: var(--active-color);
+}
+
+#game-current-state,
+#question-container {
+  margin: 0;
   display: flex;
   flex-direction: column;
 }
-#game-current-state>div, #question-answers-container{
+
+#game-current-state>div,
+#question-answers-container {
   flex: 1;
   min-height: 0;
   overflow: auto;
 }
-#game-current-state>footer>div, #question-actions>div{
+
+#game-current-state>footer>div,
+#question-actions>div {
   margin-bottom: 0;
 }
-#game-current-state>footer, #question-actions{
+
+#game-current-state>footer,
+#question-actions {
   flex: 0;
 }
+
 #question-actions {
   display: inline-flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
 }
-.game-admin-interaction-other, .game-admin-interaction-advance, #person-dialog-cancel, #person-dialog-delete {
+
+.game-admin-interaction-other,
+.game-admin-interaction-advance,
+#person-dialog-cancel,
+#person-dialog-delete {
   flex: 1 1 0 !important;
 }
+
+#question-timer {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  aspect-ratio: 1;
+  padding: 0.25rem;
+  border: 5px solid var(--active-color);
+  border-radius: 50%;
+  margin: .5em;
+}
+
 button {
   display: inline-flex;
   align-items: center;
-  gap: 6px; /* spacing between text and icon */
+  gap: 6px;
   justify-content: center;
 }
+
 #person-dialog-delete {
   background-color: rgb(217, 53, 38);
   border-color: rgb(217, 53, 38);
@@ -98,11 +127,9 @@ button {
 
 /* Resizers */
 .resizer {
-  background: color-mix(
-    in srgb,
-    var(--pico-background-color),
-    var(--pico-color) 12%
-  );
+  background: color-mix(in srgb,
+      var(--pico-background-color),
+      var(--pico-color) 12%);
 }
 
 .resizer:hover {

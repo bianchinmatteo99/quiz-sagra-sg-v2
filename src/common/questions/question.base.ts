@@ -21,7 +21,7 @@ export abstract class QuestionModel extends BaseModel {
     abstract readonly displayName: string;
 
     state: QuestionState;
-    answers: QuestionAnswers = new Map([["test", {time: new Date(Date.now()), answer: "catena"}]]); // ONLY PROPERTY TO LISTEN FOR REMOTE CHANGES // TODO: Remove test answer
+    answers: QuestionAnswers = new Map([["test", { time: new Date(Date.now()), answer: "catena" }]]); // ONLY PROPERTY TO LISTEN FOR REMOTE CHANGES // TODO: Remove test answer
     results: QuestionResult = [];
     deny: string[] = [];
     enableAnswers: boolean = false;
@@ -43,6 +43,12 @@ export abstract class QuestionModel extends BaseModel {
         this.timer = new Timer(seconds, this.context.getDatabase());
         await this.timer.start();
         this.timer = null;
+    }
+    isTimerActive() {
+        return !!this.timer;
+    }
+    setTimerClockListener(listener: (t?: number) => void) {
+        this.timer?.addListener(listener);
     }
 
     parseFromJSON(data: any): boolean {
@@ -92,9 +98,12 @@ export abstract class QuestionModel extends BaseModel {
 export interface QuestionViewContext {
     model: QuestionModel;
     getJoinedList(illEmptyResults: boolean): { id: string, name?: string, answer?: string, result?: boolean }[];
-    setResultOf(id: string, result : boolean): void;
+    setResultOf(id: string, result: boolean): void;
+    manualStop: (() => void) | null;
+    manualEvaluationEnded: (() => void) | null;
 }
 export class QuestionView {
+    readonly questionContainer = "question-container";
     readonly questionAnswersContainer = "question-answers";
     readonly questionFooter = "question-actions";
     context: QuestionViewContext;
@@ -102,8 +111,11 @@ export class QuestionView {
         this.context = context;
         this.attachListeners();
     }
-    
+
     render() {
+        const state = this.context.model.state;
+        document.getElementById(this.questionContainer)?.classList.toggle("active", [QuestionState.ASKING, QuestionState.EVALUATING].includes(state));
+
         const container = document.getElementById(this.questionAnswersContainer) as HTMLElement;
         container.innerHTML = "";
 
@@ -123,7 +135,26 @@ export class QuestionView {
         }
 
         const footer = document.getElementById(this.questionFooter) as HTMLElement;
-        footer.innerHTML = `<span>${this.context.model.displayName} - ${QuestionState[this.context.model.state]}</span><span>Timer - <button>Test</button></span>`;
+        const hast = this.context.model.isTimerActive();
+        let button = "";
+        if (this.context.model.enableManualStopAnswer && state == QuestionState.ASKING) {
+            button = `<button>STOP</button>`
+        } else if (this.context.model.enableManualEvaluation && state == QuestionState.EVALUATING) {
+            button = `<button class="active">CONCLUDI</button>`
+        }
+        footer.innerHTML = `<span>${this.context.model.displayName} - ${QuestionState[state]}</span><span>${hast ? "<span id='question-timer'></span>" : ""}${button}`;
+        if (hast) {
+            const timerContainer = footer.querySelector("#question-timer")!
+            this.context.model.setTimerClockListener((t) => {
+                timerContainer.textContent = String(t ?? 0)
+            });
+        }
+        if (button != "") {
+            footer.querySelector("button")!.addEventListener("click", (e) => {
+                if (this.context.model.enableManualStopAnswer && this.context.model.state == QuestionState.ASKING) this.context.manualStop?.();
+                if (this.context.model.enableManualEvaluation && this.context.model.state == QuestionState.EVALUATING) this.context.manualEvaluationEnded?.();
+            });
+        }
     }
 
     private listenerController = new AbortController();
@@ -140,13 +171,13 @@ export class QuestionView {
 
             const value = input.checked;
             input.setAttribute("aria-invalid", String(!value));
-            if(this.context.model.enableManualEvaluation){
+            if (this.context.model.enableManualEvaluation) {
                 this.context.setResultOf(id, value);
-            }            
+            }
         }, { signal: this.listenerController.signal });
     }
 
-    clear(){
+    clear() {
         this.listenerController.abort();
         const container = document.getElementById(this.questionAnswersContainer) as HTMLElement;
         container.innerHTML = "";
@@ -276,13 +307,13 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
         return this.context.getDatabase();
     }
 
-    setResultOf(id: string, result : boolean): void{
+    setResultOf(id: string, result: boolean): void {
         const x = id;
-        const i = this.model.results.findIndex(({id})=>x==id)
-        if(i<0){
-            this.model.results.push({id: id, correct: result});
+        const i = this.model.results.findIndex(({ id }) => x == id)
+        if (i < 0) {
+            this.model.results.push({ id: id, correct: result });
         } else {
-            this.model.results[i] = {id: id, correct: result};
+            this.model.results[i] = { id: id, correct: result };
         }
         this.model.saveToDatabase();
     }
@@ -301,7 +332,7 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
                 ids.push(id);
             }
         }
-        if(fillEmptyResults) this.model.saveToDatabase();
+        if (fillEmptyResults) this.model.saveToDatabase();
         const resultsMap = new Map(results.map(({ id, correct }) => [id, correct]));
 
         return ids.map(id => { return { id: id, name: people.get(id)?.name, answer: answers.get(id)?.answer, result: resultsMap.get(id) } });
