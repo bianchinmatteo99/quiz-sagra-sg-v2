@@ -80,7 +80,7 @@ export class PeopleModel extends BaseModel {
             this.allowOnboarding = data.allowOnboarding || false;
             const l = new Map();
             const r = new Map();
-            for(const [id, p] of (data.list || {})){
+            for(const [id, p] of (Object.entries<any>(data.list || {}))){
                 l.set(id, Person.parseFromJSON(id, p));
                 r.set(id, Rank.parseFromJSON(p.rank));
             }

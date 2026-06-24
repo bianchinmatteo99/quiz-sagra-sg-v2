@@ -19,7 +19,7 @@ class QuizView {
     }
 
     renderAdvanceButton(title : string, callback : ()=>void){
-        const container = document.getElementById(this.quizTimelineContainer);
+        const container = document.getElementById(this.quizAdvanceButtonContainer);
         if (!container) return;
 
         const button = document.createElement('button');
