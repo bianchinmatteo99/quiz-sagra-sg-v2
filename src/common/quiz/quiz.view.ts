@@ -10,30 +10,42 @@ interface QuizViewContext {
 }
 
 class QuizView {
-    readonly quizTimelineContainer = "quiz-timeline";
+    readonly quizTimelineContainer = "quiz-timeline-container";
+    readonly quizAdvanceButtonContainer = "quiz-advance-button-container"
     context: QuizViewContext;
 
     constructor(context: QuizViewContext) {
         this.context = context;
     }
 
+    renderAdvanceButton(title : string, callback : ()=>void){
+        const container = document.getElementById(this.quizTimelineContainer);
+        if (!container) return;
+
+        const button = new HTMLButtonElement()
+        button.textContent = title;
+        button.classList.add("active")
+        button.addEventListener("click", ()=>{
+            button.remove();
+            callback();
+        });
+
+        container.appendChild(button);
+    }
+
     render(): void {
         const timeline = document.getElementById(this.quizTimelineContainer);
         if (!timeline) return;
-
-        const listContainer = document.createElement("div");
-        listContainer.className = "quiz-game-list";
+        timeline.innerHTML = "";
 
         const games = this.context.model.definition.games;
         const statuses = this.context.model.gamesStatuses;
         const hasActiveGame = this.context.model.currentGame !== null || statuses.some(status => status === GameStatus.InProgress);
 
         games.forEach((game, index) => {
-            listContainer.appendChild(this.buildQuizListItem(index, game.displayName, statuses[index], hasActiveGame));
+            timeline.appendChild(this.buildQuizListItem(index, game.displayName, statuses[index], hasActiveGame));
         });
 
-        timeline.innerHTML = "";
-        timeline.appendChild(listContainer);
     }
 
     private buildQuizListItem(id: number, name: string, status: GameStatus, hasActiveGame: boolean): HTMLElement {

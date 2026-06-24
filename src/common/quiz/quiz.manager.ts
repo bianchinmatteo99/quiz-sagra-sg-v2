@@ -5,7 +5,7 @@ import { PeopleController, PeopleControllerContext, RankingDiff } from "../peopl
 import { Person } from "../people/people.model";
 import { QuestionContext } from "../questions/question.base";
 import { QuizController, QuizControllerContext } from "./quiz.controller";
-import { QuizStatus } from "./quiz.model";
+import { GameStatus, QuizStatus } from "./quiz.model";
 
 class QuizManager implements QuizControllerContext, GameManagerContext, PeopleControllerContext {
     quiz: QuizController;
@@ -37,12 +37,32 @@ class QuizManager implements QuizControllerContext, GameManagerContext, PeopleCo
         this.people = new PeopleController(this);
     }
 
+    async start(): Promise<void>{
+        if(this.quiz.model.status != QuizStatus.AwaitingStart) throw new Error("New user registration not allowed");
+        await this.quiz.adminInteraction("Inizio registrazione utenti");
+        this.people?.model.allowNewUsers(true);
+        this.quiz.setStatus(QuizStatus.OnBoarding);
+        await this.quiz.adminInteraction("Fine registrazione utenti");
+        this.people?.model.allowNewUsers(false);
+        this.quiz.setStatus(QuizStatus.Idle);
+    }
+
     async startGame(game: GameDefinition): Promise<void> {
         this.activeGameManager = instantiateGameManagerFor(game, this);
         this.quiz.setStatus(QuizStatus.RunningGame);
         await this.activeGameManager.startGame();
         this.quiz.gameEnded();
-        this.quiz.setStatus(QuizStatus.Idle);
+        if(this.quiz.model.gamesStatuses.some((g)=>g==GameStatus.NotStarted)){
+            this.quiz.setStatus(QuizStatus.Idle);
+        } else {
+            this.endQuiz();
+        }
+    }
+
+    async endQuiz(): Promise<void>{
+        await this.quiz.adminInteraction("Mostra classifica finale e concludi");
+        // TODO CLASSIFICA FINALE
+        this.quiz.setStatus(QuizStatus.Ended);
     }
 
     getDatabase(): IDatabaseAdapter {

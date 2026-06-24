@@ -2,9 +2,9 @@ import { FirebaseDatabaseAdapter } from "../common/database/firebase.adapter";
 import { QuizManager } from "../common/quiz/quiz.manager";
 import { app , auth, database } from "../firebase-init";
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
     const quizManager = new QuizManager(new FirebaseDatabaseAdapter());
-    quizManager.boot("/quiz_def.md");
+    await quizManager.boot("/quiz_def.md");
 });
 
 

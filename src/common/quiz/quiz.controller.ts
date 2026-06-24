@@ -60,6 +60,12 @@ class QuizController implements QuizViewContext, QuizModelContext {
         this.stateUpdated();
     }
 
+    async adminInteraction(text: string): Promise<void>{
+        return new Promise((resolve)=>{
+            this.view.renderAdvanceButton(text, resolve);
+        });
+    }
+
     viewGame(gameIndex: number): void {
         if (gameIndex < 0 || gameIndex >= this.model.gamesStatuses.length) {
             console.error(`Invalid game index: ${gameIndex}`);

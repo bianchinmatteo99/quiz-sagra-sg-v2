@@ -39,7 +39,7 @@ export class ReazioneCatenaGameView extends GameView {
         container.innerHTML = `
             Parola in corso: ${this.activeGameContext.model.currentWordIndex + 1} di ${this.gameDef.words.length}<br/>
             Lettere ${this.activeGameContext.model.currentWordLetters} di ${this.activeGameContext.model.getSecret<string>("currentwordlength", s) ?? "?"}<br/>
-            Parola corretta: ${this.activeGameContext.model.getSecret<string>("currentword", s) ?? "?"}
+            Parola corretta: ${this.activeGameContext.model.getSecret<string>("currentword", s)?.toUpperCase() ?? "?"}
             ${this.gameDef.canRetryForSameWord ? "" : ("<br/>Persone escluse: " + this.activeGameContext.model.currentDenyList.length)}<br/>
             Punti per risposta: ${this.gameDef.pointsForCorrectAnswer}<br/>
             Tempo per risposta: ${this.gameDef.timeForAnswer}
