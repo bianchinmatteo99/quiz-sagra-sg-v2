@@ -22,7 +22,7 @@ class QuizView {
         const container = document.getElementById(this.quizTimelineContainer);
         if (!container) return;
 
-        const button = new HTMLButtonElement()
+        const button = document.createElement('button');
         button.textContent = title;
         button.classList.add("active")
         button.addEventListener("click", ()=>{
