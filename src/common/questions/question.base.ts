@@ -241,8 +241,8 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
     }
 
     clear() {
-        this.model.clearDatabase();
         this.view.clear();
+        this.model.clearDatabase();
     }
 
     autoStop: ((a: QuestionAnswers) => void) | null = null;
