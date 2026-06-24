@@ -20,3 +20,23 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 });
+
+
+
+/*  VISIBLE VIEWPORT SETTINGS  */
+function updateViewportSize() {
+  const vv = window.visualViewport;
+
+  const width = vv ? vv.width : window.innerWidth;
+  const height = vv ? vv.height : window.innerHeight;
+
+  document.documentElement.style.setProperty('--vw', `${width}px`);
+  document.documentElement.style.setProperty('--vh', `${height}px`);
+}
+
+updateViewportSize();
+
+window.addEventListener('resize', updateViewportSize);
+window.visualViewport?.addEventListener('resize', updateViewportSize);
+window.visualViewport?.addEventListener('scroll', updateViewportSize);
+window.addEventListener('orientationchange', updateViewportSize);
