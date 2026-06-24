@@ -2,7 +2,7 @@ html,
 body,
 #page-container {
   width: var(--vw, 100vw);
-  height: var(--vh, 100vh);
+  height: var(--vh, 100vh); 
   margin: 0;
   padding: 0;
   overflow: hidden;
