@@ -6,7 +6,7 @@ import { Timer } from "./timer";
 
 export interface QuestionModelContext extends BaseModelContext { }
 
-export type QuestionResult = { id: string, correct: boolean }[];
+export type QuestionResult = Map<string, boolean>;// { id: string, correct: boolean }[];
 export type QuestionAnswers = Map<string, { time: Date, answer: string }>;
 export enum QuestionState {
     SETUP,
@@ -16,13 +16,13 @@ export enum QuestionState {
 }
 
 export abstract class QuestionModel extends BaseModel {
-    readonly DBPATH = new Map([["question", "/question"], ["answers", "/answers"], ["results", "/results"]]);
+    readonly DBPATH = new Map([["question", "/state/question"], ["answers", "/results/answers"], ["results", "/results/evaluation"]]);
     abstract readonly name: string;
     abstract readonly displayName: string;
 
     state: QuestionState;
     answers: QuestionAnswers = new Map([["test", { time: new Date(Date.now()), answer: "catena" }]]); // ONLY PROPERTY TO LISTEN FOR REMOTE CHANGES // TODO: Remove test answer
-    results: QuestionResult = [];
+    results: QuestionResult = new Map();
     deny: string[] = [];
     enableAnswers: boolean = false;
     enableManualEvaluation: boolean = false;
@@ -36,7 +36,16 @@ export abstract class QuestionModel extends BaseModel {
         this.context = ctx;
         this.state = QuestionState.SETUP;
         this.deny = deny;
-        this.setupTwoWayBinding(["answers"])
+    }
+
+    allowNewAnswers(b: boolean) {
+        this.enableAnswers = b;
+        this.saveToDatabase();
+        if (b) {
+            this.setupTwoWayBinding(["answers"]);
+        } else {
+            this.removeBinding(["answers"]);
+        }
     }
 
     async startTimer(seconds: number) {
@@ -71,7 +80,7 @@ export abstract class QuestionModel extends BaseModel {
             }
             if ("results" in data) {
                 some = true;
-                this.results = data.results;
+                this.results = new Map(Object.entries(data.results));
             }
             return some;
         } catch {
@@ -89,7 +98,7 @@ export abstract class QuestionModel extends BaseModel {
                 enableAnswers: this.enableAnswers,
                 enableManualEvaluation: this.enableManualEvaluation,
             },
-            results: this.results,
+            results: Object.fromEntries(this.results),
         }
     }
 
@@ -146,7 +155,7 @@ export class QuestionView {
         if (hast) {
             const timerContainer = footer.querySelector("#question-timer")!
             this.context.model.setTimerClockListener((t) => {
-                if(state == QuestionState.ASKING) timerContainer.textContent = String(t ?? 0);
+                if (state == QuestionState.ASKING) timerContainer.textContent = String(t ?? 0);
             });
         }
         if (button != "") {
@@ -218,12 +227,12 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
 
     async ask(): Promise<QuestionResult> {
         this.model.state = QuestionState.ASKING;
-        this.model.enableAnswers = true;
+        this.model.allowNewAnswers(true);
         const stop = this.stopConditions();
         this.stateUpdated();
         await stop;
+        this.model.allowNewAnswers(false);
         this.model.state = QuestionState.EVALUATING;
-        this.model.enableAnswers = false;
         this.stateUpdated();
         this.model.results = await this.evaluate();
         this.model.state = QuestionState.ENDED;
@@ -272,10 +281,10 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
         const ans = this.model.answers;
         if (!!this.autoevaluate) {
             const fn = this.autoevaluate
-            this.model.results = ans.entries().map(([i, x]) => {
-                return { id: i, correct: fn(x.answer) }
-            }).toArray();
-            Question.sortResults(this.model.results, ans);
+            this.model.results = new Map();
+            for (const [id, x] of ans.entries()) {
+                this.model.results.set(id, fn(x.answer))
+            }
         }
         if (this.manualevaluate) {
             this.model.enableManualEvaluation = true;
@@ -287,16 +296,8 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
                     resolve();
                 }
             });
-            Question.sortResults(this.model.results, ans);
         }
         return this.model.results;
-    }
-
-    static sortResultsByTime(ev: QuestionResult, ans: QuestionAnswers): QuestionResult {
-        return ev.sort((a, b) => ((ans.get(a.id)?.time.getTime() ?? 0) - (ans.get(b.id)?.time.getTime() ?? 0)));
-    }
-    static sortResults(ev: QuestionResult, ans: QuestionAnswers): QuestionResult {
-        return ev.sort((a, b) => a.correct == b.correct ? +b.correct - +a.correct : ((ans.get(a.id)?.time.getTime() ?? 0) - (ans.get(b.id)?.time.getTime() ?? 0)));
     }
 
     stateUpdated(remote: boolean = false): void {
@@ -310,33 +311,37 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
     }
 
     setResultOf(id: string, result: boolean): void {
-        const x = id;
-        const i = this.model.results.findIndex(({ id }) => x == id)
-        if (i < 0) {
-            this.model.results.push({ id: id, correct: result });
-        } else {
-            this.model.results[i] = { id: id, correct: result };
-        }
+        this.model.results.set(id, result);
         this.model.saveToDatabase();
     }
 
     getJoinedList(fillEmptyResults: boolean = false) {
         const people = this.context.getPeopleList();
         const answers = this.model.answers;
-
         const results = this.model.results;
-        const ids = results.map(({ id, correct }) => id);
-        for (const id of answers.keys()) {
-            if (!ids.includes(id)) {
-                if (fillEmptyResults) {
-                    results.push({ id: id, correct: false });
-                }
-                ids.push(id);
-            }
-        }
-        if (fillEmptyResults) this.model.saveToDatabase();
-        const resultsMap = new Map(results.map(({ id, correct }) => [id, correct]));
 
-        return ids.map(id => { return { id: id, name: people.get(id)?.name, answer: answers.get(id)?.answer, result: resultsMap.get(id) } });
+        if (fillEmptyResults) {
+            for (const id of answers.keys()) {
+                if (!(id in results)) {
+                    results.set(id, false);
+                }
+            }
+            this.model.saveToDatabase();
+        }
+
+        return answers.keys().toArray().map(id => {
+            return {
+                id: id,
+                name: people.get(id)?.name,
+                time: answers.get(id)?.time,
+                answer: answers.get(id)?.answer,
+                result: results.get(id) 
+            }}).sort((a, b) => 
+                a.result != b.result 
+                  ? 
+                    +(b.result ?? 0) - +(a.result ?? 0) 
+                  : 
+                    ((a.time?.getTime() ?? 0) - (b.time?.getTime() ?? 0))
+            );
     }
 }

@@ -1,3 +1,4 @@
+import { Secret } from "../../general.utils";
 import { GameModel, GameModelContext } from "../game.base";
 import { ReazioneCatenaGameDefinition } from "./catena.definition";
 
@@ -38,6 +39,19 @@ export class ReazioneCatenaGameModel extends GameModel {
         } else {
             return null;
         }
+    }
+    getWordAsSecret(i: number): Secret<string>|null{
+        const w = this.getWord(i);
+        if(!w) return null;
+        return new Secret(w, (clear)=> {
+            if (clear||this.currentWordIndex>i){
+                return w;
+            } else if (i==this.currentWordIndex){
+                return w.slice(0, this.currentWordLetters) + (this.currentWordLetters==w.length ? "" : "***");
+            } else {
+                return "***"
+            }
+        });
     }
     getCurrentWord(): string|null {
         return this.getWord(this.currentWordIndex);

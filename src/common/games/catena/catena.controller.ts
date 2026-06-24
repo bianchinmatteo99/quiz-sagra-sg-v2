@@ -1,4 +1,4 @@
-import { delay } from "../../general.utils";
+import { delay, Secret } from "../../general.utils";
 import { GameController, GameControllerContext } from "../game.base";
 import { ReazioneCatenaGameDefinition } from "./catena.definition";
 import { CatenaState, ReazioneCatenaGameModel } from "./catena.model";
@@ -22,6 +22,8 @@ export class ReazioneCatenaGameController extends GameController implements Cate
         if(!!nextw) {
             this.model.currentWordIndex = next;
             this.model.currentWordLetters = 0;
+            this.model.setSecret("currentword", this.model.getWordAsSecret(next)!);
+            this.model.setSecret("currentwordlength", new Secret(String(nextw.length), ()=>"***"));
             this.stateUpdated();
             return true;
         } else {

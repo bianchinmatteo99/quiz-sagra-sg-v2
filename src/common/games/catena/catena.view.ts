@@ -35,14 +35,11 @@ export class ReazioneCatenaGameView extends GameView {
 
     renderCurrentState(container: HTMLElement): void {
         if (!this.activeGameContext) return;
-        const word = this.activeGameContext.model.getCurrentWord();
-        const lett = this.activeGameContext.model.currentWordLetters;
-        const s = this.canDisplaySecrets() || word?.length == lett;
-        const secret = (text: string): string => s ? text : "***";
+        const s = this.canDisplaySecrets();
         container.innerHTML = `
             Parola in corso: ${this.activeGameContext.model.currentWordIndex + 1} di ${this.gameDef.words.length}<br/>
-            Lettere ${lett} di ${secret(String(word?.length ?? "?"))}<br/>
-            Parola corretta: ${!!word ? word.slice(0, lett).toUpperCase() + secret(word.slice(lett)).toUpperCase() : "?"}
+            Lettere ${this.activeGameContext.model.currentWordLetters} di ${this.activeGameContext.model.getSecret<string>("currentwordlength", s) ?? "?"}<br/>
+            Parola corretta: ${this.activeGameContext.model.getSecret<string>("currentword", s) ?? "?"}
             ${this.gameDef.canRetryForSameWord ? "" : ("<br/>Persone escluse: " + this.activeGameContext.model.currentDenyList.length)}<br/>
             Punti per risposta: ${this.gameDef.pointsForCorrectAnswer}<br/>
             Tempo per risposta: ${this.gameDef.timeForAnswer}

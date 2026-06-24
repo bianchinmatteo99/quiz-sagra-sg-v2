@@ -24,9 +24,9 @@ export interface GameModelContext extends BaseModelContext {
 
 }
 
-// TODO ADD SECRET DB PATH HANDLING
 export abstract class GameModel extends BaseModel {
     readonly DBPATH = "/state/game";
+    protected readonly SECRETSPATH = "/game";
     abstract definition: GameDefinition;
 
     context: GameModelContext;

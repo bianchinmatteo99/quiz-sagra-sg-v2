@@ -2,7 +2,7 @@ import { IDatabaseAdapter } from "../database/database.types";
 import { delay } from "../general.utils";
 
 export class Timer {
-    readonly DBPATH = "/timer";
+    readonly DBPATH = "/state/timerend";
     readonly timerContainer = "timer-container";
 
     db: IDatabaseAdapter;
