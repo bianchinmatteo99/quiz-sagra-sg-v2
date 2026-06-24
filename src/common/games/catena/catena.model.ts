@@ -43,11 +43,11 @@ export class ReazioneCatenaGameModel extends GameModel {
     getWordAsSecret(i: number): Secret<string>|null{
         const w = this.getWord(i);
         if(!w) return null;
-        return new Secret(w, (clear)=> {
-            if (clear||this.currentWordIndex>i){
-                return w;
+        return new Secret(w, (clearValue)=> {
+            if (this.currentWordIndex>i){
+                return clearValue;
             } else if (i==this.currentWordIndex){
-                return w.slice(0, this.currentWordLetters) + (this.currentWordLetters==w.length ? "" : "***");
+                return clearValue.slice(0, this.currentWordLetters) + (this.currentWordLetters==clearValue.length ? "" : "***");
             } else {
                 return "***"
             }

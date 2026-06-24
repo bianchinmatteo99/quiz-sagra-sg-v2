@@ -30,7 +30,7 @@ export class ReazioneCatenaGameManager extends GameManager {
                 this.currentQ = new TextInputQuestion(this, { auto: w!, manual: true }, { timer: this.controller.model.definition.timeForAnswer }, this.controller.model.currentDenyList);
                 const res = await this.currentQ.ask();
 
-                const correct = res.filter((v) => v.correct).map((v) => v.id);
+                const correct = res.entries().filter(([id, v]) => v).map(([id, v]) => id).toArray();
                 if (correct.length > 0) {
                     await this.controller.completeWord(5000);
                     this.context.updateRanking(new Map(correct.map((id) => [id, this.controller.model.definition.pointsForCorrectAnswer])));
@@ -49,9 +49,9 @@ export class ReazioneCatenaGameManager extends GameManager {
                 }
 
                 if (!this.controller.model.definition.canRetryForSameWord) {
-                    for (const r of res) {
-                        if (!r.correct && !this.controller.model.currentDenyList.includes(r.id)) {
-                            this.controller.model.currentDenyList.push(r.id)
+                    for (const [id, r] of res) {
+                        if (!r && !this.controller.model.currentDenyList.includes(id)) {
+                            this.controller.model.currentDenyList.push(id)
                         }
                     }
                 }

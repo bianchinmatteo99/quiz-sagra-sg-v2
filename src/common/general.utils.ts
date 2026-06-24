@@ -12,7 +12,7 @@ export interface BaseModelContext {
 }
 
 export class Secret<T> {
-    constructor(private clearContent: T, private obfuscator: (clear: T) => T) { }
+    constructor(private clearContent: T, private obfuscator: (clearValue: T) => T) { }
     read(clear : boolean) : T { return clear ? this.clearContent : this.obfuscator(this.clearContent) }
     toJSON(): any { return this.clearContent }
 }
