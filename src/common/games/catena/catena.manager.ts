@@ -35,13 +35,8 @@ export class ReazioneCatenaGameManager extends GameManager {
                     await this.controller.completeWord(5000);
                     this.context.updateRanking(new Map(correct.map((id) => [id, this.controller.model.definition.pointsForCorrectAnswer])));
                     // this.controller.displayWinners(); and await adminInteraction
-                    this.currentQ.clear();
-                    this.currentQ = null;
                     break;
                 }
-
-                this.currentQ.clear();
-                this.currentQ = null;
 
                 if (! await this.controller.adminInteraction({ advanceBtn: "Passa alla prossima lettera", otherBtn: "Completa la parola e vai alla prossima" })) {
                     await this.controller.completeWord(5000);
@@ -55,7 +50,12 @@ export class ReazioneCatenaGameManager extends GameManager {
                         }
                     }
                 }
+
+                this.currentQ.clear();
+                this.currentQ = null;
             }
+            this.currentQ?.clear();
+            this.currentQ = null;
             this.controller.setState(CatenaState.DISPLAYCHAIN);
             await this.controller.adminInteraction({ advanceBtn: "Passa alla prossima parola o concludi" });
         }

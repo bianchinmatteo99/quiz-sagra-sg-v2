@@ -13,12 +13,12 @@ export interface BaseModelContext {
 
 export class Secret<T> {
     constructor(private clearContent: T, private obfuscator: (clearValue: T) => T) { }
-    read(clear : boolean) : T { return clear ? this.clearContent : this.obfuscator(this.clearContent) }
+    read(clear: boolean): T { return clear ? this.clearContent : this.obfuscator(this.clearContent) }
     toJSON(): any { return this.clearContent }
 }
-export class SecretPrinter<T>{
-    constructor(private secret: Secret<T>, private printer: (s: T)=>string) { }
-    print(clear : boolean): string { return this.printer(this.secret.read(clear)) }
+export class SecretPrinter<T> {
+    constructor(private secret: Secret<T>, private printer: (s: T) => string) { }
+    print(clear: boolean): string { return this.printer(this.secret.read(clear)) }
 }
 
 export abstract class BaseModel {
@@ -67,13 +67,13 @@ export abstract class BaseModel {
         }
     }
 
-    setSecret<T>(key: string, secret: Secret<T>){
+    setSecret<T>(key: string, secret: Secret<T>) {
         this.secrets.set(key, secret)
-        if(!!this.SECRETSPATH){
+        if (!!this.SECRETSPATH) {
             this.context.getDatabase().set("/secrets" + this.SECRETSPATH + `/${key}`, secret.toJSON())
         }
     }
-    getSecret<T>(key: string, clear: boolean): T|null{
+    getSecret<T>(key: string, clear: boolean): T | null {
         return this.secrets.get(key)?.read(clear)
     }
 
@@ -82,9 +82,13 @@ export abstract class BaseModel {
         if (typeof this.DBPATH == "string") {
             await this.context.getDatabase().remove(this.DBPATH);
         } else {
-            this.DBPATH.forEach((path => this.context.getDatabase().remove(path)));
+            await Promise.all(
+                Array.from(this.DBPATH.values()).map(path =>
+                    this.context.getDatabase().remove(path)
+                )
+            );
         }
-        if(!!this.SECRETSPATH){
+        if (!!this.SECRETSPATH) {
             await this.context.getDatabase().remove("/secrets" + this.SECRETSPATH);
         }
     }
