@@ -5,6 +5,7 @@ import { app , auth, database } from "../firebase-init";
 document.addEventListener('DOMContentLoaded', async function () {
     const quizManager = new QuizManager(new FirebaseDatabaseAdapter());
     await quizManager.boot("/quiz_def.md");
+    await quizManager.start();
 });
 
 

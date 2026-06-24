@@ -1,4 +1,4 @@
-import { QuizModel, GameStatus } from "./quiz.model";
+import { QuizModel, GameStatus, QuizStatus } from "./quiz.model";
 import { GameDefinition } from "../games/game.base";
 import { toHtml } from "../general.utils";
 
@@ -40,16 +40,15 @@ class QuizView {
 
         const games = this.context.model.definition.games;
         const statuses = this.context.model.gamesStatuses;
-        const hasActiveGame = this.context.model.currentGame !== null || statuses.some(status => status === GameStatus.InProgress);
-
+        
         games.forEach((game, index) => {
-            timeline.appendChild(this.buildQuizListItem(index, game.displayName, statuses[index], hasActiveGame));
+            timeline.appendChild(this.buildQuizListItem(index, game.displayName, statuses[index]));
         });
 
     }
 
-    private buildQuizListItem(id: number, name: string, status: GameStatus, hasActiveGame: boolean): HTMLElement {
-        const canStart = (status == GameStatus.NotStarted && !hasActiveGame);
+    private buildQuizListItem(id: number, name: string, status: GameStatus): HTMLElement {
+        const canStart = (status == GameStatus.NotStarted && this.context.model.status==QuizStatus.Idle);
         const container = toHtml(`
             <article class="quiz-game-list-item ${status == GameStatus.InProgress ? "active" : ""}" id="quiz-game-list-item-${id}" data-id="${id}">
                 ${name}
@@ -69,7 +68,7 @@ class QuizView {
             });
         }
 
-        if (!hasActiveGame && status === GameStatus.NotStarted) {
+        if (canStart) {
             const startButton = container.querySelector(".quiz-game-list-item-startbtn");
             startButton?.addEventListener("click", (event) => {
                 event.stopPropagation();
