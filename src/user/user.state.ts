@@ -33,7 +33,7 @@ export class StateHandler {
     private auth: Auth;
     private state?: State;
     get read(){
-        return Object.freeze(this.state);
+        return this.state;
     }
     private _bindingCancel: CancelHandle[] = [];
 
