@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 500 500" width="500" height="500"><defs>
+        <!-- SHADOWS -->
+        <filter id="shadow_cross">
+            <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+            <feGaussianBlur result="blurOut" in="offOut" stdDeviation="3"></feGaussianBlur>
+            <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+        </filter>
+        <filter id="shadow_church">
+            <feOffset result="offOut" in="SourceAlpha" dx="2" dy="2"></feOffset>
+            <feGaussianBlur result="blurOut" in="offOut" stdDeviation="3"></feGaussianBlur>
+            <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+        </filter>
+        
+        <!-- MASKS -->
+        <mask id="church_mask">
+            <rect x="0" y="0" width="100%" height="100%" fill="white"></rect>
+            <path style="stroke: black; stroke-width: 2; fill: black;" d="M 75 272 C 80 230, 80 230, 75 189 C 80 185, 80 180, 75 176 H 139 C 134 180, 134, 185, 139 189 C 134 230, 134 230, 139 272 Z"></path>
+        </mask>
+        <mask id="red_mask">
+            <rect x="0" y="0" width="100%" height="100%" fill="black"></rect>
+            <path d="M26 350 A 245 245 0 0 0 474 150 C 430 190,350 250,250 250 S 70 310, 26 350 Z" stroke-width="7" fill="white" stroke="white"></path>
+        </mask>
+        <mask id="blue_mask">
+            <rect width="1366" height="768" fill="black"></rect>
+            <path d="M 26 350 C -50.98 177.565 87.574 -13.541 275.397 6.01 C 362.567 15.084 438.273 69.973 474 150 C 430 190 350 250 250 250 C 150 250 70 310 26 350 Z" stroke-width="7" fill="white" stroke="white"></path>
+        </mask>
+        
+        <!-- REUSED SYMBOLS -->
+        <symbol id="grano" viewBox="0 0 100 100" width="50" height="50">
+            <path d="M50 0 C 30 30,30 65,30 75 A 20 18 0 0 0 70 75 C 70 65,70 30,50 0 Z" fill="gold" stroke="black" stroke-width="1.5"></path>
+        </symbol>
+        <symbol id="spiga" viewBox="0 0 350 500" width="350" height="500">
+            <path stroke="gold" stroke-width="22" d="M 170.423 495.03 C 145.272 389.537 95.976 218.411 180.282 92.958" fill="transparent"></path>
+            <use width="80" height="80" transform="matrix(0.8529250025749207, 0.5220358371734619, -0.5220358371734619, 0.8529250025749207, 159.19593811035156, 50.63975143432617)" xlink:href="#grano"></use>
+            <use width="80" height="80" transform="matrix(0.7864367961883545, 0.6176691651344299, -0.6176691651344299, 0.7864367961883545, 171.50320434570312, 66.95635223388672)" xlink:href="#grano"></use>
+            <use width="80" height="80" transform="matrix(0.9823279976844788, 0.18716804683208466, -0.18716804683208466, 0.9823279976844788, 113.60089111328125, 98.71566009521484)" xlink:href="#grano"></use>
+            <use width="80" height="80" transform="matrix(0.9244330525398254, 0.3813450038433075, -0.3813450038433075, 0.9244330525398254, 137.73228454589844, 125.8261947631836)" xlink:href="#grano"></use>
+            <use width="80" height="80" transform="matrix(0.9999679923057556, 0.0080960001796484, -0.0080960001796484, 0.9999679923057556, 89.83627319335938, 162.74862670898438)" xlink:href="#grano"></use>
+            <use width="80" height="80" transform="matrix(0.9725540280342102, 0.23267604410648346, -0.23267604410648346, 0.9725540280342102, 118.92605590820312, 180.1938018798828)" xlink:href="#grano"></use>
+            <use width="80" height="80" transform="matrix(0.994700014591217, -0.10283199697732925, 0.10283199697732925, 0.994700014591217, 81.99626159667969, 225.2093963623047)" xlink:href="#grano"></use>
+            <use width="80" height="80" transform="matrix(0.9901641607284546, 0.1399119794368744, -0.1399119794368744, 0.9901641607284546, 114.32665252685547, 236.57708740234375)" xlink:href="#grano"></use>
+            <use width="80" height="80" transform="matrix(0.9934262633323669, 0.11448698490858078, -0.11448698490858078, 0.9934262633323669, 119.95066833496094, 290.8472900390625)" xlink:href="#grano"></use>
+            <use width="80" height="80" transform="matrix(0.9876930117607117, -0.15640902519226074, 0.15640902519226074, 0.9876930117607117, 81.9723129272461, 290.2231140136719)" xlink:href="#grano"></use>
+            <use width="80" height="80" transform="matrix(0.9941700100898743, 0.10783701390028, -0.10783701390028, 0.9941700100898743, 128.64308166503906, 340.0233154296875)" xlink:href="#grano"></use>
+            <use width="80" height="80" transform="matrix(0.9454212784767151, -0.32585909962654114, 0.32585909962654114, 0.9454212784767151, 83.85205078125, 347.86151123046875)" xlink:href="#grano"></use>
+            <use width="80" height="80" transform="matrix(0.9873411655426025, 0.15861700475215912, -0.15861700475215912, 0.9873411655426025, 143.3416748046875, 382.1988830566406)" xlink:href="#grano"></use>
+            <use width="80" height="80" transform="matrix(0.9781481623649597, -0.20791199803352356, 0.20791199803352356, 0.9781481623649597, 99.0019302368164, 392.6629638671875)" xlink:href="#grano"></use>
+            <use width="80" height="80" transform="matrix(0.9752650260925293, 0.2210419625043869, -0.2210419625043869, 0.9752650260925293, 155.3544158935547, 414.2426452636719)" xlink:href="#grano"></use>
+            <use width="80" height="80" transform="matrix(0.9659261703491211, -0.25881901383399963, 0.25881901383399963, 0.9659261703491211, 104.9452896118164, 439.3379821777344)" xlink:href="#grano"></use>
+        </symbol>
+    </defs><g>
+        <!--RED PART-->
+        <g id="red" style="mask: url(#red_mask);">
+            <!--Border-->
+            <path d="M26 350 A 245 245 0 0 0 474 150 C 430 190,350 250,250 250 S 70 310, 26 350 Z" stroke-width="7" fill="rgb(218,0,0)" stroke="black"></path>
+            <!--White cross-->
+            <path style="fill: white; stroke: transparent; filter: url(#shadow_cross);" d="M 278.984 248.982 L 278.984 340.124 L 68.241 415.326 L 115.189 453.432 L 282.706 379.534 L 275.261 492.843 C 275.261 496.226 328.619 485.573 328.619 479.293 L 323.658 372.144 L 480.004 321.647 C 486.879 326.765 498.773 263.568 492.413 258.835 L 327.378 327.804 L 331.099 237.898 Z"></path>
+        </g>
+        
+        <!--BLUE PART-->
+        <g id="blue" style="mask: url(#blue_mask);">
+            <!--Border-->
+            <path d="M26 350 A 245 245 0 0 1 474 150 C 430 190,350 250,250 250 S 70 310, 26 350 Z" stroke-width="7" fill="rgb(30,139,182)" stroke="black"></path>
+            
+            <!--Bell tower-->
+            <g>
+                <!--Border-->
+                <path style="stroke: black; fill: white;" d="M170 257 L 174 230 V 20 L 184 15 V 26 H 193 V 12 L 203 10 V 26 H 212 V 10 L 222 10 V 26 H 231 V 10 L 241 6 V 230 L 244 248 L 173.236 260.236 Z"></path>
+                <!--Decorations-->
+                <rect x="174" y="40" width="67" height="10" fill="transparent" stroke="black"></rect>
+                <path d="M174 40 h6 v7 h4 v-7 h6 v7 h4 v-7 h6 v7 h4 v-7 h6 v7 h4 v-7 h6 v7 h4 v-7 h6 v7 h4 v-7 h7 z" fill="rgb(230,230,230)" stroke="black"></path>
+                <path d="M195 115 h 25 v -40 a 12.5 12.5 0 0 0 -25 0 z" fill="rgb(30,139,182)" stroke="black"></path>
+                <rect x="174" y="125" width="67" height="10" fill="transparent" stroke="black"></rect>
+                <path d="M174 125 h6 v7 h4 v-7 h6 v7 h4 v-7 h6 v7 h4 v-7 h6 v7 h4 v-7 h6 v7 h4 v-7 h6 v7 h4 v-7 h7 z" fill="rgb(230,230,230)" stroke="black"></path>
+                <rect x="180" y="141" width="55" height="88" fill="transparent" stroke="black"></rect>
+                <circle cx="207.5" cy="160" r="15" fill="rgb(230,230,230)" stroke="black"></circle>
+            </g>
+            
+            <!--Church-->
+            <g>
+                <!--Border-->
+                <g filter="url(#shadow_church)">
+                    <path style="stroke: black; stroke-width: 2; fill: white; mask: url(#church_mask);" d="M 40 284 V 272 H 55 C 50 230, 50 230, 55 189 C 50 185, 50 180, 55 176 H 36 V 169 C 30 167, 30 164, 36 162 L 176 103 V 176 H 159 C 164 180, 164 185, 159 189 C 164 230, 164 230, 159 265 L 117 284 Z"></path>
+                </g>
+                <!--Decorations-->
+                <path style="stroke: black; stroke-width: 2; fill: transparent;" d="M 75 272 C 80 230, 80 230, 75 189 C 80 185, 80 180, 75 176 H 139 C 134 180, 134, 185, 139 189 C 134 230, 134 230, 139 272 Z"></path>
+                <path style="stroke: black; stroke-width: 2; fill: transparent;" d="M 55 176 H 75 M 159 176 H 139 M 55 272 H 75"></path>
+                <path style="stroke: rgb(70,70,70); stroke-width: 1; fill: transparent;" d="M 56 189 H 74 M 158 189 H 140"></path>
+            </g>
+            
+            <!--Corn ears-->
+            <g filter="url(#shadow_church)">
+                <use width="175" height="250" transform="matrix(-0.610836, 0.196227, 0.093983, 0.720028, 316.592316, 47.986546)" style="" xlink:href="#spiga"></use>
+                <use width="175" height="250" transform="matrix(-0.693689, -0.14455, -0.011221, 0.734078, 410.397888, 58.346878)" style="" xlink:href="#spiga"></use>
+                <use width="175" height="250" transform="matrix(-0.439799, -0.222908, -0.328275, 0.647688, 466.134186, 90.412415)" style="" xlink:href="#spiga"></use>
+                <use width="175" height="250" transform="matrix(0.809865, -0.090473, 0.096638, 0.865051, 240.022202, 26.030891)" style="" xlink:href="#spiga"></use>
+            </g>
+        </g>
+        
+        <!--Foreground outline-->
+        <circle cx="250" cy="250" r="245" stroke-width="10" fill="transparent" stroke="black" style=""></circle>
+        <path d="M474 150 C 430 190,350 250,250 250 S 70 310, 26 350" stroke-width="7" fill="transparent" stroke="black" style=""></path>
+    </g></svg>
