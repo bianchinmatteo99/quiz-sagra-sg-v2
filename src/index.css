@@ -12,9 +12,12 @@ body,
 #page-container {
   width: var(--vw);
   height: var(--vh);
+  padding-right: var(--pico-spacing);
+  padding-left: var(--pico-spacing);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  gap: var(--pico-grid-column-gap);
 }
 
