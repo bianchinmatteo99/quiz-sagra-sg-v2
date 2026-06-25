@@ -1,6 +1,6 @@
 import { CancelHandle } from "../common/general.utils";
 
-abstract class Page {
+export abstract class Page {
     protected container?: HTMLElement
     abstract render(): void;
     abstract create(container: HTMLElement): void;
@@ -23,6 +23,10 @@ abstract class StaticPage extends Page {
 abstract class EventPage extends Page {
     protected _cancelHandles: CancelHandle[] = [];
     abstract attachListeners(): CancelHandle[];
+    attachListenerTo(element:HTMLElement, event: string, callback: (e:any)=>void): CancelHandle{
+        element.addEventListener(event, callback);
+        return ()=>element.removeEventListener(event, callback);
+    }
     create(container: HTMLElement) {
         this.container = container;
         this.render();
@@ -39,7 +43,7 @@ abstract class EventPage extends Page {
 
 
 
-class Pager {
+export class Pager {
     static readonly CONTAINERID = "page-container"
     readonly container: HTMLElement;
     currentPage?: Page;
@@ -56,5 +60,37 @@ class Pager {
             p.create(this.container);
             return p;
         }
+    }
+}
+
+export class LoginPage extends EventPage {
+    constructor(private name:string|null, private callback: (name:string)=>void){super();};
+    attachListeners(): CancelHandle[] {
+        const input = this.container?.getElementsByTagName("input")[0] as HTMLInputElement;
+        const button = this.container?.getElementsByTagName("button")[0] as HTMLButtonElement;
+        return [this.attachListenerTo(button, "click", ()=>{
+            this.callback(input.value);
+        })];
+    }
+    render(): void {
+        if(!this.container) throw new Error("Render called before create");
+        this.container.innerHTML = `
+        <span>TEST</span>
+        <input id="testinp" value="${this.name??""}" />
+        <button id="test">Register</button>
+        `;
+    }
+
+}
+
+export class LoadingPage extends StaticPage {
+    message : string;
+    constructor(message : string = ""){
+        super();
+        this.message = message;
+    }
+    render(): void {
+        if(!this.container) throw new Error("Render called before create");
+        this.container.innerHTML = `<span>${this.message}</span><article aria-busy="true"></article>`;
     }
 }

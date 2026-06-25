@@ -24,7 +24,7 @@ type PersonState = null | {
     }
 }
 
-type State = { app: AppState, person: PersonState, currentDecisionLeaf: string }
+export type State = { app: AppState, person: PersonState, currentDecisionLeaf: string }
 
 export class StateHandler {
     static readonly APPSTATEPATH = "/state"
@@ -32,18 +32,44 @@ export class StateHandler {
     private db: IDatabaseAdapter;
     private auth: Auth;
     private state?: State;
+    get read(){
+        return Object.freeze(this.state);
+    }
     private _bindingCancel: CancelHandle[] = [];
 
     constructor(db: IDatabaseAdapter, auth: Auth) {
         this.db = db;
         this.auth = auth;
     }
+
+    private pending = false;
+    private observers : Set<(state : State)=>void> = new Set();
+
+    addObserver(o:(state : State)=>void): CancelHandle{
+        this.observers.add(o);
+        if(!!this.state) o(this.state);
+        return ()=>this.observers.delete(o);
+    }
+
+    scheduleUpdate() {
+        this.requiresSetup();
+        if (this.pending) return;
+
+        this.pending = true;
+
+        queueMicrotask(() => {
+            this.pending = false;
+            this.observers.forEach(f=>f(this.state!));
+        });
+    }
+
     async setup() {
         if (!!this.state) throw new Error("Setup already run!");
         this.state = { app: { quiz: { status: QuizStatus.Booting } }, person: null, currentDecisionLeaf: "" };
         this._bindingCancel.push(this.db.onValue<AppState>(StateHandler.APPSTATEPATH, (data) => {
             if (data !== null && data !== undefined) {
                 this.state!.app = data;
+                this.scheduleUpdate();
             }
         }));
         await new Promise<void>((resolve) => {
@@ -59,6 +85,7 @@ export class StateHandler {
         if (!this.isLoggedIn()) throw new Error("User must login before listening to person updates");
         this._bindingCancel.push(this.db.onValue<PersonState | null>(this.getPersonPath(this.getUserId()!), (data) => {
             this.state!.person = data;
+            this.scheduleUpdate();
         }));
     }
     async registerWithName(name: string) {
@@ -85,6 +112,9 @@ export class StateHandler {
     getName(): string | null {
         this.requiresSetup();
         return this.isRegisteredToQuiz() ? this.state?.person?.name ?? "" : null
+    }
+    setCurrentPath(path:string, pagename:string){
+        this.state!.currentDecisionLeaf = path+">"+pagename;
     }
     requiresSetup() {
         if (!this.state) throw new Error("Did you run setup?");

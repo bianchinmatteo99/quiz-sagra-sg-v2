@@ -1,19 +1,16 @@
 import { FirebaseDatabaseAdapter } from "./common/database/firebase.adapter";
 import { delay } from "./common/general.utils";
 import { auth } from "./firebase-init";
+import { Pager } from "./user/user.base.views";
+import { RootPageChooser } from "./user/user.decisiontree";
 import { StateHandler } from "./user/user.state";
 
 document.addEventListener('DOMContentLoaded', async function () {
+    const pageChooser = new RootPageChooser();
+    const pager = new Pager();
     const state = new StateHandler(new FirebaseDatabaseAdapter(), auth);
     await state.setup();
-    await delay(500);
-    const button = document.getElementById("test") as HTMLButtonElement;
-    const input = document.getElementById("testinp") as HTMLInputElement;
-    input.value = state.getName() ?? "";
-    button.addEventListener("click", () => {
-        state.registerWithName(input.value);
-    })
-    console.log(state);
+    state.addObserver((s)=>pager.showPage(pageChooser.decide(state)));
 });
 
 
