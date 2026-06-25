@@ -60,8 +60,8 @@ export class PeopleModel extends BaseModel {
     constructor(ctx: PeopleModelContext) {
         super();
         this.context = ctx;
-        this.list = new Map([["test", new Person("test", "Name")]]); // TODO: remove mock person definition
-        this.ranking = new Map([["test", new Rank()]]);
+        this.list = new Map();
+        this.ranking = new Map();
         this.allowOnboarding = false;
     }
 
@@ -82,7 +82,11 @@ export class PeopleModel extends BaseModel {
             const r = new Map();
             for(const [id, p] of (Object.entries<any>(data.list || {}))){
                 l.set(id, Person.parseFromJSON(id, p));
-                r.set(id, Rank.parseFromJSON(p.rank));
+                if(!!p.rank){
+                    r.set(id, Rank.parseFromJSON(p.rank));
+                } else {
+                    r.set(id, new Rank());
+                }
             }
             this.list = l;
             this.ranking = r;
