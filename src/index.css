@@ -1,15 +1,38 @@
+#landscape-overlay{
+  display: none;
+}
+@media screen and (orientation: landscape) {
+  #landscape-overlay {
+    display: flex;
+    width: var(--vw);
+    height: var(--vh);
+    margin: 0;
+    overflow: hidden;
+    min-height: fit-content;
+    padding-right: var(--pico-spacing);
+    padding-left: var(--pico-spacing);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: var(--pico-grid-column-gap);
+  }
+}
+
 html,
 body,
-#page-container {
+#page-container,
+#landscape-overlay {
   width: var(--vw, 100vw);
-  height: var(--vh, 100vh); 
+  height: var(--vh, 100vh);
   margin: 0;
   padding: 0;
   overflow: hidden;
   min-height: fit-content;
 }
 
-#page-container {
+#page-container,
+#landscape-overlay {
   width: var(--vw);
   height: var(--vh);
   padding-right: var(--pico-spacing);
@@ -20,4 +43,3 @@ body,
   align-items: center;
   gap: var(--pico-grid-column-gap);
 }
-

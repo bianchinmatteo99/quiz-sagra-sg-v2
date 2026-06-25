@@ -91,6 +91,6 @@ export class LoadingPage extends StaticPage {
     }
     render(): void {
         if(!this.container) throw new Error("Render called before create");
-        this.container.innerHTML = `<span>${this.message}</span><img src="/img/waiting_for_start.png">`;
+        this.container.innerHTML = `<div style="flex:1"></div><span>${this.message}</span><div style="flex:1"></div><img src="/img/waiting_for_start.png">`;
     }
 }
