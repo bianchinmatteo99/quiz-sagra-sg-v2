@@ -1,24 +1,17 @@
-import { app, auth, database } from "./firebase-init";
+import { FirebaseDatabaseAdapter } from "./common/database/firebase.adapter";
+import { auth } from "./firebase-init";
+import { StateHandler } from "./user/user.state";
 
 document.addEventListener('DOMContentLoaded', function () {
-    const loadEl = document.querySelector('#load');
-    // firebase.auth().onAuthStateChanged(user => { });
-    // firebase.database().ref('/path/to/ref').on('value', snapshot => { });
-
-    try {
-        let features: string[] = [];
-        if (auth) features.push('auth');
-        if (database) features.push('database');
-
-        if (loadEl) {
-            loadEl.textContent = `Firebase SDK loaded with ${features.join(', ')}`;
-        }
-    } catch (e) {
-        console.error(e);
-        if (loadEl) {
-            loadEl.textContent = 'Error loading the Firebase SDK, check the console.';
-        }
-    }
+    const state = new StateHandler(new FirebaseDatabaseAdapter(), auth);
+    state.setup();
+    const button = document.getElementById("test") as HTMLButtonElement;
+    const input = document.getElementById("testinp") as HTMLInputElement;
+    input.value = state.getName() ?? "";
+    button.addEventListener("click", ()=>{
+        state.registerWithName(input.value);
+    })
+    console.log(state);
 });
 
 

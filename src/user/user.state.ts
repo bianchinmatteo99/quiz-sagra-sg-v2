@@ -1,0 +1,86 @@
+import { Auth, signInAnonymously } from "firebase/auth"
+import { IDatabaseAdapter } from "../common/database/database.types"
+import { CancelHandle } from "../common/general.utils"
+import { QuestionState } from "../common/questions/question.base"
+import { QuizStatus } from "../common/quiz/quiz.model"
+
+type AppState = {
+    quiz: { status: QuizStatus },
+    game?: { name: string },
+    question?: {
+        name: string,
+        state: QuestionState,
+        enableAnswers: boolean,
+    }
+}
+
+type PersonState = null | {
+    name: string,
+    rank?: {
+        lastpos: number,
+        lastupdate: number,
+        points: number,
+        position: number,
+    }
+}
+
+type State = { app: AppState, person: PersonState, currentDecisionLeaf: string }
+
+export class StateHandler {
+    static readonly APPSTATEPATH = "/state"
+    static readonly PERSONPATH = "/people/list"
+    private db: IDatabaseAdapter;
+    private auth: Auth;
+    private state?: State;
+    private _bindingCancel: CancelHandle[] = [];
+
+    constructor(db: IDatabaseAdapter, auth: Auth) {
+        this.db = db;
+        this.auth = auth;
+    }
+    setup() {
+        if (!!this.state) throw new Error("Setup already run!");
+        this.state = { app: { quiz: { status: QuizStatus.Booting }}, person: null, currentDecisionLeaf: "" };
+        this._bindingCancel.push(this.db.onValue<AppState>(StateHandler.APPSTATEPATH, (data) => {
+            if (data !== null && data !== undefined) {
+                this.state!.app = data;
+            }
+        }));
+        if(this.isLoggedIn()) this.setupPersonListener();
+    }
+    setupPersonListener() {
+        this.requiresSetup();
+        if (!this.isLoggedIn()) throw new Error("User must login before listening to person updates");
+        this._bindingCancel.push(this.db.onValue<PersonState|null>(this.getPersonPath(this.getUserId()!), (data) => {
+            this.state!.person = data;
+        }));
+    }
+    async registerWithName(name : string){
+        this.requiresSetup();
+        let id = this.getUserId();
+        if(!id){
+            id = (await signInAnonymously(this.auth)).user.uid;
+            this.setupPersonListener();
+        }
+        await this.db.update(this.getPersonPath(id), {"name": name});
+    }
+    isLoggedIn(): boolean {
+        return !!this.getUserId();
+    }
+    getUserId(): string|null{
+        return this.auth.currentUser?.uid ?? null
+    }
+    getPersonPath(id:string): string{
+        return `${StateHandler.PERSONPATH}/${id}`
+    }
+    isRegisteredToQuiz(): boolean{
+        return !!this.state?.person
+    }
+    getName(): string|null{
+        this.requiresSetup();
+        return this.isRegisteredToQuiz() ? this.state?.person?.name ?? "" : null
+    }
+    requiresSetup(){
+        if (!this.state) throw new Error("Did you run setup?");
+    }
+}
