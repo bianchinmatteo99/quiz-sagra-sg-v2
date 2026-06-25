@@ -115,6 +115,7 @@ export class StateHandler {
     }
     setCurrentPath(path:string, pagename:string){
         this.state!.currentDecisionLeaf = path+">"+pagename;
+        console.log(this.state!.currentDecisionLeaf);
     }
     requiresSetup() {
         if (!this.state) throw new Error("Did you run setup?");
