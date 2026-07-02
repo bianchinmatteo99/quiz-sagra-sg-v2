@@ -1,6 +1,7 @@
 import { CancelHandle } from "../common/general.utils";
 
 export abstract class Page {
+    shouldDisplayHeader = true;
     protected container?: HTMLElement
     abstract render(): void;
     abstract create(container: HTMLElement): void;
@@ -45,10 +46,13 @@ abstract class EventPage extends Page {
 
 export class Pager {
     static readonly CONTAINERID = "page-container"
+    static readonly HEADERID = "page-header"
     readonly container: HTMLElement;
+    readonly header: HTMLElement;
     currentPage?: Page;
     constructor() {
         this.container = document.getElementById(Pager.CONTAINERID)!;
+        this.header = document.getElementById(Pager.HEADERID)!;
     }
 
     showPage(p: Page): Page;
@@ -58,6 +62,7 @@ export class Pager {
         if (!!p) {
             this.currentPage = p;
             p.create(this.container);
+            this.header.classList.toggle("hidden", !p.shouldDisplayHeader);
             return p;
         }
     }
