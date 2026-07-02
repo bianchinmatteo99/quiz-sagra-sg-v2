@@ -89,13 +89,18 @@ export class LoginPage extends EventPage {
 }
 
 export class LoadingPage extends StaticPage {
+    static readonly DEFAULT_IMAGES = {
+        waiting_for_start: "/img/waiting_for_start.png",
+    };
     message : string;
-    constructor(message : string = ""){
+    bottom_image? : string;
+    constructor(message : string = "", bottom_image? : string){
         super();
         this.message = message;
+        this.bottom_image = bottom_image;
     }
     render(): void {
         if(!this.container) throw new Error("Render called before create");
-        this.container.innerHTML = `<div style="flex:1"></div><span>${this.message}</span><div style="flex:1"></div><img src="/img/waiting_for_start.png">`;
+        this.container.innerHTML = `<div style="flex:1"></div><span>${this.message}</span><div style="flex:1"></div>${this.bottom_image ? `<img src="${this.bottom_image}">` : ''}`;
     }
 }
