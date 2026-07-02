@@ -1,6 +1,7 @@
-#landscape-overlay{
+#landscape-overlay {
   display: none;
 }
+
 @media screen and (orientation: landscape) {
   #landscape-overlay {
     display: flex;
@@ -17,6 +18,7 @@
     align-items: center;
     gap: var(--pico-grid-column-gap);
   }
+
   #page-container {
     display: none !important;
   }
@@ -37,6 +39,26 @@ body,
 body {
   display: flex;
   flex-direction: column;
+}
+
+#page-header {
+  flex: 0 0 auto;
+  padding: 0 0 0 var(--pico-spacing);
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 16px;
+  margin: 10px;
+  border: var(--pico-primary-border) 2px solid;
+  border-radius: 32px;
+}
+#page-header.hidden {
+  display: none !important;
+}
+#page-header img {
+  width: 60px;
+  height: 60px;
 }
 
 #page-container {
