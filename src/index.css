@@ -25,6 +25,7 @@
 html,
 body,
 #page-container {
+  font-size: 1.4rem;
   width: var(--vw, 100vw);
   height: var(--vh, 100vh);
   margin: 0;

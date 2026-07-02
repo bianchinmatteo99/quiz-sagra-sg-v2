@@ -50,7 +50,7 @@ export class RootPageChooser extends DecisionNode<StateHandler, Page>{
         if(!!state.read && state.read.app.quiz.status==QuizStatus.OnBoarding){
             return this.delegateDecision("onboard", state);
         } else {
-            return new LoadingPage("Message")
+            return new LoadingPage("Pronti per cominciare? Mettetevi comodi!");
         }
     }
 }
