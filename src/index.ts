@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     const state = new StateHandler(new FirebaseDatabaseAdapter(), auth);
     await state.setup();
     state.addObserver((s)=>pager.showPage(pageChooser.decide(state)));
+    state.addObserver((s)=>pager.updateFooter(s.person?.name || "???", s.person?.rank?.points ?? 0));
 });
 
 

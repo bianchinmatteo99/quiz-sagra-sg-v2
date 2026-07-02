@@ -2,6 +2,7 @@ import { CancelHandle } from "../common/general.utils";
 
 export abstract class Page {
     shouldDisplayHeader = true;
+    shouldDisplayFooter = true;
     protected container?: HTMLElement
     abstract render(): void;
     abstract create(container: HTMLElement): void;
@@ -47,12 +48,15 @@ abstract class EventPage extends Page {
 export class Pager {
     static readonly CONTAINERID = "page-container"
     static readonly HEADERID = "page-header"
+    static readonly FOOTERID = "page-footer"
     readonly container: HTMLElement;
     readonly header: HTMLElement;
+    readonly footer: HTMLElement;
     currentPage?: Page;
     constructor() {
         this.container = document.getElementById(Pager.CONTAINERID)!;
         this.header = document.getElementById(Pager.HEADERID)!;
+        this.footer = document.getElementById(Pager.FOOTERID)!;
     }
 
     showPage(p: Page): Page;
@@ -63,12 +67,19 @@ export class Pager {
             this.currentPage = p;
             p.create(this.container);
             this.header.classList.toggle("hidden", !p.shouldDisplayHeader);
+            this.footer.classList.toggle("hidden", !p.shouldDisplayFooter);
             return p;
         }
+    }
+
+    updateFooter(name: string, points: number) {
+        this.footer.querySelector("#team-name")!.textContent = name;
+        this.footer.querySelector("#team-points")!.textContent = Math.floor(points).toString();
     }
 }
 
 export class LoginPage extends EventPage {
+    shouldDisplayFooter: boolean = false;
     constructor(private name:string|null, private callback: (name:string)=>void){super();};
     attachListeners(): CancelHandle[] {
         const input = this.container?.getElementsByTagName("input")[0] as HTMLInputElement;
@@ -95,11 +106,15 @@ export class LoadingPage extends StaticPage {
     message : string;
     bottom_image? : string;
     icon? : string;
-    constructor(message : string = "", bottom_image? : string, icon? : string){
+    constructor(message : string = "", bottom_image? : string, icon? : string, show?: {header?: boolean, footer?: boolean}){
         super();
         this.message = message;
         this.bottom_image = bottom_image;
         this.icon = icon;
+        if(!!show){
+            this.shouldDisplayHeader = show.header ?? true;
+            this.shouldDisplayFooter = show.footer ?? true;
+        }
     }
     render(): void {
         if(!this.container) throw new Error("Render called before create");
