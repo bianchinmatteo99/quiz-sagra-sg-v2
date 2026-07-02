@@ -61,7 +61,7 @@ class LoginPageChooser extends DecisionLeaf<StateHandler, Page>{
     decide(state: StateHandler): Page {
         if(this.alreadyLoggedIn && state.isRegisteredToQuiz()){
             state.setCurrentPath(this.path, "already logged in")
-            return new LoadingPage(`<span class="material-symbols-outlined">person_check</span><br/>Benvenuta squadra ${state.getName()}!<br/>Il quiz sta per cominciare!`);
+            return new LoadingPage(`Benvenuta squadra<br/><b>${state.getName()}</b>!`, undefined, "person_check");
         } else {
             state.setCurrentPath(this.path, "login page")
             return new LoginPage(state.getName(), (name)=>{

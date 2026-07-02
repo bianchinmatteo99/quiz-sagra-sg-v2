@@ -94,13 +94,15 @@ export class LoadingPage extends StaticPage {
     };
     message : string;
     bottom_image? : string;
-    constructor(message : string = "", bottom_image? : string){
+    icon? : string;
+    constructor(message : string = "", bottom_image? : string, icon? : string){
         super();
         this.message = message;
         this.bottom_image = bottom_image;
+        this.icon = icon;
     }
     render(): void {
         if(!this.container) throw new Error("Render called before create");
-        this.container.innerHTML = `<div style="flex:1"></div><span>${this.message}</span><div style="flex:1"></div>${this.bottom_image ? `<img src="${this.bottom_image}">` : ''}`;
+        this.container.innerHTML = `<div style="flex:1"></div><span>${this.icon ? `<span class="material-symbols-outlined" style="font-size: 2em;color: var(--pico-primary);">${this.icon}</span><br>` : ''}${this.message}</span><div style="flex:1"></div>${this.bottom_image ? `<img src="${this.bottom_image}">` : ''}`;
     }
 }
