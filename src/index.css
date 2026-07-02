@@ -75,8 +75,17 @@ body {
   border: var(--pico-secondary-border) 2px solid;
   border-radius: 32px;
 }
-#page-footer span {
+#page-footer > span {
   display: flex;
+}
+#page-footer > span:first-child {
+  gap: 5px;
+}
+#page-footer > span:last-child {
+  gap: 2px;
+}
+#page-footer .material-symbols-outlined {
+  color: var(--pico-secondary);
 }
 
 #page-container {
