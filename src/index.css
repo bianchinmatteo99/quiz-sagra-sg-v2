@@ -53,7 +53,7 @@ body {
   border: var(--pico-primary-border) 2px solid;
   border-radius: 32px;
 }
-#page-header.hidden {
+#page-header.hidden, #page-footer.hidden {
   display: none !important;
 }
 #page-header img {
@@ -62,17 +62,21 @@ body {
 }
 
 #page-footer {
+  align-self: center;
   width: fit-content;
   flex: 0 0 auto;
-  padding: 0 var(--pico-spacing);
+  padding: 5px var(--pico-spacing);
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: var(--pico-grid-column-gap);
   font-size: 16px;
   margin: 10px;
-  border: var(--pico-primary-border) 2px solid;
+  border: var(--pico-secondary-border) 2px solid;
   border-radius: 32px;
+}
+#page-footer span {
+  display: flex;
 }
 
 #page-container {
