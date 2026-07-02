@@ -61,6 +61,20 @@ body {
   height: 60px;
 }
 
+#page-footer {
+  width: fit-content;
+  flex: 0 0 auto;
+  padding: 0 var(--pico-spacing);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--pico-grid-column-gap);
+  font-size: 16px;
+  margin: 10px;
+  border: var(--pico-primary-border) 2px solid;
+  border-radius: 32px;
+}
+
 #page-container {
   flex: 1;
   text-align: center;
