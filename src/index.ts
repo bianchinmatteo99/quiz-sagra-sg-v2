@@ -1,12 +1,12 @@
 import { FirebaseDatabaseAdapter } from "./common/database/firebase.adapter";
 import { auth } from "./firebase-init";
-import { Pager } from "./user/user.base.views";
+import { UserPager } from "./user/user.base.views";
 import { RootPageChooser } from "./user/user.decisiontree";
 import { StateHandler } from "./user/user.state";
 
 document.addEventListener('DOMContentLoaded', async function () {
     const pageChooser = new RootPageChooser();
-    const pager = new Pager();
+    const pager = new UserPager();
     const state = new StateHandler(new FirebaseDatabaseAdapter(), auth);
     await state.setup();
     state.addObserver((s)=>pager.showPage(pageChooser.decide(state)));

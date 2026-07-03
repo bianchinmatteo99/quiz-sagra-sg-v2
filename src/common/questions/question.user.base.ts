@@ -1,4 +1,5 @@
-import { EventPage, IdleStatusPage, StaticPage } from "../../user/user.base.views";
+import { IdleStatusPage } from "../../user/user.base.views";
+import { EventPage, StaticPage } from "../navigation/pages";
 import { StateHandler } from "../../user/user.state";
 
 export abstract class QuestionUserPageProvider {

@@ -1,4 +1,5 @@
-import { EventPage, UserQuestionPage } from "../../../user/user.base.views";
+import { UserQuestionPage } from "../../../user/user.base.views";
+import { EventPage } from "../../navigation/pages";
 import { StateHandler } from "../../../user/user.state";
 import { CancelHandle } from "../../general.utils";
 import { Ender, Evaluator, Question, QuestionContext, QuestionModel } from "../question.base";

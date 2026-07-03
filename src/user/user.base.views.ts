@@ -1,85 +1,30 @@
 import { CancelHandle } from "../common/general.utils";
+import { Page, EventPage, StaticPage, Pager } from "../common/navigation/pages";
 
-export abstract class Page {
-    shouldDisplayHeader = true;
-    shouldDisplayFooter = true;
-    protected container?: HTMLElement
-    abstract render(): void;
-    abstract create(container: HTMLElement): void;
-    abstract destroy(): void;
-    isEqualTo(other: Page): boolean {
-        return this === other;
-    }
-}
-
-export abstract class StaticPage extends Page {
-    create(container: HTMLElement) {
-        this.container = container;
-        this.render();
-    }
-    destroy() {
-        if (!!this.container) {
-            this.container.innerHTML = "";
-            this.container = undefined;
-        }
-    }
-}
-
-export abstract class EventPage extends Page {
-    protected _cancelHandles: CancelHandle[] = [];
-    abstract attachListeners(): CancelHandle[];
-    attachListenerTo(element:HTMLElement, event: string, callback: (e:any)=>void): CancelHandle{
-        element.addEventListener(event, callback);
-        return ()=>element.removeEventListener(event, callback);
-    }
-    create(container: HTMLElement) {
-        this.container = container;
-        this.render();
-        this._cancelHandles.push(...this.attachListeners());
-    }
-    destroy() {
-        this._cancelHandles.forEach(c => c());
-        if (!!this.container) {
-            this.container.innerHTML = "";
-            this.container = undefined;
-        }
-    }
-}
-
-
-
-export class Pager {
+export class UserPager extends Pager {
     static readonly CONTAINERID = "page-container"
     static readonly HEADERID = "page-header"
     static readonly FOOTERID = "page-footer"
     readonly container: HTMLElement;
     readonly header: HTMLElement;
     readonly footer: HTMLElement;
-    currentPage?: Page;
+    
     constructor() {
-        this.container = document.getElementById(Pager.CONTAINERID)!;
-        this.header = document.getElementById(Pager.HEADERID)!;
-        this.footer = document.getElementById(Pager.FOOTERID)!;
+        super();
+        this.container = document.getElementById(UserPager.CONTAINERID)!;
+        this.header = document.getElementById(UserPager.HEADERID)!;
+        this.footer = document.getElementById(UserPager.FOOTERID)!;
     }
 
     showPage(p: Page): Page;
     showPage(p: null): void;
     showPage(p: Page | null): Page | void {
-        if (p === null) {
-            this.currentPage?.destroy();
-            this.currentPage = undefined;
-            return;
+        const ret = super.showPage(p);
+        if (!!this.currentPage) {
+            this.header.classList.toggle("hidden", !this.currentPage.shouldDisplayHeader);
+            this.footer.classList.toggle("hidden", !this.currentPage.shouldDisplayFooter);
         }
-        if (!!this.currentPage && this.currentPage.isEqualTo(p)) {
-            return this.currentPage;
-        } else {
-            this.currentPage?.destroy();
-            this.currentPage = p;
-            p.create(this.container);
-            this.header.classList.toggle("hidden", !p.shouldDisplayHeader);
-            this.footer.classList.toggle("hidden", !p.shouldDisplayFooter);
-            return p;
-        }
+        return ret;
     }
 
     updateFooter(name: string, points: number) {
