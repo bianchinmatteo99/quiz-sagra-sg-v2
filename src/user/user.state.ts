@@ -11,6 +11,7 @@ type AppState = {
         name: string,
         state: QuestionState,
         enableAnswers: boolean,
+        deny: string[],
     }
 }
 
@@ -24,11 +25,13 @@ type PersonState = null | {
     }
 }
 
-export type State = { app: AppState, person: PersonState, currentDecisionLeaf: string }
+export type State = { app: AppState, person: PersonState, questionresult: boolean|null, currentDecisionLeaf: string }
 
 export class StateHandler {
     static readonly APPSTATEPATH = "/state"
     static readonly PERSONPATH = "/people/list"
+    static readonly RESULTSPATH = "/results/evaluation"
+    static readonly ANSWERSPATH = "/results/answers"
     private db: IDatabaseAdapter;
     private auth: Auth;
     private state?: State;
@@ -65,7 +68,7 @@ export class StateHandler {
 
     async setup() {
         if (!!this.state) throw new Error("Setup already run!");
-        this.state = { app: { quiz: { status: QuizStatus.Booting } }, person: null, currentDecisionLeaf: "" };
+        this.state = { app: { quiz: { status: QuizStatus.Booting } }, person: null, questionresult: null, currentDecisionLeaf: "" };
         this._bindingCancel.push(this.db.onValue<AppState>(StateHandler.APPSTATEPATH, (data) => {
             if (data !== null && data !== undefined) {
                 this.state!.app = data;
@@ -87,6 +90,10 @@ export class StateHandler {
             this.state!.person = data;
             this.scheduleUpdate();
         }));
+        this._bindingCancel.push(this.db.onValue<boolean | null>(`${StateHandler.RESULTSPATH}/${this.getUserId()}`, (data) => {
+            this.state!.questionresult = data ?? null;
+            this.scheduleUpdate();
+        }));
     }
     async registerWithName(name: string) {
         this.requiresSetup();
@@ -96,6 +103,12 @@ export class StateHandler {
             this.setupPersonListener();
         }
         await this.db.update(this.getPersonPath(id), { "name": name });
+    }
+    async answerQuestion(answer: string) {
+        this.requiresSetup();
+        if (!this.isRegisteredToQuiz()) throw new Error("User must be registered to quiz before answering questions");
+        if (!this.state?.app.question) throw new Error("Question state is undefined");
+        await this.db.set(`${StateHandler.ANSWERSPATH}/${this.getUserId()}`, { time: new Date(Date.now()).toISOString(), answer: answer });
     }
     isLoggedIn(): boolean {
         return !!this.getUserId();

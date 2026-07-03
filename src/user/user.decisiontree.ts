@@ -1,36 +1,38 @@
+import { QuestionState } from "../common/questions/question.base";
+import { instantiatePageProviderForQuestion } from "../common/questions/questions.register";
 import { QuizStatus } from "../common/quiz/quiz.model";
-import { LoadingPage, LoginPage, Page } from "./user.base.views";
+import { EventPage, IdleStatusPage, LoginPage, Page, StaticPage } from "./user.base.views";
 import { State, StateHandler } from "./user.state";
 
-abstract class DecisionNode<S,T>{
+export abstract class DecisionNode<S, T> {
     parentPath: string;
     abstract name: string;
-    abstract children : Record<string, DecisionNode<S,T>>;
-    abstract decide(state : S): T;
-    clear(){}
+    abstract children: Record<string, DecisionNode<S, T>>;
+    abstract decide(state: S): T;
+    clear() { }
 
-    constructor(parentPath : string){
+    constructor(parentPath: string) {
         this.parentPath = parentPath;
     }
 
-    get path(){
+    get path() {
         return this.parentPath + ">" + this.name;
     }
 
-    delegateDecision(child: string, state : S): T{
-        Object.entries(this.children).filter(([s,dt])=>s!=child).forEach(([s,dt])=>dt.clearSubTree());
+    delegateDecision(child: string, state: S): T {
+        Object.entries(this.children).filter(([s, dt]) => s != child).forEach(([s, dt]) => dt.clearSubTree());
         return this.children[child].decide(state);
     }
 
     // called when a parent delegates decision to other child, so that the temporary internal state of previous decision nodes can be cleared
-    clearSubTree(){
+    clearSubTree() {
         Object.values(this.children).forEach(dn => dn.clearSubTree());
         this.clear();
     }
 }
 
-abstract class DecisionLeaf<S,T> extends DecisionNode<S,T>{
-    children : Record<string, DecisionNode<S,T>> = {};
+export abstract class DecisionLeaf<S, T> extends DecisionNode<S, T> {
+    children: Record<string, DecisionNode<S, T>> = {};
     delegateDecision(child: string, state: S): T {
         throw new Error("Leaf cannot delegate decisions");
     }
@@ -40,31 +42,44 @@ abstract class DecisionLeaf<S,T> extends DecisionNode<S,T>{
 }
 
 
-export class RootPageChooser extends DecisionNode<StateHandler, Page>{
+export class RootPageChooser extends DecisionNode<StateHandler, Page> {
     name = "root"
-    children = {"onboard": new LoginPageChooser(this.path)};
-    constructor(){
+    children = { "onboard": new LoginPageChooser(this.path), "question": new QuestionPageChooser(this.path) };
+    constructor() {
         super("");
     }
     decide(state: StateHandler): Page {
-        if(!!state.read && state.read.app.quiz.status==QuizStatus.OnBoarding){
+        if (!state.read || state.read.app.quiz.status == QuizStatus.Booting || state.read.app.quiz.status == QuizStatus.AwaitingStart) {
+            this.clearSubTree();
+            return new IdleStatusPage("Pronti per cominciare? Mettetevi comodi!", { bottom_image: IdleStatusPage.DEFAULT_IMAGES.waiting_for_start }, { footer: false });
+        } else if (state.read.app.quiz.status == QuizStatus.OnBoarding) {
             return this.delegateDecision("onboard", state);
+        } else if (!state.isLoggedIn() || !state.isRegisteredToQuiz()) {
+            return new IdleStatusPage("Il quiz è iniziato; non sono ammessi altri partecipanti", { icon: "person_off" }, { footer: false });
+        } else if (state.read.app.quiz.status == QuizStatus.Ended) {
+            this.clearSubTree();
+            return new IdleStatusPage("Il quiz è terminato! Grazie per aver partecipato!", { icon: "celebration" }, { footer: false });
+        } else if (state.read.app.quiz.status == QuizStatus.Idle || state.read.app.question?.state == undefined) {
+            this.clearSubTree();
+            return new IdleStatusPage("In attesa della prossima domanda...", { bottom_image: IdleStatusPage.DEFAULT_IMAGES.waiting_for_start });
+        } else if (state.read.app.quiz.status == QuizStatus.RunningGame && state.read.app.question?.state != undefined) {
+            return this.delegateDecision("question", state);
         } else {
-            return new LoadingPage("Pronti per cominciare? Mettetevi comodi!", LoadingPage.DEFAULT_IMAGES.waiting_for_start, undefined, {footer: false});
+            throw new Error("Unexpected state");
         }
     }
 }
 
-class LoginPageChooser extends DecisionLeaf<StateHandler, Page>{
+class LoginPageChooser extends DecisionLeaf<StateHandler, Page> {
     name = "login"
     alreadyLoggedIn = false;
     decide(state: StateHandler): Page {
-        if(this.alreadyLoggedIn && state.isRegisteredToQuiz()){
+        if (this.alreadyLoggedIn && state.isRegisteredToQuiz()) {
             state.setCurrentPath(this.path, "already logged in")
-            return new LoadingPage(`Benvenuta squadra<br/><b>${state.getName()}</b>!`, undefined, "person_check");
+            return new IdleStatusPage(`Benvenuta squadra<br/><b>${state.getName()}</b>!`, { icon: "person_check" }, { footer: false });
         } else {
             state.setCurrentPath(this.path, "login page")
-            return new LoginPage(state.getName(), (name)=>{
+            return new LoginPage(state.getName(), (name) => {
                 this.alreadyLoggedIn = true;
                 state.registerWithName(name);
             })
@@ -72,5 +87,64 @@ class LoginPageChooser extends DecisionLeaf<StateHandler, Page>{
     }
     clear(): void {
         this.alreadyLoggedIn = false;
+    }
+}
+
+export abstract class QuestionUserPageProvider {
+    whenSetup(state: StateHandler): StaticPage {
+        return new IdleStatusPage("Preparazione domanda", { icon: "hourglass_bottom", loading: true });
+    }
+    abstract whenAnswerEnabled(state: StateHandler, onAnswer: (answer: string) => void): EventPage
+    whenAnswerDenied(state: StateHandler): StaticPage {
+        return new IdleStatusPage("Non puoi rispondere a questa domanda", { bottom_image: IdleStatusPage.DEFAULT_IMAGES.waiting_for_start, icon: "near_me_disabled" });
+    }
+    whenAlreadyAnswered(state: StateHandler): StaticPage {
+        return new IdleStatusPage("Risposta inviata!", { icon: "send" });
+    }
+    whenEvaluation(state: StateHandler): StaticPage {
+        return new IdleStatusPage("Valutazione in corso", { icon: "rate_review", bottom_image: '/img/good-luck.gif' });
+    }
+    whenResults(state: StateHandler, isCorrect: boolean | null): StaticPage {
+        if (isCorrect) {
+            return new IdleStatusPage("Risposta esatta, complimenti!", { icon: "/img/correct.gif", isGifIcon: true });
+        } else if (isCorrect == null) {
+            return new IdleStatusPage("Nessuna risposta inviata", { icon: "sentiment_dissatisfied" });
+        } else {
+            return new IdleStatusPage("Risposta errata", { icon: "/img/wrong.gif", isGifIcon: true });
+        }
+    }
+}
+
+class QuestionPageChooser extends DecisionLeaf<StateHandler, Page> {
+    name = "question"
+    alreadyAnswered = false;
+    answer : string | null = null;
+    decide(state: StateHandler): Page {
+        if (!state.read?.app.question) throw new Error("Question state is undefined");
+        const question = state.read.app.question;
+        const provider = instantiatePageProviderForQuestion(state.read.app.question.name, state);
+        if (question.state == QuestionState.SETUP) {
+            return provider.whenSetup(state);
+        } else if (question.state == QuestionState.ENDED) {
+            return new IdleStatusPage("In attesa della prossima domanda...", { bottom_image: IdleStatusPage.DEFAULT_IMAGES.waiting_for_start });
+        } else if (question.deny.includes(state.getUserId()!)) {
+            return provider.whenAnswerDenied(state);
+        } else if (question.state == QuestionState.ASKING) {
+            if (this.alreadyAnswered) {
+                return provider.whenAlreadyAnswered(state);
+            } else {
+                return provider.whenAnswerEnabled(state, (answer) => {
+                    this.alreadyAnswered = true;
+                    this.answer = answer;
+                    state.answerQuestion(answer);
+                });
+            }
+        } else if (question.state == QuestionState.EVALUATING) {
+            return provider.whenEvaluation(state);
+        } else if (question.state == QuestionState.SHOWRESULTS) {
+            return provider.whenResults(state, state.read.questionresult);
+        } else {
+            throw new Error("Unexpected question state");
+        }
     }
 }

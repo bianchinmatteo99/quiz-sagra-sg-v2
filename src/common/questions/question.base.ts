@@ -1,5 +1,5 @@
 import { IDatabaseAdapter } from "../database/database.types.old";
-import { BaseModel, BaseModelContext, toHtml } from "../general.utils";
+import { BaseModel, BaseModelContext, delay, toHtml } from "../general.utils";
 import { Person } from "../people/people.model";
 import { Timer } from "./timer";
 
@@ -12,7 +12,8 @@ export enum QuestionState {
     SETUP,
     ASKING,
     EVALUATING,
-    ENDED
+    ENDED,
+    SHOWRESULTS
 }
 
 export abstract class QuestionModel extends BaseModel {
@@ -44,7 +45,9 @@ export abstract class QuestionModel extends BaseModel {
         if (b) {
             this.setupTwoWayBinding(["answers"]);
         } else {
-            this.removeBinding(["answers"]);
+            setTimeout(() => {
+                this.removeBinding(["answers"]);
+            }, 1000); // wait for the last answers to be saved before removing the binding
         }
     }
 
@@ -149,7 +152,7 @@ export class QuestionView {
         if (this.context.model.enableManualStopAnswer && state == QuestionState.ASKING) {
             button = `<button>STOP</button>`
         } else if (this.context.model.enableManualEvaluation && state == QuestionState.EVALUATING) {
-            button = `<button class="active">CONCLUDI</button>`
+            button = `<button class="active">CONCLUDI (mostra risultati)</button>`
         }
         footer.innerHTML = `<span>${this.context.model.displayName} - ${QuestionState[state]}</span><span>${hast ? "<span id='question-timer'>&infin;</span>" : ""}${button}`;
         if (hast) {
@@ -225,7 +228,9 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
         this.view = new QuestionView(this);
     }
 
-    async ask(): Promise<QuestionResult> {
+    async ask(showResults?: "yes" | "skip"): Promise<[QuestionResult, null]>;
+    async ask(showResults: "delegate"): Promise<[QuestionResult, ((show: boolean, awaitTime?: number) => Promise<void>)]>;
+    async ask(showResults: "yes" | "skip" | "delegate" = "yes"): Promise<[QuestionResult, ((show: boolean, awaitTime?: number) => Promise<void>) | null]> {
         this.model.state = QuestionState.ASKING;
         this.model.allowNewAnswers(true);
         const stop = this.stopConditions();
@@ -235,9 +240,21 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
         this.model.state = QuestionState.EVALUATING;
         this.stateUpdated();
         this.model.results = await this.evaluate();
-        this.model.state = QuestionState.ENDED;
-        this.stateUpdated();
-        return this.model.results;
+
+        const showRes = async (show: boolean, awaitTime: number = 50) => {
+            if (show) {
+                this.model.state = QuestionState.SHOWRESULTS;
+                this.stateUpdated();
+                await delay(awaitTime);
+            }
+            this.model.state = QuestionState.ENDED;
+            this.stateUpdated();
+        }
+        if (showResults == "yes") await showRes(true, 4000);
+        else if (showResults == "delegate") return [this.model.results, showRes];
+        else await showRes(false, 0);
+
+        return [this.model.results, null];
     }
 
     clear() {
@@ -335,13 +352,14 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
                 name: people.get(id)?.name,
                 time: answers.get(id)?.time,
                 answer: answers.get(id)?.answer,
-                result: results.get(id) 
-            }}).sort((a, b) => 
-                a.result != b.result 
-                  ? 
-                    +(b.result ?? 0) - +(a.result ?? 0) 
-                  : 
-                    ((a.time?.getTime() ?? 0) - (b.time?.getTime() ?? 0))
-            );
+                result: results.get(id)
+            }
+        }).sort((a, b) =>
+            a.result != b.result
+                ?
+                +(b.result ?? 0) - +(a.result ?? 0)
+                :
+                ((a.time?.getTime() ?? 0) - (b.time?.getTime() ?? 0))
+        );
     }
 }
