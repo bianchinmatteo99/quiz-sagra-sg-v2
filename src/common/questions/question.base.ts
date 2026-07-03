@@ -79,7 +79,7 @@ export abstract class QuestionModel extends BaseModel {
                 some = true;
                 const a: QuestionAnswers = new Map()
                 for (const id in data.answers) {
-                    a.set(id, { time: new Date(data.time), answer: data.answer });
+                    a.set(id, { time: new Date(data.answers[id].time), answer: data.answers[id].answer });
                 }
                 this.answers = a;
             }
