@@ -34,50 +34,25 @@ export class ReazioneCatenaGameManager extends GameManager {
                         const correct = res.entries().filter(([id, v]) => v).map(([id, v]) => id).toArray();
                         if (correct.length > 0) {
                             await this.controller.completeWord(5000);
-                            // this.controller.displayWinners(); and await adminInteraction
+                            // this.controller.displayWinners();
+                            setTimeout(() => {
+                                this.context.updateRanking(new Map(correct.map((id) => [id, this.controller.model.definition.pointsForCorrectAnswer])));
+                            }, 1000);
                         } else if (! await this.controller.adminInteraction({ advanceBtn: "Passa alla prossima lettera", otherBtn: "Completa la parola e vai alla prossima" })) {
                             await this.controller.completeWord(5000);
-                        } 
+                        }
                         return 5000;
                     }
                 });
 
-                const correct = res.entries().filter(([id, v]) => v).map(([id, v]) => id).toArray();
-                if (correct.length > 0) {
-                    this.context.updateRanking(new Map(correct.map((id) => [id, this.controller.model.definition.pointsForCorrectAnswer])));
-                } else {
-                    if (!this.controller.model.definition.canRetryForSameWord) {
-                        for (const [id, r] of res) {
-                            if (!r && !this.controller.model.currentDenyList.includes(id)) {
-                                this.controller.model.currentDenyList.push(id)
-                            }
+                if (!this.controller.model.definition.canRetryForSameWord) {
+                    for (const [id, r] of res) {
+                        if (!r && !this.controller.model.currentDenyList.includes(id)) {
+                            this.controller.model.currentDenyList.push(id)
                         }
                     }
                 }
 
-
-                /* if (correct.length > 0) {
-                    await this.controller.completeWord(5000);
-                    // this.controller.displayWinners(); and await adminInteraction
-                    await showResults(true, 5000);
-                    this.context.updateRanking(new Map(correct.map((id) => [id, this.controller.model.definition.pointsForCorrectAnswer])));
-                    await delay(2000);
-                } else if (await this.controller.adminInteraction({ advanceBtn: "Passa alla prossima lettera", otherBtn: "Completa la parola e vai alla prossima" })) {
-                    await showResults(true, 5000);
-                    if (!this.controller.model.definition.canRetryForSameWord) {
-                        for (const [id, r] of res) {
-                            if (!r && !this.controller.model.currentDenyList.includes(id)) {
-                                this.controller.model.currentDenyList.push(id)
-                            }
-                        }
-                    }
-
-                } else {
-                    await this.controller.completeWord(5000);
-                    await showResults(true, 5000);
-                }
-
-                await delay(50); */
                 this.currentQ.clear();
                 this.currentQ = null;
             }

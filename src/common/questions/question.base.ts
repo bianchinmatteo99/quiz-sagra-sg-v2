@@ -29,6 +29,7 @@ export abstract class QuestionModel extends BaseModel {
     enableAnswers: boolean = false;
     enableManualEvaluation: boolean = false;
     enableManualStopAnswer: boolean = false;
+    enableManualStopShowResults: boolean = false;
     private timer: Timer | null = null;
 
     context: QuestionModelContext;
@@ -62,6 +63,9 @@ export abstract class QuestionModel extends BaseModel {
     }
     setTimerClockListener(listener: (t?: number) => void) {
         this.timer?.addListener(listener);
+    }
+    get timerTime() {
+        return this.timer?.currentTime;
     }
 
     parseFromJSON(data: any): boolean {
@@ -115,6 +119,7 @@ export interface QuestionViewContext {
     setResultOf(id: string, result: boolean): void;
     manualStop: (() => void) | null;
     manualEvaluationEnded: (() => void) | null;
+    manualStopShowResults: (() => void) | null;
 }
 export class QuestionView {
     readonly questionContainer = "question-container";
@@ -153,9 +158,11 @@ export class QuestionView {
         if (this.context.model.enableManualStopAnswer && state == QuestionState.ASKING) {
             button = `<button>STOP</button>`
         } else if (this.context.model.enableManualEvaluation && state == QuestionState.EVALUATING) {
-            button = `<button class="active">CONCLUDI (mostra risultati)</button>`
+            button = `<button class="active">Mostra risultati</button>`
+        } else if (this.context.model.enableManualStopShowResults && state == QuestionState.SHOWRESULTS) {
+            button = `<button class="active">FINE</button>`
         }
-        footer.innerHTML = `<span>${this.context.model.displayName} - ${QuestionState[state]}</span><span>${hast ? "<span id='question-timer'>&infin;</span>" : ""}${button}`;
+        footer.innerHTML = `<span>${this.context.model.displayName} - ${QuestionState[state]}</span><span>${hast ? `<span id='question-timer'>${this.context.model.timerTime ?? "&infin;"}</span>` : ""}${button}`;
         if (hast) {
             const timerContainer = footer.querySelector("#question-timer")!
             this.context.model.setTimerClockListener((t) => {
@@ -166,6 +173,7 @@ export class QuestionView {
             footer.querySelector("button")!.addEventListener("click", (e) => {
                 if (this.context.model.enableManualStopAnswer && this.context.model.state == QuestionState.ASKING) this.context.manualStop?.();
                 if (this.context.model.enableManualEvaluation && this.context.model.state == QuestionState.EVALUATING) this.context.manualEvaluationEnded?.();
+                if (this.context.model.enableManualStopShowResults && this.context.model.state == QuestionState.SHOWRESULTS) this.context.manualStopShowResults?.();
             });
         }
     }
@@ -229,7 +237,8 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
         this.view = new QuestionView(this);
     }
 
-    async ask(callbacks?: {beforeShowResults?: (res: QuestionResult)=>Promise<number>, beforeEnd?: (res: QuestionResult)=>Promise<void>}): Promise<QuestionResult> {
+    manualStopShowResults: (() => void) | null = null;
+    async ask(callbacks?: {beforeShowResults?: (res: QuestionResult)=>Promise<boolean|number>, beforeEnd?: (res: QuestionResult)=>Promise<void>}): Promise<QuestionResult> {
         const beforeShowResults = callbacks?.beforeShowResults ?? ((res) => Promise.resolve(5000));
         const beforeEnd = callbacks?.beforeEnd ?? (async (res) => await delay(50));
 
@@ -247,10 +256,23 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
         this.stateUpdated();
         const showResults = await beforeShowResults(this.model.results);
 
-        if(showResults > 0){
+        if(!!showResults){
             this.model.state = QuestionState.SHOWRESULTS;
             this.stateUpdated();
-            await delay(showResults);
+            if(typeof showResults == "number") {
+                await delay(showResults);
+            } else {
+                this.model.enableManualStopShowResults = true;
+                await new Promise<void>((resolve, reject) => {
+                    this.manualStopShowResults = () => {
+                        this.model.enableManualStopShowResults = false;
+                        this.manualStopShowResults = null;
+                        this.view.render();
+                        resolve();
+                    }
+                    this.view.render();
+                });
+            }
         }
 
         await beforeEnd(this.model.results);

@@ -17,7 +17,10 @@ export class Timer {
         this.listeners = [];
     }
 
-    
+    get currentTime() {
+        return this.current;
+    }
+
     async start() {
         const end = Date.now() + this.seconds * 1000 + 50; // added 50 ms for ui delay
         this.pushToDB(end)

@@ -22,6 +22,8 @@ export class TextInputQuestion extends Question {
 }
 
 class UserTextInputPage extends UserQuestionPage {
+    shouldDisplayHeader = false;
+    shouldDisplayFooter = false;
     attachListeners(): CancelHandle[] {
         const input = this.container?.getElementsByTagName("input")[0] as HTMLInputElement;
         const button = this.container?.getElementsByTagName("button")[0] as HTMLButtonElement;

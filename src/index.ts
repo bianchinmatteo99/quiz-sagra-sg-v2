@@ -20,6 +20,12 @@ document.addEventListener('DOMContentLoaded', async function () {
         img.src = url;
         preloadImages.push(img);
     }
+
+    // FOOTER UPDATE
+    const score = document.getElementById("team-score")!;
+    score.addEventListener("animationend", () => {
+        score.classList.remove("animate");
+    });
 });
 
 
