@@ -1,7 +1,5 @@
 import { EventPage, IdleStatusPage, StaticPage } from "../../user/user.base.views";
 import { StateHandler } from "../../user/user.state";
-import { TextInputQuestionPageProvider } from "./text_input/text_input.question";
-
 
 export abstract class QuestionUserPageProvider {
     whenSetup(state: StateHandler): StaticPage {
@@ -27,6 +25,8 @@ export abstract class QuestionUserPageProvider {
         }
     }
 }
+
+import { TextInputQuestionPageProvider } from "./text_input/text_input.question";
 
 export function instantiatePageProviderForQuestion(name: string, state: StateHandler): QuestionUserPageProvider {
     switch(name){

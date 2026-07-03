@@ -1,7 +1,7 @@
 import { QuestionState } from "../common/questions/question.base";
 import { instantiatePageProviderForQuestion } from "../common/questions/questions.register";
 import { QuizStatus } from "../common/quiz/quiz.model";
-import { EventPage, IdleStatusPage, LoginPage, Page, StaticPage } from "./user.base.views";
+import { IdleStatusPage, LoginPage, Page } from "./user.base.views";
 import { StateHandler } from "./user.state";
 
 export abstract class DecisionNode<S, T> {
