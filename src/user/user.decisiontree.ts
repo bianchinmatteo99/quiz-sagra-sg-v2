@@ -120,7 +120,7 @@ class QuestionPageChooser extends DecisionLeaf<StateHandler, Page> {
                     state.answerQuestion(answer);
                 });
             }
-        } else if (question.state == QuestionState.EVALUATING) {
+        } else if (question.state == QuestionState.EVALUATING || question.state == QuestionState.IDLE) {
             state.setCurrentPath(this.path, "evaluating")
             return provider.whenEvaluation(state);
         } else if (question.state == QuestionState.SHOWRESULTS) {

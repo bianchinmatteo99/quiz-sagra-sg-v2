@@ -12,7 +12,7 @@ export enum QuestionState {
     SETUP,
     ASKING,
     EVALUATING,
-    PAUSE,
+    IDLE,
     SHOWRESULTS,
     ENDED,
 }
@@ -229,9 +229,10 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
         this.view = new QuestionView(this);
     }
 
-    async ask(showResults?: "yes" | "skip"): Promise<[QuestionResult, null]>;
-    async ask(showResults: "delegate"): Promise<[QuestionResult, ((show: boolean, awaitTime?: number) => Promise<void>)]>;
-    async ask(showResults: "yes" | "skip" | "delegate" = "yes"): Promise<[QuestionResult, ((show: boolean, awaitTime?: number) => Promise<void>) | null]> {
+    async ask(callbacks?: {beforeShowResults?: (res: QuestionResult)=>Promise<number>, beforeEnd?: (res: QuestionResult)=>Promise<void>}): Promise<QuestionResult> {
+        const beforeShowResults = callbacks?.beforeShowResults ?? ((res) => Promise.resolve(5000));
+        const beforeEnd = callbacks?.beforeEnd ?? (async (res) => await delay(50));
+
         this.model.state = QuestionState.ASKING;
         this.model.allowNewAnswers(true);
         const stop = this.stopConditions();
@@ -242,26 +243,22 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
         this.stateUpdated();
         this.model.results = await this.evaluate();
 
-        const showRes = async (show: boolean, awaitTime: number = 50) => {
-            if (show) {
-                this.model.state = QuestionState.SHOWRESULTS;
-                this.stateUpdated();
-                await delay(awaitTime);
-            }
-            this.model.state = QuestionState.ENDED;
+        this.model.state = QuestionState.IDLE;
+        this.stateUpdated();
+        const showResults = await beforeShowResults(this.model.results);
+
+        if(showResults > 0){
+            this.model.state = QuestionState.SHOWRESULTS;
             this.stateUpdated();
-        }
-        if (showResults == "yes") {
-            await showRes(true, 4000)
-        } else if (showResults == "delegate"){ 
-            this.model.state = QuestionState.EVALUATING;
-            this.stateUpdated();
-            return [this.model.results, showRes]
-        } else {
-            await showRes(false, 0)
+            await delay(showResults);
         }
 
-        return [this.model.results, null];
+        await beforeEnd(this.model.results);
+
+        this.model.state = QuestionState.ENDED;
+        this.stateUpdated();
+        await delay(50);
+        return this.model.results;
     }
 
     clear() {
@@ -309,7 +306,6 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
             for (const [id, x] of ans.entries()) {
                 this.model.results.set(id, fn(x.answer))
             }
-            console.log("autoeval", fn, ans, this.model.results);
         }
         if (this.manualevaluate) {
             this.model.enableManualEvaluation = true;
@@ -347,7 +343,7 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
 
         if (fillEmptyResults) {
             for (const id of answers.keys()) {
-                if (!(id in results)) {
+                if (!results.has(id)) {
                     results.set(id, false);
                 }
             }
