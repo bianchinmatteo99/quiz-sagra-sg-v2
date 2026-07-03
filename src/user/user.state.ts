@@ -109,6 +109,7 @@ export class StateHandler {
         if (!this.isRegisteredToQuiz()) throw new Error("User must be registered to quiz before answering questions");
         if (!this.state?.app.question) throw new Error("Question state is undefined");
         await this.db.set(`${StateHandler.ANSWERSPATH}/${this.getUserId()}`, { time: new Date(Date.now()).toISOString(), answer: answer });
+        this.scheduleUpdate();
     }
     isLoggedIn(): boolean {
         return !!this.getUserId();

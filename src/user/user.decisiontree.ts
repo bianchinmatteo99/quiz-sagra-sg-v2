@@ -99,15 +99,20 @@ class QuestionPageChooser extends DecisionLeaf<StateHandler, Page> {
         const question = state.read.app.question;
         const provider = instantiatePageProviderForQuestion(state.read.app.question.name, state);
         if (question.state == QuestionState.SETUP) {
+            state.setCurrentPath(this.path, "setup question")
             return provider.whenSetup(state);
         } else if (question.state == QuestionState.ENDED) {
+            state.setCurrentPath(this.path, "end question")
             return new IdleStatusPage("In attesa della prossima domanda...", { bottom_image: IdleStatusPage.DEFAULT_IMAGES.waiting_for_start });
         } else if (question.deny?.includes(state.getUserId()!)) {
+            state.setCurrentPath(this.path, "denied answer")
             return provider.whenAnswerDenied(state);
         } else if (question.state == QuestionState.ASKING) {
             if (this.alreadyAnswered) {
+                state.setCurrentPath(this.path, "already answered")
                 return provider.whenAlreadyAnswered(state);
             } else {
+                state.setCurrentPath(this.path, "answering")
                 return provider.whenAnswerEnabled(state, (answer) => {
                     this.alreadyAnswered = true;
                     this.answer = answer;
@@ -115,8 +120,10 @@ class QuestionPageChooser extends DecisionLeaf<StateHandler, Page> {
                 });
             }
         } else if (question.state == QuestionState.EVALUATING) {
+            state.setCurrentPath(this.path, "evaluating")
             return provider.whenEvaluation(state);
         } else if (question.state == QuestionState.SHOWRESULTS) {
+            state.setCurrentPath(this.path, "showing results")
             return provider.whenResults(state, state.read.questionresult);
         } else {
             throw new Error("Unexpected question state");
