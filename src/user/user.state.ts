@@ -11,7 +11,7 @@ type AppState = {
         name: string,
         state: QuestionState,
         enableAnswers: boolean,
-        deny: string[],
+        deny?: string[],
     }
 }
 
