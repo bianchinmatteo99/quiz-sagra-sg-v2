@@ -34,14 +34,12 @@ export class ReazioneCatenaGameManager extends GameManager {
                 const correct = res.entries().filter(([id, v]) => v).map(([id, v]) => id).toArray();
                 if (correct.length > 0) {
                     await this.controller.completeWord(5000);
-                    await showResults(true);
-                    await delay(2000);
-                    this.context.updateRanking(new Map(correct.map((id) => [id, this.controller.model.definition.pointsForCorrectAnswer])));
                     // this.controller.displayWinners(); and await adminInteraction
-
-                } else if (await this.controller.adminInteraction({ advanceBtn: "Passa alla prossima lettera", otherBtn: "Completa la parola e vai alla prossima" })) {
-                    await showResults(true);
+                    await showResults(true, 2000);
+                    this.context.updateRanking(new Map(correct.map((id) => [id, this.controller.model.definition.pointsForCorrectAnswer])));
                     await delay(2000);
+                } else if (await this.controller.adminInteraction({ advanceBtn: "Passa alla prossima lettera", otherBtn: "Completa la parola e vai alla prossima" })) {
+                    await showResults(true, 2000);
                     if (!this.controller.model.definition.canRetryForSameWord) {
                         for (const [id, r] of res) {
                             if (!r && !this.controller.model.currentDenyList.includes(id)) {
@@ -52,10 +50,10 @@ export class ReazioneCatenaGameManager extends GameManager {
 
                 } else {
                     await this.controller.completeWord(5000);
-                    await showResults(true);
-                    await delay(2000);
+                    await showResults(true, 2000);
                 }
-
+                
+                await delay(50);
                 this.currentQ.clear();
                 this.currentQ = null;
             }

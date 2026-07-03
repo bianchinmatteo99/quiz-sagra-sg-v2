@@ -7,6 +7,9 @@ export abstract class Page {
     abstract render(): void;
     abstract create(container: HTMLElement): void;
     abstract destroy(): void;
+    isEqualTo(other: Page): boolean {
+        return this === other;
+    }
 }
 
 export abstract class StaticPage extends Page {
@@ -62,8 +65,15 @@ export class Pager {
     showPage(p: Page): Page;
     showPage(p: null): void;
     showPage(p: Page | null): Page | void {
-        this.currentPage?.destroy();
-        if (!!p) {
+        if (p === null) {
+            this.currentPage?.destroy();
+            this.currentPage = undefined;
+            return;
+        }
+        if (!!this.currentPage && this.currentPage.isEqualTo(p)) {
+            return this.currentPage;
+        } else {
+            this.currentPage?.destroy();
             this.currentPage = p;
             p.create(this.container);
             this.header.classList.toggle("hidden", !p.shouldDisplayHeader);
@@ -137,6 +147,9 @@ export class IdleStatusPage extends StaticPage {
             <div style="flex:1"></div>
             ${this.bottom_image ? `<img src="${this.bottom_image}">` : ''}
         `;
+    }
+    isEqualTo(other: Page): boolean {
+        return other instanceof IdleStatusPage && this.message == other.message && this.bottom_image == other.bottom_image && this.icon == other.icon && this.isGifIcon == other.isGifIcon && this.loading == other.loading;
     }
 }
 

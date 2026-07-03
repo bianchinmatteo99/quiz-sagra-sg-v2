@@ -102,6 +102,7 @@ class QuestionPageChooser extends DecisionLeaf<StateHandler, Page> {
             state.setCurrentPath(this.path, "setup question")
             return provider.whenSetup(state);
         } else if (question.state == QuestionState.ENDED) {
+            this.clear();
             state.setCurrentPath(this.path, "end question")
             return new IdleStatusPage("In attesa della prossima domanda...", { bottom_image: IdleStatusPage.DEFAULT_IMAGES.waiting_for_start });
         } else if (question.deny?.includes(state.getUserId()!)) {
@@ -128,5 +129,9 @@ class QuestionPageChooser extends DecisionLeaf<StateHandler, Page> {
         } else {
             throw new Error("Unexpected question state");
         }
+    }
+    clear(): void {
+        this.alreadyAnswered = false;
+        this.answer = null;
     }
 }
