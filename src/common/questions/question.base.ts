@@ -65,7 +65,6 @@ export abstract class QuestionModel extends BaseModel {
     }
 
     parseFromJSON(data: any): boolean {
-        console.log("Parsing question model from JSON", data);
         try {
             var some = false;
             if ("question" in data) {
@@ -80,7 +79,6 @@ export abstract class QuestionModel extends BaseModel {
                 some = true;
                 const a: QuestionAnswers = new Map()
                 for (const id in data.answers) {
-                    console.log("Parsing answer", id, data.answers[id]);
                     a.set(id, { time: new Date(data.time), answer: data.answer });
                 }
             }
@@ -136,7 +134,7 @@ export class QuestionView {
 
         const ev = this.context.model.enableManualEvaluation;
         const info = this.context.getJoinedList(ev);
-
+        console.log("Rendering question view", state, info, this.context.model);
         for (const o of info) {
             const check = ev ? `<input type='checkbox' ${o.result ? "checked" : ""} aria-invalid="${!o.result}">` : ""
             const row = toHtml(`
