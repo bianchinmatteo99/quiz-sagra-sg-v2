@@ -12,8 +12,9 @@ export enum QuestionState {
     SETUP,
     ASKING,
     EVALUATING,
+    PAUSE,
+    SHOWRESULTS,
     ENDED,
-    SHOWRESULTS
 }
 
 export abstract class QuestionModel extends BaseModel {
@@ -250,9 +251,15 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
             this.model.state = QuestionState.ENDED;
             this.stateUpdated();
         }
-        if (showResults == "yes") await showRes(true, 4000);
-        else if (showResults == "delegate") return [this.model.results, showRes];
-        else await showRes(false, 0);
+        if (showResults == "yes") {
+            await showRes(true, 4000)
+        } else if (showResults == "delegate"){ 
+            this.model.state = QuestionState.EVALUATING;
+            this.stateUpdated();
+            return [this.model.results, showRes]
+        } else {
+            await showRes(false, 0)
+        }
 
         return [this.model.results, null];
     }

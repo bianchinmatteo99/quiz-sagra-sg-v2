@@ -132,8 +132,7 @@ export class IdleStatusPage extends StaticPage {
         }
         this.container.innerHTML = `
             <div style="flex:1"></div>
-            ${icon}
-            <span>${this.message}</span>
+            <span>${icon}${this.message}</span>
             ${this.loading ? `<br><span aria-busy="true"></span>` : ''}
             <div style="flex:1"></div>
             ${this.bottom_image ? `<img src="${this.bottom_image}">` : ''}
