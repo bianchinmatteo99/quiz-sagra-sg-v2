@@ -81,6 +81,7 @@ export abstract class QuestionModel extends BaseModel {
                 for (const id in data.answers) {
                     a.set(id, { time: new Date(data.time), answer: data.answer });
                 }
+                this.answers = a;
             }
             if ("results" in data) {
                 some = true;
@@ -134,7 +135,6 @@ export class QuestionView {
 
         const ev = this.context.model.enableManualEvaluation;
         const info = this.context.getJoinedList(ev);
-        console.log("Rendering question view", state, info, this.context.model);
         for (const o of info) {
             const check = ev ? `<input type='checkbox' ${o.result ? "checked" : ""} aria-invalid="${!o.result}">` : ""
             const row = toHtml(`
