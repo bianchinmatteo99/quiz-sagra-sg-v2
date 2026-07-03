@@ -1,5 +1,4 @@
 import { FirebaseDatabaseAdapter } from "./common/database/firebase.adapter";
-import { delay } from "./common/general.utils";
 import { auth } from "./firebase-init";
 import { Pager } from "./user/user.base.views";
 import { RootPageChooser } from "./user/user.decisiontree";

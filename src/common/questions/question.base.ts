@@ -309,6 +309,7 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
             for (const [id, x] of ans.entries()) {
                 this.model.results.set(id, fn(x.answer))
             }
+            console.log("autoeval", fn, ans, this.model.results);
         }
         if (this.manualevaluate) {
             this.model.enableManualEvaluation = true;
