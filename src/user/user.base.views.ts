@@ -84,10 +84,14 @@ export class Pager {
 
     updateFooter(name: string, points: number) {
         this.footer.querySelector("#team-name")!.textContent = name;
-        const lastScore = parseInt(this.footer.querySelector("#team-score")!.textContent || "0");
-        this.footer.querySelector("#team-score")!.textContent = Math.floor(points).toString();
-        if (points - lastScore > 0) {
-            this.footer.querySelector("#team-score")!.setAttribute("data-last-updated", (points - lastScore).toString());
+        const scoreElement = this.footer.querySelector("#team-score")!;
+        const lastScore = parseInt(scoreElement.textContent || "0");
+        scoreElement.textContent = Math.floor(points).toString();
+        const diff = points - lastScore;
+        if (diff != 0) {
+            scoreElement.setAttribute("data-last-updated", `${diff>0?"+":""}${Math.floor(diff)}`);
+            scoreElement.classList.remove("positive", "negative");
+            scoreElement.classList.add(diff > 0 ? "positive" : "negative");
             this.footer.querySelector("#team-score")!.classList.add("animate");
         }
     }
