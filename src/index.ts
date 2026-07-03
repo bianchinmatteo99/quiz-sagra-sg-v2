@@ -12,6 +12,15 @@ document.addEventListener('DOMContentLoaded', async function () {
     await state.setup();
     state.addObserver((s)=>pager.showPage(pageChooser.decide(state)));
     state.addObserver((s)=>pager.updateFooter(s.person?.name || "???", s.person?.rank?.points ?? 0));
+
+    // PRELOAD IMAGES
+    const preloadImagesUrls = ["/img/correct.gif", "/img/good-luck.gif", "/img/wrong.gif"];
+    const preloadImages = [];
+    for (const url of preloadImagesUrls) {
+        const img = new Image();
+        img.src = url;
+        preloadImages.push(img);
+    }
 });
 
 

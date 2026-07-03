@@ -135,7 +135,7 @@ export class IdleStatusPage extends StaticPage {
         let icon = "";
         if(!!this.icon){
             if(this.isGifIcon){
-                icon = `<img src="${this.icon}" style="width: 2em;height: 2em;"><br/>`;
+                icon = `<img src="${this.icon}" style="width: 250px;"><br/>`;
             } else {
                 icon = `<span class="material-symbols-outlined" style="font-size: 2em;color: var(--pico-primary);">${this.icon}</span><br/>`;
             }
