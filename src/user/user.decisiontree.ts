@@ -2,7 +2,7 @@ import { QuestionState } from "../common/questions/question.base";
 import { instantiatePageProviderForQuestion } from "../common/questions/questions.register";
 import { QuizStatus } from "../common/quiz/quiz.model";
 import { EventPage, IdleStatusPage, LoginPage, Page, StaticPage } from "./user.base.views";
-import { State, StateHandler } from "./user.state";
+import { StateHandler } from "./user.state";
 
 export abstract class DecisionNode<S, T> {
     parentPath: string;
@@ -87,31 +87,6 @@ class LoginPageChooser extends DecisionLeaf<StateHandler, Page> {
     }
     clear(): void {
         this.alreadyLoggedIn = false;
-    }
-}
-
-export abstract class QuestionUserPageProvider {
-    whenSetup(state: StateHandler): StaticPage {
-        return new IdleStatusPage("Preparazione domanda", { icon: "hourglass_bottom", loading: true });
-    }
-    abstract whenAnswerEnabled(state: StateHandler, onAnswer: (answer: string) => void): EventPage
-    whenAnswerDenied(state: StateHandler): StaticPage {
-        return new IdleStatusPage("Non puoi rispondere a questa domanda", { bottom_image: IdleStatusPage.DEFAULT_IMAGES.waiting_for_start, icon: "near_me_disabled" });
-    }
-    whenAlreadyAnswered(state: StateHandler): StaticPage {
-        return new IdleStatusPage("Risposta inviata!", { icon: "send" });
-    }
-    whenEvaluation(state: StateHandler): StaticPage {
-        return new IdleStatusPage("Valutazione in corso", { icon: "rate_review", bottom_image: '/img/good-luck.gif' });
-    }
-    whenResults(state: StateHandler, isCorrect: boolean | null): StaticPage {
-        if (isCorrect) {
-            return new IdleStatusPage("Risposta esatta, complimenti!", { icon: "/img/correct.gif", isGifIcon: true });
-        } else if (isCorrect == null) {
-            return new IdleStatusPage("Nessuna risposta inviata", { icon: "sentiment_dissatisfied" });
-        } else {
-            return new IdleStatusPage("Risposta errata", { icon: "/img/wrong.gif", isGifIcon: true });
-        }
     }
 }
 

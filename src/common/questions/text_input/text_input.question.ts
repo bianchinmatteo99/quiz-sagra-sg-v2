@@ -1,8 +1,9 @@
 import { EventPage, UserQuestionPage } from "../../../user/user.base.views";
-import { QuestionUserPageProvider } from "../../../user/user.decisiontree";
+
 import { StateHandler } from "../../../user/user.state";
 import { CancelHandle } from "../../general.utils";
 import { Ender, Evaluator, Question, QuestionContext, QuestionModel } from "../question.base";
+import { QuestionUserPageProvider } from "../questions.register";
 
 
 class TextInputQuestionModel extends QuestionModel{
