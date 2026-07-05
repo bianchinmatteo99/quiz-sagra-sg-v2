@@ -3,7 +3,6 @@ import { GameDefinition, GameManager, GameManagerContext } from "../games/game.b
 import { instantiateGameManagerFor } from "../games/games.register";
 import { PeopleController, PeopleControllerContext, RankingDiff } from "../people/people.controller";
 import { Person } from "../people/people.model";
-import { QuestionContext } from "../questions/question.base";
 import { QuizController, QuizControllerContext } from "./quiz.controller";
 import { GameStatus, QuizStatus } from "./quiz.model";
 

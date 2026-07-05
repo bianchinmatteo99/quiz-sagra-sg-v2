@@ -1,4 +1,3 @@
-import { IDatabaseAdapter } from "../database/database.types";
 import { BaseModel, BaseModelContext } from "../general.utils";
 import { QuizDefinition } from "./quiz.definition";
 

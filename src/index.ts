@@ -1,6 +1,6 @@
 import { FirebaseDatabaseAdapter } from "./common/database/firebase.adapter";
 import { auth } from "./firebase-init";
-import { UserPager } from "./user/user.base.views";
+import { UserPager } from "./user/user.views";
 import { RootPageChooser } from "./user/user.decisiontree";
 import { StateHandler } from "./user/user.state";
 

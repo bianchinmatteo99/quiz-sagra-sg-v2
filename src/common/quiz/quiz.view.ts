@@ -1,5 +1,4 @@
 import { QuizModel, GameStatus, QuizStatus } from "./quiz.model";
-import { GameDefinition } from "../games/game.base";
 import { toHtml } from "../general.utils";
 
 interface QuizViewContext {

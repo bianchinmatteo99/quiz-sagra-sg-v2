@@ -1,8 +1,7 @@
-import { getDatabase } from "firebase/database";
 import { GameStatus, QuizModel, QuizModelContext, QuizStatus } from "./quiz.model";
 import { QuizDefinition, QuizDefinitionBuilder } from "./quiz.definition";
 import { QuizView, QuizViewContext } from "./quiz.view";
-import { IDatabaseAdapter } from "../database/database.types.old";
+import { IDatabaseAdapter } from "../database/database.types";
 import { GameDefinition, GameView } from "../games/game.base";
 import { instantiateGameViewerFor } from "../games/games.register";
 

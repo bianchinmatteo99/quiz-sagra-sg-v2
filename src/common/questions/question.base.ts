@@ -1,4 +1,4 @@
-import { IDatabaseAdapter } from "../database/database.types.old";
+import { IDatabaseAdapter } from "../database/database.types";
 import { BaseModel, BaseModelContext, delay, toHtml } from "../general.utils";
 import { Person } from "../people/people.model";
 import { Timer } from "./timer";

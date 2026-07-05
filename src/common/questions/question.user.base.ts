@@ -1,4 +1,4 @@
-import { IdleStatusPage } from "../../user/user.base.views";
+import { IdleStatusPage } from "../../user/user.views";
 import { EventPage, StaticPage } from "../navigation/pages";
 import { StateHandler } from "../../user/user.state";
 

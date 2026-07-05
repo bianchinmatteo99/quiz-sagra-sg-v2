@@ -1,4 +1,4 @@
-import { UserQuestionPage } from "../../../user/user.base.views";
+import { UserQuestionPage } from "../../../user/user.views";
 import { EventPage } from "../../navigation/pages";
 import { StateHandler } from "../../../user/user.state";
 import { CancelHandle } from "../../general.utils";

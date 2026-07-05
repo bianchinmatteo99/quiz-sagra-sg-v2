@@ -1,7 +1,7 @@
 import { QuestionState } from "../common/questions/question.base";
 import { instantiatePageProviderForQuestion } from "../common/questions/questions.register";
 import { QuizStatus } from "../common/quiz/quiz.model";
-import { IdleStatusPage, LoginPage } from "./user.base.views";
+import { IdleStatusPage, LoginPage } from "./user.views";
 import { Page } from "../common/navigation/pages";
 import { StateHandler } from "./user.state";
 import { DecisionNode, DecisionLeaf } from "../common/navigation/decisiontree";

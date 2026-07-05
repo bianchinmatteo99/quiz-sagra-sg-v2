@@ -1,5 +1,4 @@
-import { getDatabase } from "firebase/database";
-import { IDatabaseAdapter } from "../database/database.types.old";
+import { IDatabaseAdapter } from "../database/database.types";
 import { BaseModel, BaseModelContext, toHtml } from "../general.utils";
 import { Person } from "../people/people.model";
 import { QuestionContext } from "../questions/question.base";

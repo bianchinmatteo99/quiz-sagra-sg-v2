@@ -1,4 +1,4 @@
-import { IDatabaseAdapter } from "./database/database.types.old";
+import { IDatabaseAdapter } from "./database/database.types";
 
 /**
  * A function that, when called, removes an event listener.
