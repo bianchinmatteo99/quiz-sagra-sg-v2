@@ -10,46 +10,22 @@ export class DisplayPager extends Pager {
     }
 }
 
-export class IdleStatusPage extends StaticPage { // just pasted from user; O BE UPDATED
-    static readonly DEFAULT_IMAGES = {
-        waiting_for_start: "/img/waiting_for_start.png",
-    };
-    message : string;
-    bottom_image? : string;
-    icon? : string;
-    isGifIcon? : boolean;
-    loading? : boolean;
-    constructor(message : string = "", imageOptions?: {bottom_image? : string, icon? : string, isGifIcon? : boolean, loading? : boolean}, show?: {header?: boolean, footer?: boolean}){
-        super();
-        this.message = message;
-        this.bottom_image = imageOptions?.bottom_image;
-        this.icon = imageOptions?.icon;
-        this.isGifIcon = imageOptions?.isGifIcon;
-        this.loading = imageOptions?.loading;
-        if(!!show){
-            this.shouldDisplayHeader = show.header ?? true;
-            this.shouldDisplayFooter = show.footer ?? true;
-        }
-    }
+export class WaitingStartPage extends StaticPage {
     render(): void {
         if(!this.container) throw new Error("Render called before create");
-        let icon = "";
-        if(!!this.icon){
-            if(this.isGifIcon){
-                icon = `<img src="${this.icon}" style="width: 250px;"><br/>`;
-            } else {
-                icon = `<span class="material-symbols-outlined" style="font-size: 2em;color: var(--pico-primary);">${this.icon}</span><br/>`;
-            }
-        }
         this.container.innerHTML = `
-            <div style="flex:1"></div>
-            <span>${icon}${this.message}</span>
-            ${this.loading ? `<br><span aria-busy="true"></span>` : ''}
-            <div style="flex:1"></div>
-            ${this.bottom_image ? `<img src="${this.bottom_image}">` : ''}
+            <span style="grid-column: span 6;display: flex;flex-direction: column;align-items: center;justify-content: center;gap: 30px;">
+                <img src="/favicon/favicon.svg" style="height: 20vh;">
+                <span style="color: var(--pico-secondary);">
+                    <h1 style="color: var(--pico-primary);">QUIZ</h1>
+                    Alle ore 21:15
+                </span>
+            </span>            
+            
+            <span style="grid-column: span 6;height: 100%;display: flex;flex-direction: column;align-items: center;justify-content: end;gap: 50px;">
+                <span>Pronti per cominciare?<br>Mettetevi comodi!</span>
+                <img src="/img/waiting_for_start.png" style="padding-bottom: 30px;">
+            </span>
         `;
-    }
-    isEqualTo(other: Page): boolean {
-        return other instanceof IdleStatusPage && this.message == other.message && this.bottom_image == other.bottom_image && this.icon == other.icon && this.isGifIcon == other.isGifIcon && this.loading == other.loading;
     }
 }
