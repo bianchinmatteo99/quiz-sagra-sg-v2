@@ -1,13 +1,13 @@
 import { FirebaseDatabaseAdapter } from "./common/database/firebase.adapter";
 import { auth } from "./firebase-init";
 import { UserPager } from "./user/user.views";
-import { RootPageChooser } from "./user/user.decisiontree";
-import { StateHandler } from "./user/user.state";
+import { UserRootPageChooser } from "./user/user.decisiontree";
+import { UserStateHandler } from "./user/user.state";
 
 document.addEventListener('DOMContentLoaded', async function () {
-    const pageChooser = new RootPageChooser();
+    const pageChooser = new UserRootPageChooser();
     const pager = new UserPager();
-    const state = new StateHandler(new FirebaseDatabaseAdapter(), auth);
+    const state = new UserStateHandler(new FirebaseDatabaseAdapter(), auth);
     await state.setup();
     state.addObserver((s)=>pager.showPage(pageChooser.decide(state)));
     state.addObserver((s)=>pager.updateFooter(s.person?.name || "???", s.person?.rank?.points ?? 0));

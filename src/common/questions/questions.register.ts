@@ -1,8 +1,8 @@
-import { StateHandler } from "../../user/user.state";
+import { UserStateHandler } from "../../user/user.state";
 import { QuestionUserPageProvider } from "./question.user.base";
 import { TextInputQuestionPageProvider } from "./text_input/text_input.question";
 
-export function instantiatePageProviderForQuestion(name: string, state: StateHandler): QuestionUserPageProvider {
+export function instantiatePageProviderForQuestion(name: string, state: UserStateHandler): QuestionUserPageProvider {
     switch(name){
         case "text-input":
             return new TextInputQuestionPageProvider();

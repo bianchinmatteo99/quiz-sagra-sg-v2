@@ -25,16 +25,16 @@ type PersonState = null | {
     }
 }
 
-export type State = { app: AppState, person: PersonState, questionresult: boolean|null, currentDecisionLeaf: string }
+export type UserState = { app: AppState, person: PersonState, questionresult: boolean|null, currentDecisionLeaf: string }
 
-export class StateHandler {
+export class UserStateHandler {
     static readonly APPSTATEPATH = "/state"
     static readonly PERSONPATH = "/people/list"
     static readonly RESULTSPATH = "/results/evaluation"
     static readonly ANSWERSPATH = "/results/answers"
     private db: IDatabaseAdapter;
     private auth: Auth;
-    private state?: State;
+    private state?: UserState;
     get read(){
         return this.state;
     }
@@ -46,9 +46,9 @@ export class StateHandler {
     }
 
     private pending = false;
-    private observers : Set<(state : State)=>void> = new Set();
+    private observers : Set<(state : UserState)=>void> = new Set();
 
-    addObserver(o:(state : State)=>void): CancelHandle{
+    addObserver(o:(state : UserState)=>void): CancelHandle{
         this.observers.add(o);
         if(!!this.state) o(this.state);
         return ()=>this.observers.delete(o);
@@ -69,7 +69,7 @@ export class StateHandler {
     async setup() {
         if (!!this.state) throw new Error("Setup already run!");
         this.state = { app: { quiz: { status: QuizStatus.Booting } }, person: null, questionresult: null, currentDecisionLeaf: "" };
-        this._bindingCancel.push(this.db.onValue<AppState>(StateHandler.APPSTATEPATH, (data) => {
+        this._bindingCancel.push(this.db.onValue<AppState>(UserStateHandler.APPSTATEPATH, (data) => {
             if (data !== null && data !== undefined) {
                 this.state!.app = data;
                 this.scheduleUpdate();
@@ -90,7 +90,7 @@ export class StateHandler {
             this.state!.person = data;
             this.scheduleUpdate();
         }));
-        this._bindingCancel.push(this.db.onValue<boolean | null>(`${StateHandler.RESULTSPATH}/${this.getUserId()}`, (data) => {
+        this._bindingCancel.push(this.db.onValue<boolean | null>(`${UserStateHandler.RESULTSPATH}/${this.getUserId()}`, (data) => {
             this.state!.questionresult = data ?? null;
             this.scheduleUpdate();
         }));
@@ -108,7 +108,7 @@ export class StateHandler {
         this.requiresSetup();
         if (!this.isRegisteredToQuiz()) throw new Error("User must be registered to quiz before answering questions");
         if (!this.state?.app.question) throw new Error("Question state is undefined");
-        await this.db.set(`${StateHandler.ANSWERSPATH}/${this.getUserId()}`, { time: new Date(Date.now()).toISOString(), answer: answer });
+        await this.db.set(`${UserStateHandler.ANSWERSPATH}/${this.getUserId()}`, { time: new Date(Date.now()).toISOString(), answer: answer });
         this.scheduleUpdate();
     }
     isLoggedIn(): boolean {
@@ -118,7 +118,7 @@ export class StateHandler {
         return this.auth.currentUser?.uid ?? null
     }
     getPersonPath(id: string): string {
-        return `${StateHandler.PERSONPATH}/${id}`
+        return `${UserStateHandler.PERSONPATH}/${id}`
     }
     isRegisteredToQuiz(): boolean {
         return !!this.state?.person

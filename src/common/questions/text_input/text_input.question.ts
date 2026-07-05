@@ -1,6 +1,6 @@
 import { UserQuestionPage } from "../../../user/user.views";
 import { EventPage } from "../../navigation/pages";
-import { StateHandler } from "../../../user/user.state";
+import { UserStateHandler } from "../../../user/user.state";
 import { CancelHandle } from "../../general.utils";
 import { Ender, Evaluator, Question, QuestionContext, QuestionModel } from "../question.base";
 import { QuestionUserPageProvider } from "../question.user.base";
@@ -43,7 +43,7 @@ class UserTextInputPage extends UserQuestionPage {
 }
 
 export class TextInputQuestionPageProvider extends QuestionUserPageProvider {
-    whenAnswerEnabled(state: StateHandler, onAnswer: (answer: string) => void): EventPage {
+    whenAnswerEnabled(state: UserStateHandler, onAnswer: (answer: string) => void): EventPage {
         return new UserTextInputPage(onAnswer);
     }
 }

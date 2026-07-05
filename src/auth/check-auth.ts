@@ -22,6 +22,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 const redirect = urlParams.get('redirect');
                 window.location.href = redirect || '/';
             }
+            if (['/admin/', '/admin/index.html'].includes(currentPath) && user.uid != "ZPqIdKqf0yZxWkZzpbzmCvBmmlt2"){
+                window.location.href = `/auth/login.html?redirect=${encodeURIComponent(currentPath)}`;
+            }
         }
     });
 });

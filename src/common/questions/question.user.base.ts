@@ -1,22 +1,22 @@
 import { IdleStatusPage } from "../../user/user.views";
 import { EventPage, StaticPage } from "../navigation/pages";
-import { StateHandler } from "../../user/user.state";
+import { UserStateHandler } from "../../user/user.state";
 
 export abstract class QuestionUserPageProvider {
-    whenSetup(state: StateHandler): StaticPage {
+    whenSetup(state: UserStateHandler): StaticPage {
         return new IdleStatusPage("Preparazione domanda", { icon: "hourglass_bottom", loading: true });
     }
-    abstract whenAnswerEnabled(state: StateHandler, onAnswer: (answer: string) => void): EventPage
-    whenAnswerDenied(state: StateHandler): StaticPage {
+    abstract whenAnswerEnabled(state: UserStateHandler, onAnswer: (answer: string) => void): EventPage
+    whenAnswerDenied(state: UserStateHandler): StaticPage {
         return new IdleStatusPage("Non puoi rispondere a questa domanda", { bottom_image: IdleStatusPage.DEFAULT_IMAGES.waiting_for_start, icon: "near_me_disabled" });
     }
-    whenAlreadyAnswered(state: StateHandler): StaticPage {
+    whenAlreadyAnswered(state: UserStateHandler): StaticPage {
         return new IdleStatusPage("Risposta inviata!", { icon: "send" });
     }
-    whenEvaluation(state: StateHandler): StaticPage {
+    whenEvaluation(state: UserStateHandler): StaticPage {
         return new IdleStatusPage("Valutazione in corso", { icon: "rate_review", bottom_image: '/img/good-luck.gif' });
     }
-    whenResults(state: StateHandler, isCorrect: boolean | null): StaticPage {
+    whenResults(state: UserStateHandler, isCorrect: boolean | null): StaticPage {
         if (isCorrect) {
             return new IdleStatusPage("Risposta esatta, complimenti!", { icon: "/img/correct.gif", isGifIcon: true });
         } else if (isCorrect == null) {

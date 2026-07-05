@@ -3,16 +3,16 @@ import { instantiatePageProviderForQuestion } from "../common/questions/question
 import { QuizStatus } from "../common/quiz/quiz.model";
 import { IdleStatusPage, LoginPage } from "./user.views";
 import { Page } from "../common/navigation/pages";
-import { StateHandler } from "./user.state";
+import { UserStateHandler } from "./user.state";
 import { DecisionNode, DecisionLeaf } from "../common/navigation/decisiontree";
 
-export class RootPageChooser extends DecisionNode<StateHandler, Page> {
+export class UserRootPageChooser extends DecisionNode<UserStateHandler, Page> {
     name = "root"
     children = { "onboard": new LoginPageChooser(this.path), "question": new QuestionPageChooser(this.path) };
     constructor() {
         super("");
     }
-    decide(state: StateHandler): Page {
+    decide(state: UserStateHandler): Page {
         if (!state.read || state.read.app.quiz.status == QuizStatus.Booting || state.read.app.quiz.status == QuizStatus.AwaitingStart) {
             this.clearSubTree();
             return new IdleStatusPage("Pronti per cominciare? Mettetevi comodi!", { bottom_image: IdleStatusPage.DEFAULT_IMAGES.waiting_for_start }, { footer: false });
@@ -34,10 +34,10 @@ export class RootPageChooser extends DecisionNode<StateHandler, Page> {
     }
 }
 
-class LoginPageChooser extends DecisionLeaf<StateHandler, Page> {
+class LoginPageChooser extends DecisionLeaf<UserStateHandler, Page> {
     name = "login"
     alreadyLoggedIn = false;
-    decide(state: StateHandler): Page {
+    decide(state: UserStateHandler): Page {
         if (this.alreadyLoggedIn && state.isRegisteredToQuiz()) {
             state.setCurrentPath(this.path, "already logged in")
             return new IdleStatusPage(`Benvenuta squadra<br/><b>${state.getName()}</b>!`, { icon: "person_check" }, { footer: false });
@@ -54,11 +54,11 @@ class LoginPageChooser extends DecisionLeaf<StateHandler, Page> {
     }
 }
 
-class QuestionPageChooser extends DecisionLeaf<StateHandler, Page> {
+class QuestionPageChooser extends DecisionLeaf<UserStateHandler, Page> {
     name = "question"
     alreadyAnswered = false;
     answer : string | null = null;
-    decide(state: StateHandler): Page {
+    decide(state: UserStateHandler): Page {
         if (!state.read?.app.question) throw new Error("Question state is undefined");
         const question = state.read.app.question;
         const provider = instantiatePageProviderForQuestion(state.read.app.question.name, state);
