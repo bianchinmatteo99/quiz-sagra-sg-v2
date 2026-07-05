@@ -24,6 +24,6 @@ body {
   display: grid;
   grid-template-columns: repeat(12, [col-start] 1fr);
   justify-content: center;
-  align-items: center;
+  align-items: stretch;
   gap: var(--pico-grid-column-gap);
 }

@@ -22,9 +22,9 @@ export class WaitingStartPage extends StaticPage {
                 </span>
             </span>            
             
-            <span style="grid-column: span 6;height: 100%;display: flex;flex-direction: column;align-items: center;justify-content: end;gap: 50px;">
+            <span style="grid-column: span 6;display: flex;flex-direction: column;align-items: center;justify-content: end;gap: 50px;">
                 <span>Pronti per cominciare?<br>Mettetevi comodi!</span>
-                <img src="/img/waiting_for_start.png" style="padding-bottom: 30px;">
+                <img src="/img/waiting_for_start.png" style="max-height:50%;padding-bottom: 30px;">
             </span>
         `;
     }
@@ -43,9 +43,9 @@ export class OnBoardingPage extends StaticPage {
                 <span style="font-size: .5rem;">Saranno accettati solo i nomi delle squadre precedentemente concordati</span>
             </span>            
             
-            <span style="grid-column: span 6;height: 100%;display: flex;flex-direction: column;align-items: center;justify-content: end;gap: 50px;">
+            <span style="grid-column: span 6;display: flex;flex-direction: column;align-items: center;justify-content: end;gap: 50px;">
                 <span>Registrazione<br>squadre</span>
-                <img src="/img/phone.png" style="padding-bottom: 30px;">
+                <img src="/img/phone.png" style="max-height:50%;padding-bottom: 30px;">
             </span>
         `;
     }
