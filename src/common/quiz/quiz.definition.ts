@@ -2,7 +2,9 @@ import { IDatabaseAdapter } from "../database/database.types";
 import { GameDefinition } from "../games/game.base";
 import { gamesDefBuilders } from "../games/games.register";
 
-
+/**
+ * Represents the quiz definition and the list of games included in the quiz.
+ */
 export class QuizDefinition {
     static readonly DBPATH = "/definition";
     title: string;
@@ -13,8 +15,11 @@ export class QuizDefinition {
         this.games = games;
     }
 
+    /**
+     * Persist the quiz definition to the configured database path.
+     * @param db Database adapter used for persistence.
+     */
     async saveToDatabase(db: IDatabaseAdapter): Promise<void> {
-        // Save the current quiz state to the database
         try {
             await db.set(QuizDefinition.DBPATH, this.toJSON());
         } catch (error) {
@@ -22,23 +27,35 @@ export class QuizDefinition {
         }
     }
 
+    /**
+     * Serialize the quiz definition into a JSON-compatible object.
+     * @returns Serialized quiz definition.
+     */
     toJSON(): any {
-        // Convert quiz state to JSON for saving to the database
         return {
             title: this.title,
             games: this.games.map(game => game.toJSON()),
         };
     }
 
+    /**
+     * Create an empty placeholder definition when no quiz is loaded.
+     * @returns Placeholder quiz definition.
+     */
     static placeholder(): QuizDefinition {
         return new QuizDefinition("Empty Quiz", []);
     }
 }
 
-
+/**
+ * Parses quiz definitions from Markdown or persisted JSON data.
+ */
 export class QuizDefinitionBuilder {
+    /**
+     * Load a quiz definition from a markdown file.
+     * @param filename Path to the quiz definition markdown file.
+     */
     async loadFromFile(filename: string): Promise<QuizDefinition | null> {
-        // Load quiz definition from a JSON file and initialize state
         try {
             const response = await fetch(filename);
             const text = await response.text();
@@ -49,8 +66,11 @@ export class QuizDefinitionBuilder {
         }
     }
 
+    /**
+     * Load a quiz definition from the database.
+     * @param db Database adapter used for retrieval.
+     */
     async loadFromDatabase(db: IDatabaseAdapter): Promise<QuizDefinition | null> {
-        // Load quiz definition from the database and initialize state
         try {
             const data = await db.get<any>(QuizDefinition.DBPATH);
             if (data) {
@@ -62,8 +82,11 @@ export class QuizDefinitionBuilder {
         return null;
     }
 
+    /**
+     * Parse a quiz definition from markdown text.
+     * @param md The raw markdown content.
+     */
     async parseFromMD(md: string): Promise<QuizDefinition | null> {
-        // Parse quiz definition from Markdown text
         try {
             const lines = md.split(/\r?\n/);
             const titleLineIndex = lines.findIndex(line => line.trim().startsWith("# "));
@@ -106,11 +129,14 @@ export class QuizDefinitionBuilder {
         }
     }
 
+    /**
+     * Parse a quiz definition from JSON data loaded from storage.
+     * @param data JSON payload containing serialized quiz definition.
+     */
     async parseFromJSON(data: any): Promise<QuizDefinition | null> {
-        // Parse quiz definition from JSON data
         try {
             const title = data.title;
-            const games = (data.games || []).entries().toArray().map(([id, gameData]:[number, any]) => {
+            const games = (data.games || []).entries().toArray().map(([id, gameData]: [number, any]) => {
                 if (!gameData.name) throw new Error("Game data missing 'name' property");
                 if (!(gameData.name in gamesDefBuilders)) throw new Error(`Unknown game type: ${gameData.name}`);
                 return gamesDefBuilders[gameData.name as string].parseFromJSON(id, gameData);

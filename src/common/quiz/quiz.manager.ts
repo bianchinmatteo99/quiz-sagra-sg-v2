@@ -6,10 +6,13 @@ import { Person } from "../people/people.model";
 import { QuizController, QuizControllerContext } from "./quiz.controller";
 import { GameStatus, QuizStatus } from "./quiz.model";
 
+/**
+ * Coordinates quiz lifecycle, game execution, and player management.
+ */
 class QuizManager implements QuizControllerContext, GameManagerContext, PeopleControllerContext {
     quiz: QuizController;
-    activeGameManager: GameManager|null = null;
-    people: PeopleController|null = null;
+    activeGameManager: GameManager | null = null;
+    people: PeopleController | null = null;
     db: IDatabaseAdapter;
 
     constructor(db: IDatabaseAdapter) {
@@ -18,6 +21,10 @@ class QuizManager implements QuizControllerContext, GameManagerContext, PeopleCo
         console.log(this);
     }
 
+    /**
+     * Initialize the quiz from the selected source and create the people controller.
+     * @param filename File path to the quiz definition markdown.
+     */
     async boot(filename = "/quiz_def.md"): Promise<void> {
         const policy = await this.quiz.decideSourceAndLoad(filename);
         switch (policy) {
@@ -36,8 +43,11 @@ class QuizManager implements QuizControllerContext, GameManagerContext, PeopleCo
         this.people = new PeopleController(this);
     }
 
-    async start(): Promise<void>{
-        if(this.quiz.model.status != QuizStatus.AwaitingStart) throw new Error("New user registration not allowed");
+    /**
+     * Start the onboarding phase and allow new users to register.
+     */
+    async start(): Promise<void> {
+        if (this.quiz.model.status != QuizStatus.AwaitingStart) throw new Error("New user registration not allowed");
         await this.quiz.adminInteraction("Inizio registrazione utenti");
         this.people?.model.allowNewUsers(true);
         this.quiz.setStatus(QuizStatus.OnBoarding);
@@ -46,19 +56,26 @@ class QuizManager implements QuizControllerContext, GameManagerContext, PeopleCo
         this.quiz.setStatus(QuizStatus.Idle);
     }
 
+    /**
+     * Start a game and update quiz state after completion.
+     * @param game Game definition to execute.
+     */
     async startGame(game: GameDefinition): Promise<void> {
         this.activeGameManager = instantiateGameManagerFor(game, this);
         this.quiz.setStatus(QuizStatus.RunningGame);
         await this.activeGameManager.startGame();
         this.quiz.gameEnded();
-        if(this.quiz.model.gamesStatuses.some((g)=>g==GameStatus.NotStarted)){
+        if (this.quiz.model.gamesStatuses.some((g) => g == GameStatus.NotStarted)) {
             this.quiz.setStatus(QuizStatus.Idle);
         } else {
             this.endQuiz();
         }
     }
 
-    async endQuiz(): Promise<void>{
+    /**
+     * End the quiz and transition to the final state.
+     */
+    async endQuiz(): Promise<void> {
         await this.quiz.adminInteraction("Mostra classifica finale e concludi");
         // TODO CLASSIFICA FINALE
         this.quiz.setStatus(QuizStatus.Ended);
@@ -68,17 +85,35 @@ class QuizManager implements QuizControllerContext, GameManagerContext, PeopleCo
         return this.db;
     }
 
+    /**
+     * Restore runtime models from persisted database state.
+     * Implementation is currently pending.
+     */
     async restoreState(): Promise<void> {
         // TODO: Restore local models to reflect database state
     }
 
+    /**
+     * Control whether the currently active game timeline is displayed.
+     * @param bool True to display the current game timeline, false otherwise.
+     */
     setGameTimelineDisplaysCurrent(bool: boolean): void {
-        if(!this.activeGameManager) return;
+        if (!this.activeGameManager) return;
         this.activeGameManager.controller.view.setIsDisplayingTimeline(bool);
     }
+
+    /**
+     * Forward ranking updates to the people controller.
+     * @param diff Ranking changes to apply.
+     */
     updateRanking(diff: RankingDiff): void {
         this.people?.updateRanking(diff);
     }
+
+    /**
+     * Retrieve the current player list.
+     * @returns Map of player IDs to person instances.
+     */
     getPeopleList(): Map<string, Person> {
         return this.people?.getPeopleList() ?? new Map();
     }

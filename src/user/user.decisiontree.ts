@@ -6,12 +6,21 @@ import { Page } from "../common/navigation/pages";
 import { UserStateHandler } from "./user.state";
 import { DecisionNode, DecisionLeaf } from "../common/navigation/decisiontree";
 
+/**
+ * Root decision node for choosing the current user-facing page.
+ *
+ * Translates user state into one of the available page flows such as onboarding,
+ * question interaction, idle status, or end-of-quiz screens.
+ */
 export class UserRootPageChooser extends DecisionNode<UserStateHandler, Page> {
     name = "root"
     children = { "onboard": new LoginPageChooser(this.path), "question": new QuestionPageChooser(this.path) };
     constructor() {
         super("");
     }
+    /**
+     * Choose a page based on current quiz and authentication state.
+     */
     decide(state: UserStateHandler): Page {
         if (!state.read || state.read.app.quiz.status == QuizStatus.Booting || state.read.app.quiz.status == QuizStatus.AwaitingStart) {
             this.clearSubTree();
@@ -37,6 +46,9 @@ export class UserRootPageChooser extends DecisionNode<UserStateHandler, Page> {
 class LoginPageChooser extends DecisionLeaf<UserStateHandler, Page> {
     name = "login"
     alreadyLoggedIn = false;
+    /**
+     * Choose between the login form and a welcome status page.
+     */
     decide(state: UserStateHandler): Page {
         if (this.alreadyLoggedIn && state.isRegisteredToQuiz()) {
             state.setCurrentPath(this.path, "already logged in")
@@ -49,15 +61,27 @@ class LoginPageChooser extends DecisionLeaf<UserStateHandler, Page> {
             })
         }
     }
+    /**
+     * Reset internal login state when the decision subtree is cleared.
+     */
     clear(): void {
         this.alreadyLoggedIn = false;
     }
 }
 
+/**
+ * Decision leaf that selects the current question interaction page.
+ */
 class QuestionPageChooser extends DecisionLeaf<UserStateHandler, Page> {
     name = "question"
     alreadyAnswered = false;
     answer : string | null = null;
+    /**
+     * Choose the correct page for the current question lifecycle phase.
+     *
+     * Tracks whether the user has already answered and routes to setup,
+     * evaluation, results, or denial pages as appropriate.
+     */
     decide(state: UserStateHandler): Page {
         if (!state.read?.app.question) throw new Error("Question state is undefined");
         const question = state.read.app.question;

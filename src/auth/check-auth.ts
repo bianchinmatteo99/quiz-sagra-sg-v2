@@ -1,3 +1,10 @@
+/**
+ * Client-side auth guard for page access.
+ *
+ * Redirects anonymous or unauthenticated users to the login page,
+ * preserves intended redirect targets, and restricts admin pages to a
+ * specific authorized user ID.
+ */
 import { auth } from "../firebase-init";
 
 document.addEventListener('DOMContentLoaded', function () {

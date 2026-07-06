@@ -1,30 +1,40 @@
 import { QuizModel, GameStatus, QuizStatus } from "./quiz.model";
 import { toHtml } from "../general.utils";
 
+/**
+ * Defines the interface required by the quiz view to interact with quiz state.
+ */
 interface QuizViewContext {
     model: QuizModel;
-    // setGameStatus(gameIndex: number, status: GameStatus): void;
     startGame(gameIndex: number): void;
     viewGame(gameIndex: number): void;
 }
 
+/**
+ * Responsible for rendering quiz timeline UI and handling quiz actions.
+ */
 class QuizView {
     readonly quizTimelineContainer = "quiz-timeline-container";
-    readonly quizAdvanceButtonContainer = "quiz-advance-button-container"
+    readonly quizAdvanceButtonContainer = "quiz-advance-button-container";
     context: QuizViewContext;
 
     constructor(context: QuizViewContext) {
         this.context = context;
     }
 
-    renderAdvanceButton(title : string, callback : ()=>void){
+    /**
+     * Render a single advance button used for admin interactions.
+     * @param title Button label.
+     * @param callback Callback invoked when the button is clicked.
+     */
+    renderAdvanceButton(title: string, callback: () => void) {
         const container = document.getElementById(this.quizAdvanceButtonContainer);
         if (!container) return;
 
         const button = document.createElement('button');
         button.textContent = title;
-        button.classList.add("active")
-        button.addEventListener("click", ()=>{
+        button.classList.add("active");
+        button.addEventListener("click", () => {
             button.remove();
             callback();
         });
@@ -32,6 +42,9 @@ class QuizView {
         container.appendChild(button);
     }
 
+    /**
+     * Render the quiz games list based on the current model state.
+     */
     render(): void {
         const timeline = document.getElementById(this.quizTimelineContainer);
         if (!timeline) return;
@@ -39,15 +52,21 @@ class QuizView {
 
         const games = this.context.model.definition.games;
         const statuses = this.context.model.gamesStatuses;
-        
+
         games.forEach((game, index) => {
             timeline.appendChild(this.buildQuizListItem(index, game.displayName, statuses[index]));
         });
-
     }
 
+    /**
+     * Build the HTML element for a single quiz game entry.
+     * @param id Game index.
+     * @param name Game display name.
+     * @param status Current status of the game.
+     * @returns Element representing the game list item.
+     */
     private buildQuizListItem(id: number, name: string, status: GameStatus): HTMLElement {
-        const canStart = (status == GameStatus.NotStarted && this.context.model.status==QuizStatus.Idle);
+        const canStart = (status == GameStatus.NotStarted && this.context.model.status == QuizStatus.Idle);
         const container = toHtml(`
             <article class="quiz-game-list-item ${status == GameStatus.InProgress ? "active" : ""}" id="quiz-game-list-item-${id}" data-id="${id}">
                 ${name}
@@ -78,6 +97,12 @@ class QuizView {
         return container;
     }
 
+    /**
+     * Show the quiz source selection dialog to choose between file load or database restore.
+     * @param hasDatabase True when a quiz definition exists in the database.
+     * @param hasFile True when a definition file is available.
+     * @returns Selected source option or null if the dialog cannot be displayed.
+     */
     async showChoiceDialog(hasDatabase: boolean, hasFile: boolean): Promise<'file' | 'database-restart' | 'database-continue' | null> {
         return new Promise((resolve) => {
             const dialog = document.querySelector<HTMLDialogElement>('#quiz-choice-dialog');
@@ -97,12 +122,10 @@ class QuizView {
                 return;
             }
 
-            // Configure button states
             fileBtn.disabled = !hasFile;
             dbContinueBtn.disabled = !hasDatabase;
             dbRestartBtn.disabled = !hasDatabase;
 
-            // Clear previous event listeners by cloning
             const newFileBtn = fileBtn.cloneNode(true) as HTMLButtonElement;
             const newDbContinueBtn = dbContinueBtn.cloneNode(true) as HTMLButtonElement;
             const newDbRestartBtn = dbRestartBtn.cloneNode(true) as HTMLButtonElement;
@@ -111,7 +134,6 @@ class QuizView {
             dbContinueBtn.replaceWith(newDbContinueBtn);
             dbRestartBtn.replaceWith(newDbRestartBtn);
 
-            // Attach new event listeners
             newFileBtn.addEventListener('click', () => {
                 dialog.close();
                 resolve('file');

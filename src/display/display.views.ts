@@ -1,16 +1,28 @@
 import { Page, Pager, StaticPage } from "../common/navigation/pages";
 
+/**
+ * Bridges the display pages to the shared container in the document.
+ */
 export class DisplayPager extends Pager {
     static readonly CONTAINERID = "page-container"
     readonly container: HTMLElement;
-    
+
+    /**
+     * Creates a pager bound to the page container element.
+     */
     constructor() {
         super();
         this.container = document.getElementById(DisplayPager.CONTAINERID)!;
     }
 }
 
+/**
+ * Renders the waiting screen shown before the quiz starts.
+ */
 export class WaitingStartPage extends StaticPage {
+    /**
+     * Renders the pre-start welcome layout into the shared page container.
+     */
     render(): void {
         if(!this.container) throw new Error("Render called before create");
         this.container.innerHTML = `
@@ -30,7 +42,13 @@ export class WaitingStartPage extends StaticPage {
     }
 }
 
+/**
+ * Renders the onboarding screen that guides participants to register their team.
+ */
 export class OnBoardingPage extends StaticPage {
+    /**
+     * Renders the QR-based onboarding layout into the shared page container.
+     */
     render(): void {
         if(!this.container) throw new Error("Render called before create");
         this.container.innerHTML = `

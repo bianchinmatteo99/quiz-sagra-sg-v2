@@ -4,6 +4,9 @@ import { CancelHandle } from "../common/general.utils"
 import { QuestionState } from "../common/questions/question.base"
 import { QuizStatus } from "../common/quiz/quiz.model"
 
+/**
+ * Shared application state values the user UI consumes.
+ */
 type AppState = {
     quiz: { status: QuizStatus },
     game?: { name: string },
@@ -25,8 +28,16 @@ type PersonState = null | {
     }
 }
 
+/**
+ * Combined state exposed by the user-facing application.
+ */
 export type UserState = { app: AppState, person: PersonState, questionresult: boolean|null, currentDecisionLeaf: string }
 
+/**
+ * Handles user authentication, realtime state subscriptions, and answer submission.
+ *
+ * Keeps a normalized view of app state, current person metadata, and last question result.
+ */
 export class UserStateHandler {
     static readonly APPSTATEPATH = "/state"
     static readonly PERSONPATH = "/people/list"
@@ -35,11 +46,18 @@ export class UserStateHandler {
     private db: IDatabaseAdapter;
     private auth: Auth;
     private state?: UserState;
+    /**
+     * Read-only access to the current user state.
+     */
     get read(){
         return this.state;
     }
     private _bindingCancel: CancelHandle[] = [];
 
+    /**
+     * @param db - Database adapter for realtime updates and writes.
+     * @param auth - Firebase auth instance used for anonymous sign-in and current user lookup.
+     */
     constructor(db: IDatabaseAdapter, auth: Auth) {
         this.db = db;
         this.auth = auth;
@@ -48,12 +66,23 @@ export class UserStateHandler {
     private pending = false;
     private observers : Set<(state : UserState)=>void> = new Set();
 
+    /**
+     * Subscribe to state changes and receive the current state immediately if available.
+     *
+     * @param o - Observer callback invoked when state updates.
+     * @returns Cancel handle to remove the observer.
+     */
     addObserver(o:(state : UserState)=>void): CancelHandle{
         this.observers.add(o);
         if(!!this.state) o(this.state);
         return ()=>this.observers.delete(o);
     }
 
+    /**
+     * Queue a microtask to notify observers after state mutations.
+     *
+     * Avoids duplicate notifications when multiple updates occur in rapid succession.
+     */
     scheduleUpdate() {
         this.requiresSetup();
         if (this.pending) return;
@@ -66,6 +95,11 @@ export class UserStateHandler {
         });
     }
 
+    /**
+     * Initialize state subscriptions and await Firebase auth readiness.
+     *
+     * This method must be called once before using the handler.
+     */
     async setup() {
         if (!!this.state) throw new Error("Setup already run!");
         this.state = { app: { quiz: { status: QuizStatus.Booting } }, person: null, questionresult: null, currentDecisionLeaf: "" };
@@ -83,6 +117,11 @@ export class UserStateHandler {
         });
         if (this.isLoggedIn()) this.setupPersonListener();
     }
+    /**
+     * Attach Firebase listeners for the current user's person record and evaluation result.
+     *
+     * Must be called after login.
+     */
     setupPersonListener() {
         this.requiresSetup();
         if (!this.isLoggedIn()) throw new Error("User must login before listening to person updates");
@@ -95,6 +134,12 @@ export class UserStateHandler {
             this.scheduleUpdate();
         }));
     }
+    /**
+     * Ensure the current user is signed in and register their display name.
+     *
+     * If no anonymous auth session exists, this method signs in anonymously first.
+     * @param name - Team name to store for the current person record.
+     */
     async registerWithName(name: string) {
         this.requiresSetup();
         let id = this.getUserId();
@@ -104,6 +149,12 @@ export class UserStateHandler {
         }
         await this.db.update(this.getPersonPath(id), { "name": name });
     }
+    /**
+     * Submit the current user's answer for the active question.
+     *
+     * Throws if the user is not registered or if question state is unavailable.
+     * @param answer - The answer text to store.
+     */
     async answerQuestion(answer: string) {
         this.requiresSetup();
         if (!this.isRegisteredToQuiz()) throw new Error("User must be registered to quiz before answering questions");
@@ -111,26 +162,52 @@ export class UserStateHandler {
         await this.db.set(`${UserStateHandler.ANSWERSPATH}/${this.getUserId()}`, { time: new Date(Date.now()).toISOString(), answer: answer });
         this.scheduleUpdate();
     }
+    /**
+     * Determine whether a Firebase auth session exists.
+     */
     isLoggedIn(): boolean {
         return !!this.getUserId();
     }
+    /**
+     * Get the current Firebase user ID.
+     */
     getUserId(): string | null {
         return this.auth.currentUser?.uid ?? null
     }
+    /**
+     * Build the database path for a specific user record.
+     */
     getPersonPath(id: string): string {
         return `${UserStateHandler.PERSONPATH}/${id}`
     }
+    /**
+     * Return true when a user record exists in the current state.
+     */
     isRegisteredToQuiz(): boolean {
         return !!this.state?.person
     }
+    /**
+     * Get the current registered team name if available.
+     */
     getName(): string | null {
         this.requiresSetup();
         return this.isRegisteredToQuiz() ? this.state?.person?.name ?? "" : null
     }
+    /**
+     * Update the current decision tree leaf path for diagnostics.
+     *
+     * @param path - Decision node path prefix.
+     * @param pagename - Name of the selected leaf.
+     */
     setCurrentPath(path:string, pagename:string){
         this.state!.currentDecisionLeaf = path+">"+pagename;
         console.log(this.state!.currentDecisionLeaf);
     }
+    /**
+     * Ensure state has been initialized before using handlers.
+     *
+     * Throws when `setup()` has not yet completed.
+     */
     requiresSetup() {
         if (!this.state) throw new Error("Did you run setup?");
     }

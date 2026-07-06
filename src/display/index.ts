@@ -3,6 +3,9 @@ import { DisplayPager } from "./display.views";
 import { DisplayRootPageChooser } from "./display.decisiontree";
 import { DisplayStateHandler } from "./display.state";
 
+/**
+ * Bootstraps the display screen once the document is ready.
+ */
 document.addEventListener('DOMContentLoaded', async function () {
     const pageChooser = new DisplayRootPageChooser();
     const pager = new DisplayPager();

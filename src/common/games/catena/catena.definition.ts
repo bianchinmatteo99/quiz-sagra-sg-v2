@@ -1,13 +1,28 @@
 import { GameDefinition, GameDefinitionBuilder } from "../game.base";
 
+/**
+ * Immutable definition for the Catena game.
+ *
+ * Captures game-specific rules such as word list, answer timing, retry policy,
+ * and point values.
+ */
 export class ReazioneCatenaGameDefinition extends GameDefinition {
     readonly name = "catena";
     readonly displayName = "Reazione a catena";
+    /** Time allowed for each answer before the round advances. */
     timeForAnswer: number;
+    /** When true, players may retry guesses for the same word after an incorrect attempt. */
     canRetryForSameWord: boolean;
+    /** Ordered list of words used by the chain. */
     words: string[];
+    /** Points awarded for each correct word guess. */
     pointsForCorrectAnswer: number;
 
+    /**
+     * Create a Catena definition from raw JSON-compatible data.
+     *
+     * Supports both snake_case and camelCase input properties.
+     */
     constructor(id:number, data: any = {}) {
         super(id);
         this.timeForAnswer = Number(data.time_for_answer ?? data.timeForAnswer ?? 0);
@@ -19,6 +34,9 @@ export class ReazioneCatenaGameDefinition extends GameDefinition {
         this.pointsForCorrectAnswer = Number(data.points_for_correct_answer ?? 10);
     }
  
+    /**
+     * Serialize the Catena definition for storage or transmission.
+     */
     toJSON(): any {
         return {
             name: this.name,
@@ -30,7 +48,17 @@ export class ReazioneCatenaGameDefinition extends GameDefinition {
     }
 }
 
+/**
+ * Builder for Catena game definitions.
+ *
+ * Parses game sections from markdown and restores persisted definition JSON.
+ */
 export class ReazioneCatenaGameDefinitionBuilder implements GameDefinitionBuilder<ReazioneCatenaGameDefinition> {
+    /**
+     * Parse a Catena game definition from markdown content.
+     *
+     * Expects a title line `## catena` followed by configuration keys and a word list.
+     */
     parseFromMD(id: number, md: string): ReazioneCatenaGameDefinition {
         const lines = md.split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
         const titleLine = lines[0] || "";
@@ -62,6 +90,9 @@ export class ReazioneCatenaGameDefinitionBuilder implements GameDefinitionBuilde
         return new ReazioneCatenaGameDefinition(id, sectionData);
     }
 
+    /**
+     * Restore a Catena definition from stored JSON data.
+     */
     parseFromJSON(id: number, data: any): ReazioneCatenaGameDefinition {
         return new ReazioneCatenaGameDefinition(id, data);
     }

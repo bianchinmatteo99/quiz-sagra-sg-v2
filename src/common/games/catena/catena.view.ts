@@ -2,14 +2,30 @@ import { GameView, GameViewContext } from "../game.base";
 import { ReazioneCatenaGameDefinition } from "./catena.definition";
 import { ReazioneCatenaGameModel } from "./catena.model";
 
+/**
+ * View context for the Catena game.
+ *
+ * Extends the generic view context with access to the Catena model.
+ */
 export interface CatenaGameViewContext extends GameViewContext {
     model: ReazioneCatenaGameModel;
 }
 
+/**
+ * Catena-specific view implementation.
+ *
+ * Renders the live progress of the chain and builds the timeline for
+ * static or active display modes.
+ */
 export class ReazioneCatenaGameView extends GameView {
 
     activeGameContext: CatenaGameViewContext | null;
     gameDef: ReazioneCatenaGameDefinition
+    /**
+     * Create a Catena view for an active controller or static timeline.
+     *
+     * If a context is provided, the definition is derived from the model.
+     */
     constructor(ctx: CatenaGameViewContext | null = null, gameDef: ReazioneCatenaGameDefinition | null = null) {
         super();
         this.activeGameContext = ctx;
@@ -22,17 +38,26 @@ export class ReazioneCatenaGameView extends GameView {
         }
     }
 
+    /**
+     * Build the Catena timeline steps used by the game preview and progress.
+     */
     getSteps(): (string | ((s: boolean) => string))[] {
         return [
             "Mostra titolo e catena vuota", 
             ...this.gameDef.words.map(word => ((s:boolean)=>`Parola: ${s ? word : "***"}`)),
             "Conclusione"]
     }
+    /**
+     * Compute the currently active timeline step for an active game.
+     */
     getCurrentStep(): number | null {
         if (!this.activeGameContext) return null;
         return this.activeGameContext.model.currentWordIndex + 1;
     }
 
+    /**
+     * Render the current Catena game state into the provided container.
+     */
     renderCurrentState(container: HTMLElement): void {
         if (!this.activeGameContext) return;
         const s = this.canDisplaySecrets();

@@ -2,6 +2,10 @@ import { toHtml } from "../general.utils";
 import { RankingDiff } from "./people.controller";
 import { PeopleModel, PersonRankList } from "./people.model";
 
+/**
+ * Context passed to the PeopleView. The controller (`PeopleController`) implements
+ * this interface and supplies the model and callbacks the view needs to operate.
+ */
 export interface PeopleViewContext {
     model: PeopleModel;
     updateRanking: (diff: RankingDiff) => void;
@@ -10,6 +14,17 @@ export interface PeopleViewContext {
     updatePersonPoints: (id: string, points: number) => void;
 }
 
+/**
+ * View responsible for rendering the people list and handling the person actions dialog.
+ *
+ * Expected DOM structure / IDs:
+ * - A container table body with id `people-list-container` where rows are appended.
+ * - A dialog element with id `person-actions-dialog` containing:
+ *   - an element `#person-dialog-name` to show the person's name
+ *   - an `input[name="points"]` to edit points
+ *   - buttons with ids `person-dialog-delete` and `person-dialog-cancel`
+ *   - a submit `input[type="submit"]` to save changes
+ */
 export class PeopleView {
     readonly peopleListContainer = "people-list-container";
     readonly dialog = "person-actions-dialog";

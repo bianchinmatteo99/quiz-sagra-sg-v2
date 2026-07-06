@@ -14,6 +14,7 @@ Only edit:
 - README.md
 - ARCHITECTURE.md
 - FIREBASEDB.md
+- QUIZDEF.md
 
 Do not edit source code or any other files.
 
@@ -22,8 +23,9 @@ Do not edit source code or any other files.
 1. Read README.md.
 2. Read ARCHITECTURE.md.
 3. Read FIREBASEDB.md.
-4. Inspect the relevant parts of the codebase.
-5. Compare the documentation with the implementation.
+4. Read QUIZDEF.md.
+5. Inspect the relevant parts of the codebase.
+6. Compare the documentation with the implementation.
 
 ## Responsibilities
 
@@ -54,6 +56,8 @@ README.md should help someone use the project.
 ARCHITECTURE.md should help someone understand and modify it.
 
 FIREBASEDB.md should describe the database design.
+
+QUIZDEF.md should describe and explain the structure for the md file for quiz definition (see also public/quiz_def.md and quiz or games load from md methods)
 
 ## Constraints
 

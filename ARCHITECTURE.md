@@ -37,3 +37,6 @@ Where to look first when changing behaviour
 - Business logic: `src/common/quiz/`, `src/common/games/`, `src/common/questions/`, `src/common/people/`.
 - DB interactions: `src/common/database/firebase.adapter.ts` and `src/firebase-init.ts`.
 
+**Current limitations / notes**
+- **State restoration:** `QuizManager.restoreState()` is declared but not implemented; restoring a running quiz from the database is a pending task and will affect cold-start restore behavior.
+
