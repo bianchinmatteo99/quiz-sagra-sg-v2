@@ -61,3 +61,4 @@ FIREBASEDB.md should describe the database design.
 - Never invent undocumented features.
 - Remove obsolete documentation.
 - Preserve the existing writing style whenever practical.
+- Never add suggestions for improvements or follow-up interactions in the generated files.

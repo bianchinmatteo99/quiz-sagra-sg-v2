@@ -18,7 +18,7 @@ Do not modify any other file. You may read other files to gather context, but ed
 Before making any changes:
 
 1. Read the assigned TypeScript file completely.
-2. Read the project's primary README (README.md).
+2. Read the project's primary README, ARCHITECTURE and FIREBASEDB.
 3. Search the workspace for relevant types, interfaces, base classes, utilities, and usages needed to understand the file.
 4. Use surrounding code only to improve the accuracy of the documentation.
 
@@ -87,6 +87,7 @@ Prefer explaining *why* over *what* whenever the code already makes the *what* o
 - Never rename identifiers.
 - Never alter formatting except as required while inserting or updating comments.
 - Never edit any file other than the assigned TypeScript file.
+- Never add suggestions for improvements or follow-up interactions in the generated docs.
 
 If documentation requires understanding external code, read it but do not modify it.
 

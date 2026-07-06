@@ -1,6 +1,35 @@
 {
   "rules": {
-    ".read": true,
-    ".write": true
+    ".read": "auth != null && auth.uid === 'ZPqIdKqf0yZxWkZzpbzmCvBmmlt2'",
+    ".write": "auth != null && auth.uid === 'ZPqIdKqf0yZxWkZzpbzmCvBmmlt2'",
+    
+    "state": {
+      ".read": true
+    },
+
+    "people": {
+      "list": {
+        "$uid": {
+          ".read": "auth != null && auth.uid === $uid",
+
+          "name": {
+            ".write": "auth != null && auth.uid === $uid"
+          }
+        }
+      }
+    },
+      
+    "results": {
+      "answers": {
+        "$uid": {
+          ".write": "auth != null && auth.uid === $uid"
+        }
+      },
+      "evaluation": {
+        "$uid": {
+          ".read": "auth != null && auth.uid === $uid"
+        }
+      }
+    }
   }
 }

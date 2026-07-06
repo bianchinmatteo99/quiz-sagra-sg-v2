@@ -1,15 +1,53 @@
-The project is for a realtime quiz.
-(user) index.html -> the mobile frontend for the partecipants
-(admin) admin/index.html -> the controller of the quiz
-(display) display/index.html -> the quiz presentation
-TODO (presenter) presenter/index.html -> for presenters
+QuizSGv2 — Serverless realtime quiz
 
-It is designed as a serverless web app communicating only via firebase realtime db; apart from user registration and answers, the state flow is unidirectional: admin publishes, other endpoints display with little or no internal state.
+Overview
+- **What it is:** a serverless web app implementing realtime quizzes using Firebase Realtime Database as the single communication channel.
+- **Frontends:**
+	- **User:** mobile frontend for participants ([src/index.html](src/index.html#L1))
+	- **Admin:** controller for the quiz host ([src/admin/index.html](src/admin/index.html#L1))
+	- **Display:** presentation for audience screens ([src/display/index.html](src/display/index.html#L1))
+	- **(TODO) Presenter:** planned presenter-facing UI
 
-The quiz logic is divided in four main parts:
-- people: manages the participants list and ranking
-- quiz: manages the overall logic and state of the quiz; loads the definition from a md file
-- games: provides a specific workflow and visuals for a group of questions
-- questions: ask a single question and evaluate the results
+Design principles
+- Single source of truth: state is stored in Firebase; admin publishes changes, other endpoints react.
+- Modular: logic split into `people`, `quiz`, `games`, and `questions` so new games/questions are easy to add.
+- Extendable UI: questions are decoupled from games — UI components are pluggable providers.
 
-this design is built to make the features extendible: questions are decoupled from specific games (user interface mainly focuses on this, game-independant); both games and questions can be added with only the code that is logically needed to describe the specific logic, with as little boilerplate as possible.
+Quick start (development)
+- Prerequisites: Node.js (16+), npm or yarn.
+- Install dependencies:
+
+	npm install
+
+- Run development server:
+
+	npm run dev
+
+- Running with Firebase emulator (recommended for local testing): create a `.env` file with these entries (replace values):
+
+	VITE_FIREBASE_API_KEY=YOUR_KEY
+	VITE_FIREBASE_AUTH_DOMAIN=YOUR_AUTH_DOMAIN
+	VITE_FIREBASE_DATABASE_URL=http://localhost:9000?ns=your-db
+	VITE_FIREBASE_PROJECT_ID=your-project
+	VITE_FIREBASE_STORAGE_BUCKET=...
+	VITE_FIREBASE_MESSAGING_SENDER_ID=...
+	VITE_FIREBASE_APP_ID=...
+	VITE_USE_FIREBASE_EMULATOR=true
+
+	Then start the emulator (Firebase CLI) and `npm run dev`.
+
+Project layout (key folders)
+- **src/** — main app sources
+	- **admin/** — admin UI bootstrap and layout
+	- **display/** — public display UI
+	- **auth/** — login and auth helpers
+	- **common/** — shared code: `database`, `quiz`, `games`, `questions`, `people`, and utilities
+	- **user/** — participant UI code and state handling
+- **public/** — static assets and `quiz_def.md` (quiz definition)
+- **database.rules.json** — current Realtime DB rules (development)
+
+Important files
+- [src/firebase-init.ts](src/firebase-init.ts#L1-L40): Firebase initialization and emulator wiring.
+- [src/common/database/firebase.adapter.ts](src/common/database/firebase.adapter.ts#L1-L120): thin adapter used across the app.
+- [src/common/quiz/quiz.manager.ts](src/common/quiz/quiz.manager.ts#L1-L200): central coordinator for quiz, people and games.
+
