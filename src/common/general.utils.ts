@@ -44,7 +44,7 @@ export class Secret<T> {
      * Reads the secret value.
      * @param clear - When true, returns the original content; otherwise returns obfuscated content.
      */
-    read(clear: boolean): T { return clear ? this.clearContent : this.obfuscator(this.clearContent) }
+    read(clear?: boolean): T { return clear ? this.clearContent : this.obfuscator(this.clearContent) }
 
     /**
      * Serializes the secret for storage or transport.

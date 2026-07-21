@@ -93,6 +93,7 @@ export class ReazioneCatenaGameModel extends GameModel {
         // Parse quiz definition from JSON data
         try {
             this.currentWordIndex = data.currentWordIndex ?? 0;
+            this.currentWordLetters = data.currentWordLetters ?? 0;
             return true;
         } catch (error) {
             console.error('Error parsing game from JSON:', error);
@@ -105,6 +106,8 @@ export class ReazioneCatenaGameModel extends GameModel {
     toJSON() {
         return {
             currentWordIndex: this.currentWordIndex,
+            currentWordLetters: this.currentWordLetters,
+            words: this.definition.words.map((w,i)=>this.getWordAsSecret(i)?.read())
         };
     }
 }

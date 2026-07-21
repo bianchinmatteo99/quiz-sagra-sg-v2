@@ -1,15 +1,16 @@
+import { instantiatePageChooserForGame } from "../common/games/games.display.register";
 import { DecisionNode } from "../common/navigation/decisiontree";
 import { Page } from "../common/navigation/pages";
 import { QuizStatus } from "../common/quiz/quiz.model";
 import { DisplayStateHandler } from "./display.state";
-import { OnBoardingPage, WaitingStartPage } from "./display.views";
+import { FinalRankingPage, OnBoardingPage, RankingPage, WaitingStartPage } from "./display.views";
 
 /**
  * Selects the initial display page for the audience screen based on the current quiz state.
  */
 export class DisplayRootPageChooser extends DecisionNode<DisplayStateHandler, Page> {
     name = "root"
-    children = {  };
+    children = { "gamedelegator": new GamesPageChooserDelegator(this.path) };
 
     /**
      * Creates the root decision node with no parent path.
@@ -31,8 +32,33 @@ export class DisplayRootPageChooser extends DecisionNode<DisplayStateHandler, Pa
         } else if (state.read.app.quiz.status == QuizStatus.OnBoarding){
             this.clearSubTree();
             return new OnBoardingPage();
+        } else if (state.read.app.quiz.status == QuizStatus.Idle){
+            this.clearSubTree();
+            return new RankingPage();
+        } else if (state.read.app.quiz.status == QuizStatus.RunningGame){
+            return this.delegateDecision("gamedelegator", state)
+        } else if (state.read.app.quiz.status == QuizStatus.Ended){
+            this.clearSubTree();
+            return new FinalRankingPage();
         } else {
             throw new Error("Unexpected state");
         }
+    }
+}
+
+export class GamesPageChooserDelegator extends DecisionNode<DisplayStateHandler, Page>{
+    name = "game";
+    children: Record<string, DecisionNode<any, Page>> = {};
+    decide(state: DisplayStateHandler): Page {
+        const gamename = state.read?.app?.game?.name
+        if(!gamename) throw new Error("Should be unreachable")
+        if(!(gamename in this.children)){
+            this.children[gamename] = instantiatePageChooserForGame(gamename)
+        }
+        return this.children[gamename].decide(state.read?.app.game)
+    }
+
+    clear(): void {
+        this.children = {}
     }
 }

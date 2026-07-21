@@ -30,7 +30,6 @@ Extension points
 
 Concurrency and security notes
 - The app relies on optimistic client interactions and DB listeners; time-critical coordination is handled by the host (admin).
-- Current `database.rules.json` is permissive; review and restrict read/write rules before production.
 
 Where to look first when changing behaviour
 - UI changes: the relevant entry folder (admin, display, user).

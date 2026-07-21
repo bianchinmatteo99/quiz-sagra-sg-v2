@@ -68,3 +68,21 @@ export class OnBoardingPage extends StaticPage {
         `;
     }
 }
+
+export class RankingPage extends StaticPage {
+    render(): void {
+        if(!this.container) throw new Error("Render called before create");
+        this.container.innerHTML = `
+            RANKING GOES HERE
+        `;
+    }
+}
+
+export class FinalRankingPage extends StaticPage {
+    render(): void {
+        if(!this.container) throw new Error("Render called before create");
+        this.container.innerHTML = `
+            FINAL RANKING GOES HERE
+        `;
+    }
+}
