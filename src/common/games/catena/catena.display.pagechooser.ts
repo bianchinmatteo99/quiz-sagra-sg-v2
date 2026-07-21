@@ -4,10 +4,6 @@ import { CatenaState } from "./catena.model";
 
 interface CatenaDisplayState {
     words: string[]
-    /** Visual transition delay used by the controller while revealing letters. */
-    wordtransitiontime: number;
-    /** Players excluded from retrying the current word when retries are disabled. */
-    currentDenyList: string[];
     /** Current game screen state. */
     state: CatenaState;
 }
@@ -27,7 +23,10 @@ class CoverPage extends StaticPage{
     render(): void {
         if(!this.container) throw new Error("Render called before create");
         this.container.innerHTML = `
-            REAZIONE A CATENA
+            <div style="grid-column: span 12;display: flex;justify-content: center;align-items: center;flex-direction:column;">
+                REAZIONE A CATENA
+                <img src="/img/domino.jpg"/>
+            </div>
         `;
     }
 }
@@ -38,6 +37,33 @@ class CatenaPage extends StaticPage{
         if(!this.container) throw new Error("Render called before create");
         if(!this.pastwords) throw new Error("Nothing to render")
         this.container.innerHTML = `
+            <style>
+                #catena{
+                    grid-column: 4 / span 6;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    gap: 10px;
+                }
+                #catena > .word {
+                    display: flex;
+                    justify-content: start;
+                    padding: 5px 20px;
+                    border: 2px solid var(--pico-primary-border);
+                    border-radius: 20px;
+                    box-sizing: content-box;
+                    min-height: 1em;
+                }
+                #catena > .word > .letter {
+                    width: .8em;
+                    height: 1em;
+                    display: inline-flex;
+                    justify-content: center;
+                    align-items: center;
+                    font-family: "Courier New", monospace;
+                    font-weight: bold;
+                }
+            </style>
             <div id="catena">${
                 this.pastwords.map((v,i)=>`
                     <div id="catena-word-${i}" class="word">${v.replaceAll("*","").split("").map((l)=>`
@@ -77,7 +103,7 @@ class CatenaPage extends StaticPage{
             targets.forEach((v)=>{
                 v.textContent = alphabet[Math.floor(Math.random() * alphabet.length)];
             })
-        }, 200)
+        }, 50)
 
         setTimeout(()=>{
             clearInterval(int)
