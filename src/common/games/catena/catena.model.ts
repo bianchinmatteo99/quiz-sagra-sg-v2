@@ -105,6 +105,7 @@ export class ReazioneCatenaGameModel extends GameModel {
      */
     toJSON() {
         return {
+            name: this.definition.name,
             currentWordIndex: this.currentWordIndex,
             currentWordLetters: this.currentWordLetters,
             words: this.definition.words.map((w,i)=>this.getWordAsSecret(i)?.read())
