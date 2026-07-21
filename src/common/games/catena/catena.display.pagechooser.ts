@@ -41,8 +41,8 @@ class CatenaPage extends StaticPage{
             <div id="catena">${
                 this.pastwords.map((v,i)=>`
                     <div id="catena-word-${i}" class="word">${v.replaceAll("*","").split("").map((l)=>`
-                            <span class="letter">${l}</span>
-                        `)}</div>
+                            <span class="letter">${l.toUpperCase()}</span>
+                        `).join("")}</div>
                 `).join("")
             }</div>
         `;
@@ -65,6 +65,7 @@ class CatenaPage extends StaticPage{
                 this.container.querySelector(`#catena-word-${i}`)?.insertAdjacentHTML("beforeend", newLetters.map((l)=>`<span class="letter animate" data-target-letter="${l}"></span>`).join(""))
             }
         }
+        this.pastwords = words
         if(mode>0){
             this.startAnimation(mode>1 ? 5000 : 1000)
         }

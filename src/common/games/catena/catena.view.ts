@@ -1,6 +1,6 @@
 import { GameView, GameViewContext } from "../game.base";
 import { ReazioneCatenaGameDefinition } from "./catena.definition";
-import { ReazioneCatenaGameModel } from "./catena.model";
+import { CatenaState, ReazioneCatenaGameModel } from "./catena.model";
 
 /**
  * View context for the Catena game.
@@ -43,7 +43,7 @@ export class ReazioneCatenaGameView extends GameView {
      */
     getSteps(): (string | ((s: boolean) => string))[] {
         return [
-            "Mostra titolo e catena vuota", 
+            "Mostra titolo", 
             ...this.gameDef.words.map(word => ((s:boolean)=>`Parola: ${s ? word : "***"}`)),
             "Conclusione"]
     }
@@ -52,7 +52,11 @@ export class ReazioneCatenaGameView extends GameView {
      */
     getCurrentStep(): number | null {
         if (!this.activeGameContext) return null;
-        return this.activeGameContext.model.currentWordIndex + 1;
+        if(this.activeGameContext.model.state==CatenaState.DISPLAYCOVER){
+            return 0
+        } else {
+            return this.activeGameContext.model.currentWordIndex + 1;
+        }
     }
 
     /**
