@@ -1,5 +1,5 @@
 import { Page, StaticPage } from "../../navigation/pages";
-import { GamePageChooser } from "../games.display.register";
+import { GamePageChooser } from "../games.display.base";
 import { CatenaState } from "./catena.model";
 
 interface CatenaDisplayState {

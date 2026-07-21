@@ -1,14 +1,5 @@
-import { DecisionLeaf } from "../navigation/decisiontree";
-import { Page } from "../navigation/pages";
 import { CatenaGamePageChooser } from "./catena/catena.display.pagechooser";
-
-
-export abstract class GamePageChooser<S> extends DecisionLeaf<S, Page> {
-    name = "activegame"
-    constructor() {
-        super("");
-    }
-}
+import { GamePageChooser } from "./games.display.base";
 
 export function instantiatePageChooserForGame(name: string): GamePageChooser<any> {
     switch (name) {
