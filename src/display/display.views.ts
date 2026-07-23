@@ -220,23 +220,40 @@ export class RankingPage extends StaticPage {
         this.container.innerHTML = `
             <style>
             #ranking > div {
-                display: flex;
-                border: 2px solid var(--pico-primary-border);
-                border-radius: 20px;
-                margin: 20px;
-                align-items: center;
+                display: grid;
+                grid-template-rows: 0fr;
+                transition: grid-template-rows 300ms ease;
             }
-            #ranking > div > span:nth-child(1) {
+            #ranking > div.open {
+                grid-template-rows: 1fr;
+            }
+            #ranking > div > div {
+                display: flex;
+                border: 0px solid var(--pico-primary-border);
+                border-radius: 20px;
+                align-items: center;
+                overflow: hidden;
+                transform-origin: top;
+                transform: scale(0);
+                margin: 0;
+                transition: margin 300ms ease, transform 300ms ease, border-width 300ms ease;
+            }
+            #ranking > div.open > div {
+                transform: scale(1);
+                margin: 10px 0;
+                border-width: 2px;
+            }
+            #ranking > div > div > span:nth-child(1) {
                 width: 150px;
                 padding: 0 20px;
                 font-weight: bold;
                 color: var(--pico-primary);
             }
-            #ranking > div > span:nth-child(2) {
+            #ranking > div > div > span:nth-child(2) {
                 flex: 1;
                 text-align: left;
             }
-            #ranking > div > span:nth-child(3) {
+            #ranking > div > div > span:nth-child(3) {
                 padding: 0 20px;
                 color: gray;
                 font-size: .8em;
@@ -250,8 +267,12 @@ export class RankingPage extends StaticPage {
         this.futureList.then(async (list)=>{
             const el = this.container!.querySelector("#ranking")!
             for(let x of list){
-                await delay(500)
-                el.insertAdjacentHTML("afterbegin", `<div><span>${x.position}</span><span>${x.name}</span><span>${x.points} punti</span></div>`)
+                await delay(1000)
+                const div = new HTMLDivElement()
+                div.innerHTML = `<div><span>${x.position}</span><span>${x.name}</span><span>${x.points} punti</span></div>`
+                el.insertAdjacentElement("afterbegin", div)
+                div.offsetHeight
+                div.classList.add("open")
             }
         })
     }
