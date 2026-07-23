@@ -90,6 +90,7 @@ export class QuestionPageChooser extends DecisionLeaf<DisplayStateHandler, Page>
 
     decide(state: DisplayStateHandler): Page {
         const s = state.read?.app.question?.state ?? null
+        console.log(s)
         if (!!this.page) {
             this.page.update(s)
         } else {
