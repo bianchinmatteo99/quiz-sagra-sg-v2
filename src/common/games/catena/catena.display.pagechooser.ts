@@ -22,13 +22,17 @@ export class CatenaGamePageChooser extends GamePageChooser<CatenaDisplayState> {
 class CoverPage extends StaticPage{
     templateColumnWidth = "1fr"
     render(): void {
-        if(!this.container) throw new Error("Render called before create");
+        if(!this.container) throw new Error("Render called before create"); // <div style="height: 100%; display: flex;justify-content: flex-end;align-items: center;flex-direction:column;">
         this.container.innerHTML = `
-            <div style="display: flex;justify-content: flex-end;align-items: center;flex-direction:column;">
                 <h2>REAZIONE A CATENA</h2>
                 <img src="/img/domino.jpg" style="height:50%;"/>
-            </div>
         `;
+        Object.assign(this.container.style, {
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "center",
+            flexDirection: "column"
+        })
     }
 }
 
