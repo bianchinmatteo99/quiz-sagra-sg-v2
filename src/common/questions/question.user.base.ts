@@ -46,7 +46,7 @@ export abstract class QuestionUserPageProvider {
     whenResults(state: UserStateHandler, isCorrect: boolean | null): StaticPage {
         if (isCorrect) {
             return new IdleStatusPage("Risposta esatta, complimenti!", { icon: "/img/correct.gif", isGifIcon: true });
-        } else if (isCorrect == null) {
+        } else if (isCorrect === null) {
             return new IdleStatusPage("Nessuna risposta inviata", { icon: "sentiment_dissatisfied" });
         } else {
             return new IdleStatusPage("Risposta errata", { icon: "/img/wrong.gif", isGifIcon: true });

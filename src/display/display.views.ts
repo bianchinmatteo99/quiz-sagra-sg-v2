@@ -21,30 +21,30 @@ export class DisplayPager extends Pager {
 export class GameQuestionColPage extends MulticolPage {
     columns: (Page | null)[];
     defaultTemplateColumns: string;
-    constructor(gameP : Page, questionP : Page|null){
+    constructor(gameP: Page, questionP: Page | null) {
         super()
         this.columns = [gameP, questionP]
         this.defaultTemplateColumns = this.getTemplateColumns(gameP, questionP)
     }
-    updateWith(gameP : Page, questionP : Page|null){
+    updateWith(gameP: Page, questionP: Page | null) {
         this.updatePage(0, gameP)
         this.updatePage(1, questionP)
         this.gridTemplateColumns = this.getTemplateColumns(gameP, questionP)
     }
-    getTemplateColumns(gameP : Page & {templateColumnWidth?: string}, hasQuestionP : (Page & {templateColumnWidth?: string})|null){
+    getTemplateColumns(gameP: Page & { templateColumnWidth?: string }, hasQuestionP: (Page & { templateColumnWidth?: string }) | null) {
         return (gameP.templateColumnWidth ?? "auto") + " " + (hasQuestionP?.templateColumnWidth ?? "0")
     }
 }
 
 export class QuestionPage extends StaticPage {
     templateColumnWidth = "0fr"
-    lastKnownState : QuestionState|null
-    constructor(state : QuestionState|null){
+    lastKnownState: QuestionState | null
+    constructor(state: QuestionState | null) {
         super()
         this.lastKnownState = state
     }
     render(): void {
-        if(!this.container) throw new Error("Render called before create");
+        if (!this.container) throw new Error("Render called before create");
         this.container.innerHTML = `
                 <h4 style="font-size: 1.5rem;">DOMANDA IN CORSO</h4>
                 <div id="question-content" style="height:50%; width: 100%;display: flex;flex-direction: column;align-items: center;justify-content: space-evenly;"></div>
@@ -59,46 +59,50 @@ export class QuestionPage extends StaticPage {
         })
         this.update()
     }
-    update(state? : QuestionState|null){
-        if(state === this.lastKnownState) return;
-        if(state !== undefined){
+    update(state?: QuestionState | null) {
+        if (state === this.lastKnownState) return;
+        if (state !== undefined) {
             this.lastKnownState = state
-        } 
-        if(!this.container) return;
+        }
+        if (!this.container) return;
 
         const content = this.container.querySelector("#question-content")!
-        if(this.lastKnownState == null){
+        let html = ""
+        switch (this.lastKnownState) {
+            case QuestionState.ASKING:
+                html = "timer"
+                break
+            case QuestionState.EVALUATING:
+                html = `
+                    <style>
+                    .spinner {
+                        width: 100px;
+                        height: 100px;
+                        border: 4px solid #ddd;
+                        border-top-color: #333;
+                        border-radius: 50%;
+                        animation: spin 1s linear infinite;
+                    }
+
+                    @keyframes spin {
+                        to {
+                            transform: rotate(360deg);
+                        }
+                    }
+                    </style>
+                    <span id="question-subtitle">Valutazione</span>
+                    <div class="spinner"></div>
+                `
+                break
+        }
+        if(!!html){
+            content.innerHTML = html
+            this.container.style.opacity = "1"
+            this.templateColumnWidth = "1fr"
+        } else {
             content.innerHTML = ""
             this.container.style.opacity = "0"
             this.templateColumnWidth = "0fr"
-        } else {
-            this.container.style.opacity = "1"
-            this.templateColumnWidth = "1fr"
-            content.innerHTML = `
-            <style>
-            .spinner {
-                width: 100px;
-                height: 100px;
-                border: 4px solid #ddd;
-                border-top-color: #333;
-                border-radius: 50%;
-                animation: spin 1s linear infinite;
-            }
-
-            @keyframes spin {
-                to {
-                    transform: rotate(360deg);
-                }
-            }
-            </style>
-            <span id="question-subtitle">Valutazione</span>
-            <div class="spinner"></div>
-        `
-        }
-        
-        switch(this.lastKnownState){
-            case null:
-
         }
     }
 }
@@ -111,7 +115,7 @@ export class WaitingStartPage extends StaticPage {
      * Renders the pre-start welcome layout into the shared page container.
      */
     render(): void {
-        if(!this.container) throw new Error("Render called before create");
+        if (!this.container) throw new Error("Render called before create");
         this.container.innerHTML = `
             <span style="grid-column: span 6;display: flex;flex-direction: column;align-items: center;justify-content: center;gap: 30px;">
                 <img src="/favicon/favicon.svg" style="height: 25vh;">
@@ -137,7 +141,7 @@ export class OnBoardingPage extends StaticPage {
      * Renders the QR-based onboarding layout into the shared page container.
      */
     render(): void {
-        if(!this.container) throw new Error("Render called before create");
+        if (!this.container) throw new Error("Render called before create");
         this.container.innerHTML = `
             <span style="grid-column: span 6;display: flex;flex-direction: column;align-items: center;justify-content: center;gap: 30px;">
                 <span style="color: var(--pico-secondary);font-size: .8rem;">Inquadra il codice QR</span>
@@ -158,7 +162,7 @@ export class OnBoardingPage extends StaticPage {
 
 export class RankingPage extends StaticPage {
     render(): void {
-        if(!this.container) throw new Error("Render called before create");
+        if (!this.container) throw new Error("Render called before create");
         this.container.innerHTML = `
             RANKING GOES HERE
         `;
@@ -167,7 +171,7 @@ export class RankingPage extends StaticPage {
 
 export class FinalRankingPage extends StaticPage {
     render(): void {
-        if(!this.container) throw new Error("Render called before create");
+        if (!this.container) throw new Error("Render called before create");
         this.container.innerHTML = `
             FINAL RANKING GOES HERE
         `;
