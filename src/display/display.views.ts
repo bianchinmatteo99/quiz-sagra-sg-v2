@@ -218,16 +218,40 @@ export class RankingPage extends StaticPage {
     render(): void {
         if (!this.container) throw new Error("Render called before create");
         this.container.innerHTML = `
-            <div style="grid-column: 2 / span 8;">
-                <h4>CLASSIFICA</h4>
+            <style>
+            #ranking > div {
+                display: flex;
+                border: 2px solid var(--pico-primary-border);
+                border-radius: 20px;
+                margin: 20px;
+                align-items: center;
+            }
+            #ranking > div > span:nth-child(1) {
+                width: 150px;
+                padding: 0 20px;
+                font-weight: bold;
+                color: var(--pico-primary);
+            }
+            #ranking > div > span:nth-child(2) {
+                flex: 1;
+                text-align: left;
+            }
+            #ranking > div > span:nth-child(3) {
+                padding: 0 20px;
+                color: gray;
+                font-size: .8em;
+            }  
+            </style>
+            <div style="grid-column: 2 / span 10;">
+                <h4 style="margin:40px;">CLASSIFICA</h4>
                 <div id="ranking"></div>
             </div>
         `;
         this.futureList.then(async (list)=>{
             const el = this.container!.querySelector("#ranking")!
             for(let x of list){
-                el.insertAdjacentHTML("afterbegin", `<span>${x.position}${x.name}${x.points}</span>`)
                 await delay(500)
+                el.insertAdjacentHTML("afterbegin", `<div><span>${x.position}</span><span>${x.name}</span><span>${x.points} punti</span></div>`)
             }
         })
     }
