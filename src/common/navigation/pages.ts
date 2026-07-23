@@ -134,6 +134,7 @@ export abstract class MulticolPage extends Page{
         this.container = container;
         this.columnDivs = this.columns.map((p)=>{
             const div = document.createElement("div");
+            div.style.height = "100%"
             this.container!.append(div)
             p?.create(div)
             return div
@@ -165,6 +166,7 @@ export abstract class MulticolPage extends Page{
 
         old?.destroy()
         const div = document.createElement("div");
+        div.style.height = "100%"
         p?.create(div)
         this.columnDivs[i].replaceWith(div)
         this.columns[i] = p

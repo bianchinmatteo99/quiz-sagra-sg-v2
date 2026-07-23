@@ -23,15 +23,18 @@ export class GameQuestionColPage extends MulticolPage {
     constructor(gameP : Page, questionP : Page|null){
         super()
         this.columns = [gameP, questionP]
-        this.defaultTemplateColumns = this.getTemplateColumns(!!questionP)
+        this.defaultTemplateColumns = this.getTemplateColumns(gameP, questionP)
     }
     updateWith(gameP : Page, questionP : Page|null){
         this.updatePage(0, gameP)
         this.updatePage(1, questionP)
-        this.gridTemplateColumns = this.getTemplateColumns(!!questionP)
+        this.gridTemplateColumns = this.getTemplateColumns(gameP, questionP)
     }
-    getTemplateColumns(hasQuestionP : boolean){
-        return "auto " + (hasQuestionP ? "1fr" : "0")
+    getTemplateColumns(gameP : Page & {templateColumnWidth?: string}, hasQuestionP : Page|null){
+        if(Object.hasOwn(gameP, "templateColumnWidth")){
+
+        }
+        return (gameP.templateColumnWidth ?? "auto") + " " + (!!hasQuestionP ? "1fr" : "0")
     }
 }
 
