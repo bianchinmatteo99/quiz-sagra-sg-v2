@@ -116,6 +116,10 @@ export class QuestionPage extends StaticPage {
             this.templateColumnWidth = "0fr"
         }
     }
+    destroy(): void {
+        this.timerListenerHandle?.()
+        super.destroy()
+    }
 }
 
 /**
