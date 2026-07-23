@@ -210,11 +210,19 @@ export class OnBoardingPage extends StaticPage {
 }
 
 export class RankingPage extends StaticPage {
+    futureList : Promise<{ name: string, points: number, position: number}[]>;
+    constructor(futureRankingList : Promise<{ name: string, points: number, position: number}[]>){
+        super()
+        this.futureList = futureRankingList
+    }
     render(): void {
         if (!this.container) throw new Error("Render called before create");
         this.container.innerHTML = `
             RANKING GOES HERE
         `;
+        this.futureList.then((list)=>{
+            this.container!.innerHTML = `${list}`
+        })
     }
 }
 

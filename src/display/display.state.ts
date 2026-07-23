@@ -34,16 +34,14 @@ type PersonState = null | {
 /**
  * The state shape consumed by the display flow, including app state, person state and current decision path.
  */
-export type DisplayState = { app: AppState, person: PersonState, questionresult: boolean|null, currentDecisionLeaf: string }
+export type DisplayState = { app: AppState, person: PersonState, currentDecisionLeaf: string }
 
 export class TimerHandler {
     endtime : number = -1
     curtime : number|null = null
     listeners : Set<(t:number)=>void> = new Set()
     interval? : number
-    constructor(){
-        this.listeners.add((t)=>console.log(t))
-    }
+    
     addListener(listener: (t:number)=>void): CancelHandle{
         this.listeners.add(listener);
         if(this.curtime!==null) listener(this.curtime);
@@ -147,7 +145,7 @@ export class DisplayStateHandler {
      */
     async setup() {
         if (!!this.state) throw new Error("Setup already run!");
-        this.state = { app: { quiz: { status: QuizStatus.Booting } }, person: null, questionresult: null, currentDecisionLeaf: "" };
+        this.state = { app: { quiz: { status: QuizStatus.Booting } }, person: null, currentDecisionLeaf: "" };
         this._bindingCancel.push(this.db.onValue<AppState>(DisplayStateHandler.APPSTATEPATH, (data) => {
             if (data !== null && data !== undefined) {
                 this.state!.app = data;
@@ -155,6 +153,16 @@ export class DisplayStateHandler {
             }
         }));
         // TODO: OTHER BINDINGS?
+    }
+
+    async readRanking(): Promise<{ name: string, points: number, position: number}[]> {
+        const res = (await this.db.get(DisplayStateHandler.PERSONPATH)) as Record<string,{name:string, rank: {points: number, position: number}}>
+        const ls : { name: string, points: number, position: number}[] = [];
+        for (const value of Object.values(res)) {
+            ls.push({name: value.name, points: value.rank.points, position: value.rank.position})
+        }
+        ls.sort((a,b)=>a.points-b.points)
+        return ls
     }
 
     /**
