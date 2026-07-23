@@ -45,7 +45,6 @@ class CatenaPage extends StaticPage{
         this.container.innerHTML = `
             <style>
                 #catena{
-                    height: 100%;
                     display: flex;
                     flex-direction: column;
                     justify-content: center;
@@ -70,14 +69,15 @@ class CatenaPage extends StaticPage{
                     font-weight: bold;
                 }
             </style>
-            <div id="catena">${
+            ${
                 this.pastwords.map((v,i)=>`
                     <div id="catena-word-${i}" class="word">${v.replaceAll("*","").split("").map((l)=>`
                             <span class="letter">${l.toUpperCase()}</span>
                         `).join("")}</div>
                 `).join("")
-            }</div>
+            }
         `;
+        this.container.id = "catena"
     }
     update(words: string[]){
         if(!this.container){

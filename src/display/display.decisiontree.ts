@@ -1,9 +1,9 @@
 import { instantiatePageChooserForGame } from "../common/games/games.display.register";
-import { DecisionNode } from "../common/navigation/decisiontree";
+import { DecisionLeaf, DecisionNode } from "../common/navigation/decisiontree";
 import { Page } from "../common/navigation/pages";
 import { QuizStatus } from "../common/quiz/quiz.model";
 import { DisplayStateHandler } from "./display.state";
-import { FinalRankingPage, GameQuestionColPage, OnBoardingPage, RankingPage, WaitingStartPage } from "./display.views";
+import { FinalRankingPage, GameQuestionColPage, OnBoardingPage, QuestionPage, RankingPage, WaitingStartPage } from "./display.views";
 
 /**
  * Selects the initial display page for the audience screen based on the current quiz state.
@@ -48,12 +48,12 @@ export class DisplayRootPageChooser extends DecisionNode<DisplayStateHandler, Pa
 
 export class GamePageOrchestrator extends DecisionNode<DisplayStateHandler, Page>{
     name = "game-orchestrator"
-    children = { "gamedelegator": new GamesPageChooserDelegator(this.path) }; /* , "questiondelegator": null */
+    children = { "gamedelegator": new GamesPageChooserDelegator(this.path), "question": new QuestionPageChooser(this.path) };
     page?: GameQuestionColPage
 
     decide(state: DisplayStateHandler): Page {
         const gameP = this.children.gamedelegator.decide(state)
-        const questionP = null; /* TODO */
+        const questionP = this.children.question.decideOrNull(state);
         if(!!this.page){
             this.page.updateWith(gameP, questionP)
         } else {
@@ -81,5 +81,37 @@ export class GamesPageChooserDelegator extends DecisionNode<DisplayStateHandler,
 
     clear(): void {
         this.children = {}
+    }
+}
+
+export class QuestionPageChooser extends DecisionLeaf<DisplayStateHandler, Page>{
+    name: string = "question";
+    page?: QuestionPage
+
+    decide(state: DisplayStateHandler): Page {
+        const s = state.read?.app.question?.state ?? null
+        if(s==null){
+            throw new Error("Question must have state")
+        } else {
+            if(!!this.page){
+                this.page.update(s)
+            } else {
+                this.page = new QuestionPage(s)
+            }
+            return this.page
+        }
+    }
+
+    decideOrNull(state: DisplayStateHandler): Page|null {
+        try {
+            return this.decide(state)
+        } catch (err) {
+            this.clear()
+            return null
+        }
+    }
+
+    clear(): void {
+        this.page = undefined
     }
 }

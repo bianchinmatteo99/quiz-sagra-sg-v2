@@ -1,4 +1,5 @@
 import { MulticolPage, Page, Pager, StaticPage } from "../common/navigation/pages";
+import { QuestionState } from "../common/questions/question.base";
 
 type PageColDef = [string, Page][]
 /**
@@ -35,6 +36,70 @@ export class GameQuestionColPage extends MulticolPage {
 
         }
         return (gameP.templateColumnWidth ?? "auto") + " " + (!!hasQuestionP ? "1fr" : "0")
+    }
+}
+
+export class QuestionPage extends StaticPage {
+    lastKnownState : QuestionState
+    constructor(state : QuestionState){
+        super()
+        this.lastKnownState = state
+    }
+    render(): void {
+        if(!this.container) throw new Error("Render called before create");
+        this.container.innerHTML = `
+                <h2>DOMANDA IN CORSO</h2>
+                <span id="question-subtitle"></span>
+                <div id="question-content" style="width:80%; aspect-ratio: 1;"></div>
+        `;
+        Object.assign(this.container.style, {
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            flexDirection: "column"
+        })
+        this.update()
+    }
+    update(state? : QuestionState){
+        if(state == this.lastKnownState) return;
+        if(state != undefined){
+            this.lastKnownState = state
+        } 
+        if(!this.container) return;
+
+        const sub = this.container.querySelector("#question-subtitle")!
+        const content = this.container.querySelector("#question-content")!
+        sub.textContent = "Valutazione"
+        content.innerHTML = `
+            <style>
+            .loader {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .spinner {
+                width: 40px;
+                height: 40px;
+                border: 4px solid #ddd;
+                border-top-color: #333;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+            }
+
+            @keyframes spin {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+            </style>
+            <div class="loader"><div class="spinner"></div></div>
+        `
+        switch(this.lastKnownState){
+
+        }
     }
 }
 
