@@ -1,4 +1,4 @@
-import { CancelHandle } from "../common/general.utils";
+import { CancelHandle, delay } from "../common/general.utils";
 import { MulticolPage, Page, Pager, StaticPage } from "../common/navigation/pages";
 import { QuestionState } from "../common/questions/question.base";
 import { TimerHandler } from "./display.state";
@@ -218,10 +218,17 @@ export class RankingPage extends StaticPage {
     render(): void {
         if (!this.container) throw new Error("Render called before create");
         this.container.innerHTML = `
-            RANKING GOES HERE
+            <div style="grid-column: 2 / span 8;">
+                <h4>CLASSIFICA</h4>
+                <div id="ranking"></div>
+            </div>
         `;
-        this.futureList.then((list)=>{
-            this.container!.innerHTML = `${list}`
+        this.futureList.then(async (list)=>{
+            const el = this.container!.querySelector("#ranking")!
+            for(let x of list){
+                el.insertAdjacentHTML("afterbegin", `<span>${x.position}${x.name}${x.points}</span>`)
+                await delay(500)
+            }
         })
     }
 }
