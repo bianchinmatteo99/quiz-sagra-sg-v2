@@ -74,8 +74,7 @@ export class QuestionPage extends StaticPage {
         } else {
             this.container.style.opacity = "1"
             this.templateColumnWidth = "1fr"
-        }
-        content.innerHTML = `
+            content.innerHTML = `
             <style>
             .spinner {
                 width: 100px;
@@ -95,6 +94,8 @@ export class QuestionPage extends StaticPage {
             <span id="question-subtitle">Valutazione</span>
             <div class="spinner"></div>
         `
+        }
+        
         switch(this.lastKnownState){
             case null:
 
