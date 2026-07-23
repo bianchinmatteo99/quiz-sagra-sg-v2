@@ -61,6 +61,20 @@ export abstract class StaticPage extends Page {
             this.container = undefined;
         }
     }
+
+    static buildPage(html: string, containerstyle?: Object): StaticPage {
+        return new (class extends StaticPage {
+            render(): void {
+                if (!this.container) {
+                    throw new Error("Render called before create");
+                }
+                this.container.innerHTML = html;
+                if (!!containerstyle) {
+                    Object.assign(this.container.style, containerstyle)
+                }
+            }
+        })();
+    }
 }
 
 /**
@@ -101,6 +115,65 @@ export abstract class EventPage extends Page {
     }
 }
 
+export abstract class MulticolPage extends Page{
+
+    get gridTemplateColumns(): string {
+        return this.container?.style.gridTemplateColumns ?? ""
+    }
+    set gridTemplateColumns(value: string|null) {
+        if (this.container) {
+            this.container.style.gridTemplateColumns = value ?? ""
+        }
+    }
+    
+    abstract columns : (Page|null)[]
+    abstract defaultTemplateColumns : string
+    columnDivs? : HTMLDivElement[]
+
+    create(container: HTMLElement): void {
+        this.container = container;
+        this.columnDivs = this.columns.map((p)=>{
+            const div = document.createElement("div");
+            this.container!.append(div)
+            p?.create(div)
+            return div
+        })
+    }
+    render(): void {
+        throw new Error("MulticolPage should not be directly rendered; instead, column pages are inflated into divs inside the create method.")
+    }
+    destroy(): void {
+        this.columns.forEach((p)=>p?.destroy())
+        this.columnDivs?.forEach((el)=>el.remove())
+        this.columnDivs = undefined
+
+        if (!!this.container) {
+            this.container.innerHTML = "";
+            this.container = undefined;
+        }
+    }
+    updatePage(i : number, p : Page|null){
+        if(!this.container || !this.columnDivs || !(i in this.columns)) {
+            throw new Error("Updating a column that has not yet been created.")
+        }
+        
+        const old = this.columns[i]
+        if(p==old || (!!p && !!old && p.isEqualTo(old))){
+            return
+        }
+
+        old?.destroy()
+        const div = document.createElement("div");
+        p?.create(div)
+        this.columnDivs[i].replaceWith(div)
+        this.columns[i] = p
+        this.columnDivs[i] = div
+    }
+    isEqualTo(other: Page): boolean {
+        return this==other || (other instanceof MulticolPage && other.columns.length == this.columns.length && this.columns.every((p,i) => p==other.columns[i] || (!!p && !!other.columns[i] && p.isEqualTo(other.columns[i]))))
+    }
+}
+
 /**
  * Manages the currently visible page inside a concrete container.
  *
@@ -119,6 +192,7 @@ export abstract class Pager {
         if (p === null) {
             this.currentPage?.destroy();
             this.currentPage = undefined;
+            this.container.innerHTML = '';
             return;
         }
         if (!!this.currentPage && this.currentPage.isEqualTo(p)) {

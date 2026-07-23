@@ -23,9 +23,9 @@ class CoverPage extends StaticPage{
     render(): void {
         if(!this.container) throw new Error("Render called before create");
         this.container.innerHTML = `
-            <div style="grid-column: span 12;display: flex;justify-content: center;align-items: center;flex-direction:column;">
-                REAZIONE A CATENA
-                <img src="/img/domino.jpg"/>
+            <div style="/*grid-column: span 12;*/display: flex;justify-content: flex-end;align-items: center;flex-direction:column;">
+                <h2>REAZIONE A CATENA</h2>
+                <img src="/img/domino.jpg" style="height:50%;"/>
             </div>
         `;
     }
@@ -39,7 +39,7 @@ class CatenaPage extends StaticPage{
         this.container.innerHTML = `
             <style>
                 #catena{
-                    grid-column: 4 / span 6;
+                    /*grid-column: 4 / span 6;*/
                     display: flex;
                     flex-direction: column;
                     justify-content: center;

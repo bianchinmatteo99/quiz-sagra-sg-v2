@@ -3,14 +3,14 @@ import { DecisionNode } from "../common/navigation/decisiontree";
 import { Page } from "../common/navigation/pages";
 import { QuizStatus } from "../common/quiz/quiz.model";
 import { DisplayStateHandler } from "./display.state";
-import { FinalRankingPage, OnBoardingPage, RankingPage, WaitingStartPage } from "./display.views";
+import { FinalRankingPage, GameQuestionColPage, OnBoardingPage, RankingPage, WaitingStartPage } from "./display.views";
 
 /**
  * Selects the initial display page for the audience screen based on the current quiz state.
  */
 export class DisplayRootPageChooser extends DecisionNode<DisplayStateHandler, Page> {
     name = "root"
-    children = { "gamedelegator": new GamesPageChooserDelegator(this.path) };
+    children = { "gameorchestrator": new GamePageOrchestrator(this.path) };
 
     /**
      * Creates the root decision node with no parent path.
@@ -36,13 +36,30 @@ export class DisplayRootPageChooser extends DecisionNode<DisplayStateHandler, Pa
             this.clearSubTree();
             return new RankingPage();
         } else if (state.read.app.quiz.status == QuizStatus.RunningGame){
-            return this.delegateDecision("gamedelegator", state)
+            return this.delegateDecision("gameorchestratorr", state)
         } else if (state.read.app.quiz.status == QuizStatus.Ended){
             this.clearSubTree();
             return new FinalRankingPage();
         } else {
             throw new Error("Unexpected state");
         }
+    }
+}
+
+export class GamePageOrchestrator extends DecisionNode<DisplayStateHandler, Page>{
+    name = "game-orchestrator"
+    children = { "gamedelegator": new GamesPageChooserDelegator(this.path) }; /* , "questiondelegator": null */
+    page?: GameQuestionColPage
+
+    decide(state: DisplayStateHandler): Page {
+        const gameP = this.children.gamedelegator.decide(state)
+        const questionP = null; /* TODO */
+        if(!!this.page){
+            this.page.updateWith(gameP, questionP)
+        } else {
+            this.page = new GameQuestionColPage(gameP, questionP)
+        }
+        return this.page
     }
 }
 

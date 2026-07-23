@@ -22,7 +22,7 @@ body {
   padding-right: var(--pico-spacing);
   padding-left: var(--pico-spacing);
   display: grid;
-  grid-template-columns: repeat(12, [col-start] 1fr);
+  transition: grid-template-columns .5s ease;
   justify-content: center;
   align-items: stretch;
   gap: var(--pico-grid-column-gap);

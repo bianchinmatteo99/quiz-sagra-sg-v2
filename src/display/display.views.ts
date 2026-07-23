@@ -1,5 +1,6 @@
-import { Page, Pager, StaticPage } from "../common/navigation/pages";
+import { MulticolPage, Page, Pager, StaticPage } from "../common/navigation/pages";
 
+type PageColDef = [string, Page][]
 /**
  * Bridges the display pages to the shared container in the document.
  */
@@ -13,6 +14,24 @@ export class DisplayPager extends Pager {
     constructor() {
         super();
         this.container = document.getElementById(DisplayPager.CONTAINERID)!;
+    }
+}
+
+export class GameQuestionColPage extends MulticolPage {
+    columns: (Page | null)[];
+    defaultTemplateColumns: string;
+    constructor(gameP : Page, questionP : Page|null){
+        super()
+        this.columns = [gameP, questionP]
+        this.defaultTemplateColumns = this.getTemplateColumns(!!questionP)
+    }
+    updateWith(gameP : Page, questionP : Page|null){
+        this.updatePage(0, gameP)
+        this.updatePage(1, questionP)
+        this.gridTemplateColumns = this.getTemplateColumns(!!questionP)
+    }
+    getTemplateColumns(hasQuestionP : boolean){
+        return "auto " + (hasQuestionP ? "1fr" : "0")
     }
 }
 
