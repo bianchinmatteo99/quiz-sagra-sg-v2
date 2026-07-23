@@ -36,7 +36,7 @@ export class DisplayRootPageChooser extends DecisionNode<DisplayStateHandler, Pa
             this.clearSubTree();
             return new RankingPage();
         } else if (state.read.app.quiz.status == QuizStatus.RunningGame){
-            return this.delegateDecision("gameorchestratorr", state)
+            return this.delegateDecision("gameorchestrator", state)
         } else if (state.read.app.quiz.status == QuizStatus.Ended){
             this.clearSubTree();
             return new FinalRankingPage();
