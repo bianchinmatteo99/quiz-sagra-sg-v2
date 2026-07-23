@@ -151,6 +151,7 @@ export abstract class MulticolPage extends Page{
 
         if (!!this.container) {
             this.container.innerHTML = "";
+            this.gridTemplateColumns = ""
             this.container = undefined;
         }
     }

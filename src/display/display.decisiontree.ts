@@ -61,6 +61,10 @@ export class GamePageOrchestrator extends DecisionNode<DisplayStateHandler, Page
         }
         return this.page
     }
+
+    clear(): void {
+        this.page = undefined
+    }
 }
 
 export class GamesPageChooserDelegator extends DecisionNode<DisplayStateHandler, Page>{
