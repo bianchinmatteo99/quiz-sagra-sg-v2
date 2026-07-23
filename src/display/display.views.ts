@@ -60,8 +60,8 @@ export class QuestionPage extends StaticPage {
         this.update()
     }
     update(state? : QuestionState|null){
-        if(state == this.lastKnownState) return;
-        if(state != undefined){
+        if(state === this.lastKnownState) return;
+        if(state !== undefined){
             this.lastKnownState = state
         } 
         if(!this.container) return;
