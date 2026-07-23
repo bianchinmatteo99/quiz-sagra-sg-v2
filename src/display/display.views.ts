@@ -41,16 +41,20 @@ export class GameQuestionColPage extends MulticolPage {
 export class QuestionPage extends StaticPage {
     templateColumnWidth = "0fr"
     lastKnownState: QuestionState | null
-    timer : TimerHandler
-    timerListenerHandle? : CancelHandle
-    constructor(state: QuestionState | null, timer : TimerHandler) {
+    timer: TimerHandler
+    timerListenerHandle?: CancelHandle
+    constructor(state: QuestionState | null, timer: TimerHandler) {
         super()
         this.lastKnownState = state
         this.timer = timer
-        this.timerListenerHandle = timer.addListener((t)=>{
-            const el = this.container?.querySelector("#timer")
-            if(!!el){
-                el.textContent = t>=0 ? t.toString() : ""
+        this.timerListenerHandle = timer.addListener((t) => {
+            const el : HTMLDivElement|null|undefined = this.container?.querySelector("#timer")
+            if (!!el) {
+                el.textContent = t >= 0 ? t.toString() : ""
+                // Restart CSS animation
+                el.classList.remove("flash");                
+                void el.offsetWidth;
+                el.classList.add("flash");
             }
         })
     }
@@ -81,7 +85,37 @@ export class QuestionPage extends StaticPage {
         let html = ""
         switch (this.lastKnownState) {
             case QuestionState.ASKING:
-                html = `<div id="timer">${this.timer.curtime ?? ""}</div>`
+                html = `
+                <style>
+                    #timer {
+                        display: inline-block;
+                        font-size: 100px;
+                        color:var(--pico-primary);
+                        font-weight:bold;
+                    }
+
+                    #timer.flash {
+                        animation: rapid-flash 150ms ease-out;
+                    }
+
+                    @keyframes rapid-flash {
+                        0% {
+                            transform: scale(1);
+                            opacity: 1;
+                        }
+
+                        30% {
+                            transform: scale(1.15);
+                            opacity: 0.5;
+                        }
+
+                        100% {
+                            transform: scale(1);
+                            opacity: 1;
+                        }
+                    }
+                </style>
+                <div id="timer">${this.timer.curtime ?? ""}</div>`
                 break
             case QuestionState.EVALUATING:
                 html = `
@@ -106,7 +140,7 @@ export class QuestionPage extends StaticPage {
                 `
                 break
         }
-        if(!!html){
+        if (!!html) {
             content.innerHTML = html
             this.container.style.opacity = "1"
             this.templateColumnWidth = "1fr"
