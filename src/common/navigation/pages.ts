@@ -138,6 +138,7 @@ export abstract class MulticolPage extends Page{
             p?.create(div)
             return div
         })
+        this.gridTemplateColumns = this.defaultTemplateColumns
     }
     render(): void {
         throw new Error("MulticolPage should not be directly rendered; instead, column pages are inflated into divs inside the create method.")
