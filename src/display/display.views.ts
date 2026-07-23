@@ -31,58 +31,55 @@ export class GameQuestionColPage extends MulticolPage {
         this.updatePage(1, questionP)
         this.gridTemplateColumns = this.getTemplateColumns(gameP, questionP)
     }
-    getTemplateColumns(gameP : Page & {templateColumnWidth?: string}, hasQuestionP : Page|null){
-        if(Object.hasOwn(gameP, "templateColumnWidth")){
-
-        }
-        return (gameP.templateColumnWidth ?? "auto") + " " + (!!hasQuestionP ? "1fr" : "0")
+    getTemplateColumns(gameP : Page & {templateColumnWidth?: string}, hasQuestionP : (Page & {templateColumnWidth?: string})|null){
+        return (gameP.templateColumnWidth ?? "auto") + " " + (hasQuestionP?.templateColumnWidth ?? "0")
     }
 }
 
 export class QuestionPage extends StaticPage {
-    lastKnownState : QuestionState
-    constructor(state : QuestionState){
+    templateColumnWidth = "0fr"
+    lastKnownState : QuestionState|null
+    constructor(state : QuestionState|null){
         super()
         this.lastKnownState = state
     }
     render(): void {
         if(!this.container) throw new Error("Render called before create");
         this.container.innerHTML = `
-                <h2>DOMANDA IN CORSO</h2>
-                <span id="question-subtitle"></span>
-                <div id="question-content" style="width:80%; aspect-ratio: 1;"></div>
+                <h4 style="font-size: 1.5rem;">DOMANDA IN CORSO</h4>
+                <div id="question-content" style="height:50%; width: 100%;display: flex;flex-direction: column;align-items: center;justify-content: space-evenly;"></div>
         `;
         Object.assign(this.container.style, {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            flexDirection: "column"
+            flexDirection: "column",
+            overflow: "hidden",
+            transition: "opacity 1s ease"
         })
         this.update()
     }
-    update(state? : QuestionState){
+    update(state? : QuestionState|null){
         if(state == this.lastKnownState) return;
         if(state != undefined){
             this.lastKnownState = state
         } 
         if(!this.container) return;
 
-        const sub = this.container.querySelector("#question-subtitle")!
         const content = this.container.querySelector("#question-content")!
-        sub.textContent = "Valutazione"
+        if(this.lastKnownState == null){
+            content.innerHTML = ""
+            this.container.style.opacity = "0"
+            this.templateColumnWidth = "0fr"
+        } else {
+            this.container.style.opacity = "1"
+            this.templateColumnWidth = "1fr"
+        }
         content.innerHTML = `
             <style>
-            .loader {
-                width: 100%;
-                height: 100%;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
-
             .spinner {
-                width: 40px;
-                height: 40px;
+                width: 100px;
+                height: 100px;
                 border: 4px solid #ddd;
                 border-top-color: #333;
                 border-radius: 50%;
@@ -95,9 +92,11 @@ export class QuestionPage extends StaticPage {
                 }
             }
             </style>
-            <div class="loader"><div class="spinner"></div></div>
+            <span id="question-subtitle">Valutazione</span>
+            <div class="spinner"></div>
         `
         switch(this.lastKnownState){
+            case null:
 
         }
     }

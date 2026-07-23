@@ -29,15 +29,15 @@ export class DisplayRootPageChooser extends DecisionNode<DisplayStateHandler, Pa
         if (!state.read || state.read.app.quiz.status == QuizStatus.Booting || state.read.app.quiz.status == QuizStatus.AwaitingStart) {
             this.clearSubTree();
             return new WaitingStartPage();
-        } else if (state.read.app.quiz.status == QuizStatus.OnBoarding){
+        } else if (state.read.app.quiz.status == QuizStatus.OnBoarding) {
             this.clearSubTree();
             return new OnBoardingPage();
-        } else if (state.read.app.quiz.status == QuizStatus.Idle){
+        } else if (state.read.app.quiz.status == QuizStatus.Idle) {
             this.clearSubTree();
             return new RankingPage();
-        } else if (state.read.app.quiz.status == QuizStatus.RunningGame){
+        } else if (state.read.app.quiz.status == QuizStatus.RunningGame) {
             return this.delegateDecision("gameorchestrator", state)
-        } else if (state.read.app.quiz.status == QuizStatus.Ended){
+        } else if (state.read.app.quiz.status == QuizStatus.Ended) {
             this.clearSubTree();
             return new FinalRankingPage();
         } else {
@@ -46,15 +46,15 @@ export class DisplayRootPageChooser extends DecisionNode<DisplayStateHandler, Pa
     }
 }
 
-export class GamePageOrchestrator extends DecisionNode<DisplayStateHandler, Page>{
+export class GamePageOrchestrator extends DecisionNode<DisplayStateHandler, Page> {
     name = "game-orchestrator"
     children = { "gamedelegator": new GamesPageChooserDelegator(this.path), "question": new QuestionPageChooser(this.path) };
     page?: GameQuestionColPage
 
     decide(state: DisplayStateHandler): Page {
         const gameP = this.children.gamedelegator.decide(state)
-        const questionP = this.children.question.decideOrNull(state);
-        if(!!this.page){
+        const questionP = this.children.question.decide(state);
+        if (!!this.page) {
             this.page.updateWith(gameP, questionP)
         } else {
             this.page = new GameQuestionColPage(gameP, questionP)
@@ -67,13 +67,13 @@ export class GamePageOrchestrator extends DecisionNode<DisplayStateHandler, Page
     }
 }
 
-export class GamesPageChooserDelegator extends DecisionNode<DisplayStateHandler, Page>{
+export class GamesPageChooserDelegator extends DecisionNode<DisplayStateHandler, Page> {
     name = "game";
     children: Record<string, DecisionNode<any, Page>> = {};
     decide(state: DisplayStateHandler): Page {
         const gamename = state.read?.app?.game?.name
-        if(!gamename) throw new Error("Should be unreachable")
-        if(!(gamename in this.children)){
+        if (!gamename) throw new Error("Should be unreachable")
+        if (!(gamename in this.children)) {
             this.children[gamename] = instantiatePageChooserForGame(gamename)
         }
         return this.children[gamename].decide(state.read?.app.game)
@@ -84,31 +84,18 @@ export class GamesPageChooserDelegator extends DecisionNode<DisplayStateHandler,
     }
 }
 
-export class QuestionPageChooser extends DecisionLeaf<DisplayStateHandler, Page>{
+export class QuestionPageChooser extends DecisionLeaf<DisplayStateHandler, Page> {
     name: string = "question";
     page?: QuestionPage
 
     decide(state: DisplayStateHandler): Page {
         const s = state.read?.app.question?.state ?? null
-        if(s==null){
-            throw new Error("Question must have state")
+        if (!!this.page) {
+            this.page.update(s)
         } else {
-            if(!!this.page){
-                this.page.update(s)
-            } else {
-                this.page = new QuestionPage(s)
-            }
-            return this.page
+            this.page = new QuestionPage(s)
         }
-    }
-
-    decideOrNull(state: DisplayStateHandler): Page|null {
-        try {
-            return this.decide(state)
-        } catch (err) {
-            this.clear()
-            return null
-        }
+        return this.page
     }
 
     clear(): void {
