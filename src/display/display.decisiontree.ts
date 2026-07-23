@@ -93,7 +93,7 @@ export class QuestionPageChooser extends DecisionLeaf<DisplayStateHandler, Page>
         if (!!this.page) {
             this.page.update(s)
         } else {
-            this.page = new QuestionPage(s)
+            this.page = new QuestionPage(s, state.timer)
         }
         return this.page
     }

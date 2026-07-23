@@ -1,5 +1,7 @@
+import { CancelHandle } from "../common/general.utils";
 import { MulticolPage, Page, Pager, StaticPage } from "../common/navigation/pages";
 import { QuestionState } from "../common/questions/question.base";
+import { TimerHandler } from "./display.state";
 
 type PageColDef = [string, Page][]
 /**
@@ -39,9 +41,18 @@ export class GameQuestionColPage extends MulticolPage {
 export class QuestionPage extends StaticPage {
     templateColumnWidth = "0fr"
     lastKnownState: QuestionState | null
-    constructor(state: QuestionState | null) {
+    timer : TimerHandler
+    timerListenerHandle? : CancelHandle
+    constructor(state: QuestionState | null, timer : TimerHandler) {
         super()
         this.lastKnownState = state
+        this.timer = timer
+        this.timerListenerHandle = timer.addListener((t)=>{
+            const el = this.container?.querySelector("#timer")
+            if(!!el){
+                el.textContent = t>=0 ? t.toString() : ""
+            }
+        })
     }
     render(): void {
         if (!this.container) throw new Error("Render called before create");
@@ -70,7 +81,7 @@ export class QuestionPage extends StaticPage {
         let html = ""
         switch (this.lastKnownState) {
             case QuestionState.ASKING:
-                html = "timer"
+                html = `<div id="timer">${this.timer.curtime ?? ""}</div>`
                 break
             case QuestionState.EVALUATING:
                 html = `

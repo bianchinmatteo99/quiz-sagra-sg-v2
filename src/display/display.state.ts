@@ -61,7 +61,7 @@ export class TimerHandler {
                         this.curtime = remainingSeconds
                         this.listeners.forEach((f)=>f(remainingSeconds))
                     }
-                } else {console.log(remainingMs)
+                } else {
                     if(this.curtime!==null){
                         this.curtime = null
                         this.listeners.forEach((f)=>f(-1))
