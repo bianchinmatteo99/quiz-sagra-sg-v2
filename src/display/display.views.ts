@@ -268,7 +268,7 @@ export class RankingPage extends StaticPage {
             const el = this.container!.querySelector("#ranking")!
             for(let x of list){
                 await delay(1000)
-                const div = new HTMLDivElement()
+                const div = document.createElement("div");
                 div.innerHTML = `<div><span>${x.position}</span><span>${x.name}</span><span>${x.points} punti</span></div>`
                 el.insertAdjacentElement("afterbegin", div)
                 div.offsetHeight
