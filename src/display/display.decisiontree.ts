@@ -3,7 +3,7 @@ import { DecisionLeaf, DecisionNode } from "../common/navigation/decisiontree";
 import { Page } from "../common/navigation/pages";
 import { QuizStatus } from "../common/quiz/quiz.model";
 import { DisplayStateHandler } from "./display.state";
-import { FinalRankingPage, GameQuestionColPage, OnBoardingPage, QuestionPage, RankingPage, WaitingStartPage } from "./display.views";
+import { EmptyPage, FinalRankingPage, GameQuestionColPage, OnBoardingPage, QuestionPage, RankingPage, WaitingStartPage } from "./display.views";
 
 /**
  * Selects the initial display page for the audience screen based on the current quiz state.
@@ -72,7 +72,7 @@ export class GamesPageChooserDelegator extends DecisionNode<DisplayStateHandler,
     children: Record<string, DecisionNode<any, Page>> = {};
     decide(state: DisplayStateHandler): Page {
         const gamename = state.read?.app?.game?.name
-        if (!gamename) throw new Error("Should be unreachable")
+        if (!gamename) return new EmptyPage()
         if (!(gamename in this.children)) {
             this.children[gamename] = instantiatePageChooserForGame(gamename)
         }

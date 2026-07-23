@@ -14,7 +14,8 @@ type AppState = {
         state: QuestionState,
         enableAnswers: boolean,
         deny?: string[],
-    }
+    },
+    timerend?: number
 }
 
 /**
@@ -35,6 +36,51 @@ type PersonState = null | {
  */
 export type DisplayState = { app: AppState, person: PersonState, questionresult: boolean|null, currentDecisionLeaf: string }
 
+export class TimerHandler {
+    endtime : number = -1
+    curtime : number|null = null
+    listeners : Set<(t:number)=>void> = new Set()
+    interval? : number
+    constructor(){
+        this.listeners.add((t)=>console.log(t))
+    }
+    addListener(listener: (t:number)=>void): CancelHandle{
+        this.listeners.add(listener);
+        if(this.curtime!==null) listener(this.curtime);
+        return () => {
+            this.listeners.delete(listener)
+        }
+    }
+    maybeStartInterval(){
+        if(this.endtime-Date.now()>=0){
+            this.interval = this.interval ?? setInterval(()=>{
+                const remainingMs = Math.max(0, this.endtime - Date.now());
+                const remainingSeconds = Math.ceil(remainingMs / 1000);
+                if(remainingSeconds>=0){
+                    if(this.curtime!==remainingSeconds){
+                        this.curtime = remainingSeconds
+                        this.listeners.forEach((f)=>f(remainingSeconds))
+                    }
+                } else {console.log(remainingMs)
+                    if(this.curtime!==null){
+                        this.curtime = null
+                        this.listeners.forEach((f)=>f(-1))
+                    }
+                    clearInterval(this.interval)
+                    this.interval = undefined
+                }
+            }, 50)
+        } else if(this.interval!=undefined){
+            clearInterval(this.interval)
+            this.interval = undefined
+        }
+    }
+    setEndTime(t?:number|null){
+        this.endtime = t ?? -1
+        this.maybeStartInterval()
+    }
+}
+
 /**
  * Tracks display-facing state from the database and notifies observers when it changes.
  */
@@ -45,7 +91,7 @@ export class DisplayStateHandler {
     static readonly ANSWERSPATH = "/results/answers"
     private db: IDatabaseAdapter;
     private state?: DisplayState;
-
+    timer = new TimerHandler;
     /**
      * Returns the latest snapshot of the display state.
      */
@@ -61,6 +107,9 @@ export class DisplayStateHandler {
      */
     constructor(db: IDatabaseAdapter) {
         this.db = db;
+        this.addObserver((state)=>{
+            this.timer.setEndTime(state.app.timerend)
+        })
     }
 
     private pending = false;

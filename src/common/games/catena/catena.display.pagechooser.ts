@@ -11,7 +11,7 @@ interface CatenaDisplayState {
 export class CatenaGamePageChooser extends GamePageChooser<CatenaDisplayState> {
     catena = new CatenaPage()
     decide(state: CatenaDisplayState): Page {
-        if(state.state==CatenaState.DISPLAYCOVER){
+        if(state.state==CatenaState.STARTING || state.state==CatenaState.DISPLAYCOVER){
             return new CoverPage()
         }
         this.catena.update(state.words)
@@ -41,7 +41,8 @@ class CatenaPage extends StaticPage{
     pastwords : string[]|null = null
     render(): void {
         if(!this.container) throw new Error("Render called before create");
-        if(!this.pastwords) throw new Error("Nothing to render")
+        if(!this.pastwords) throw new Error("Nothing to render");
+        this.container.id = "catena"
         this.container.innerHTML = `
             <style>
                 #catena{
@@ -77,7 +78,6 @@ class CatenaPage extends StaticPage{
                 `).join("")
             }
         `;
-        this.container.id = "catena"
     }
     update(words: string[]){
         if(!this.container){

@@ -46,7 +46,7 @@ export class QuestionPage extends StaticPage {
     render(): void {
         if (!this.container) throw new Error("Render called before create");
         this.container.innerHTML = `
-                <h4 style="font-size: 1.5rem;">DOMANDA IN CORSO</h4>
+                <h4 style="font-size: 1rem;">DOMANDA<br/>IN CORSO</h4>
                 <div id="question-content" style="height:50%; width: 100%;display: flex;flex-direction: column;align-items: center;justify-content: space-evenly;"></div>
         `;
         Object.assign(this.container.style, {
@@ -90,7 +90,7 @@ export class QuestionPage extends StaticPage {
                         }
                     }
                     </style>
-                    <span id="question-subtitle">Valutazione</span>
+                    <span id="question-subtitle" style="font-size:.8rem">Valutazione</span>
                     <div class="spinner"></div>
                 `
                 break
@@ -175,5 +175,12 @@ export class FinalRankingPage extends StaticPage {
         this.container.innerHTML = `
             FINAL RANKING GOES HERE
         `;
+    }
+}
+
+export class EmptyPage extends StaticPage {
+    render(): void {
+        if (!this.container) throw new Error("Render called before create");
+        this.container.innerHTML = ``;
     }
 }
