@@ -76,8 +76,16 @@ class QuizManager implements QuizControllerContext, GameManagerContext, PeopleCo
      * End the quiz and transition to the final state.
      */
     async endQuiz(): Promise<void> {
-        await this.quiz.adminInteraction("Mostra classifica finale e concludi");
-        // TODO CLASSIFICA FINALE
+        this.quiz.setStatus(QuizStatus.FinalRanking);
+        await this.quiz.adminInteraction("Mostra TERZO classificato");
+        this.quiz.setFinalRankState(3);
+        await this.quiz.adminInteraction("Mostra SECONDO classificato");
+        this.quiz.setFinalRankState(2);
+        await this.quiz.adminInteraction("Mostra PRIMO classificato");
+        this.quiz.setFinalRankState(1);
+        await this.quiz.adminInteraction("Mostra intera classifica");
+        this.quiz.setFinalRankState(0);
+        await this.quiz.adminInteraction("Concludi");
         this.quiz.setStatus(QuizStatus.Ended);
     }
 

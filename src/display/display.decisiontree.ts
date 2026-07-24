@@ -3,14 +3,14 @@ import { DecisionLeaf, DecisionNode } from "../common/navigation/decisiontree";
 import { Page } from "../common/navigation/pages";
 import { QuizStatus } from "../common/quiz/quiz.model";
 import { DisplayStateHandler } from "./display.state";
-import { EmptyPage, FinalRankingPage, GameQuestionColPage, OnBoardingPage, QuestionPage, RankingPage, WaitingStartPage } from "./display.views";
+import { EmptyPage, GreetingsPage, GameQuestionColPage, OnBoardingPage, QuestionPage, RankingPage, WaitingStartPage, FinalRankingPage } from "./display.views";
 
 /**
  * Selects the initial display page for the audience screen based on the current quiz state.
  */
 export class DisplayRootPageChooser extends DecisionNode<DisplayStateHandler, Page> {
     name = "root"
-    children = { "gameorchestrator": new GamePageOrchestrator(this.path) };
+    children = { "gameorchestrator": new GamePageOrchestrator(this.path), "finalranking": new FinalRankingPageChooser(this.path) };
 
     /**
      * Creates the root decision node with no parent path.
@@ -37,9 +37,11 @@ export class DisplayRootPageChooser extends DecisionNode<DisplayStateHandler, Pa
             return new RankingPage(state.readRanking(), (pos) => state.displayedRankingUpTo(pos));
         } else if (state.read.app.quiz.status == QuizStatus.RunningGame) {
             return this.delegateDecision("gameorchestrator", state)
+        } else if (state.read.app.quiz.status == QuizStatus.FinalRanking) {
+            return this.delegateDecision("finalranking", state)
         } else if (state.read.app.quiz.status == QuizStatus.Ended) {
             this.clearSubTree();
-            return new FinalRankingPage();
+            return new GreetingsPage();
         } else {
             throw new Error("Unexpected state");
         }
@@ -100,5 +102,30 @@ export class QuestionPageChooser extends DecisionLeaf<DisplayStateHandler, Page>
 
     clear(): void {
         this.page = undefined
+    }
+}
+
+export class FinalRankingPageChooser extends DecisionLeaf<DisplayStateHandler, Page> {
+    name = "finalranking";
+    alreadyshownpodium = false;
+    page? : FinalRankingPage
+    decide(state: DisplayStateHandler): Page {
+        const i = state.read?.app.quiz.finalrankstate ?? null;
+        if(i==0 || this.alreadyshownpodium){
+            this.page = undefined;
+            this.alreadyshownpodium = true;
+            return new RankingPage(state.readRanking(), (x)=>state.displayedRankingUpTo(x))
+        }
+        if(!this.page){
+            this.page = new FinalRankingPage(state.readRanking())
+        }
+        if(i!==null){
+            this.page.open(i)
+        } 
+        return this.page
+    }
+    clear(): void {
+        this.alreadyshownpodium = false;
+        this.page = undefined;
     }
 }

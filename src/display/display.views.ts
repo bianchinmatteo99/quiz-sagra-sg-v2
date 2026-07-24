@@ -298,10 +298,89 @@ export class RankingPage extends StaticPage {
 }
 
 export class FinalRankingPage extends StaticPage {
+    futureList : Promise<{ name: string, points: number, position: number}[]>;
+    constructor(futureRankingList : Promise<{ name: string, points: number, position: number}[]>){
+        super()
+        this.futureList = futureRankingList
+    }
+
     render(): void {
         if (!this.container) throw new Error("Render called before create");
         this.container.innerHTML = `
-            FINAL RANKING GOES HERE
+            <style>
+                #podio{
+                    display: grid;
+                    grid-template-rows: 1.5fr 0 0 0 1.5fr;
+                    transition: grid-template-rows 300ms ease;
+                }
+                [id^="podio-"] {
+                    display: flex;
+                    border: 0px solid var(--pico-primary-border);
+                    border-radius: 20px;
+                    align-items: center;
+                    overflow: hidden;
+                    margin: 0;
+                    transition: margin 300ms ease, border-width 300ms ease;
+                }
+                [id^="podio-"].open {
+                    margin: 10px 0;
+                    border-width: 2px;
+                }
+                [id^="podio-"] > span:nth-child(1) {
+                    width: 150px;
+                    padding: 0 20px;
+                    font-weight: bold;
+                    color: var(--pico-primary);
+                }
+                [id^="podio-"] > span:nth-child(2) {
+                    flex: 1;
+                    text-align: left;
+                    opacity: 0;
+                    transition: opacity 300ms ease 500ms;
+                }
+                [id^="podio-"].open > span:nth-child(2) {
+                    opacity: 1;
+                }
+                [id^="podio-"] > span:nth-child(3) {
+                    padding: 0 20px;
+                    color: gray;
+                    font-size: .8em;
+                }  
+            </style>
+            <div style="grid-column: 2 / span 10;">
+                <h4 style="margin:40px;">PODIO</h4>
+                <div id="podio">
+                    <div></div>
+                    <div id="podio-1"></div>
+                    <div id="podio-2"></div>
+                    <div id="podio-3"></div>
+                    <div></div>
+                </div>
+            </div>
+        `;
+    }
+
+    open(i : number){
+        if(![1,2,3].includes(i)) return;
+        const cont : HTMLDivElement = this.container!.querySelector(`#podio`)!;
+        this.futureList.then(async (list)=>{
+            const f = list.filter((v)=>v.position==i)
+            const names = f.map((v)=>v.name).join("<br/>")
+            const points = f[0]?.points.toString() ?? "";
+            const el = this.container!.querySelector(`#podio-${i}`)!;
+            el.innerHTML = `<span><img style="max-height: 100%; max-width: 100%;" src="/img/icons8-${["gold", "silver", "bronze"][i-1]}-medal-100.png"/></span><span>${names}</span><span>${points} punti</span>`
+            await delay(20);
+            cont.style.gridTemplateRows = ["0 1fr 1fr 1fr 0",".5fr 0 1fr 1fr .5fr","1fr 0 0 1fr 1fr"][i-1]
+            el.classList.add("open");
+        })
+    }
+}
+
+export class GreetingsPage extends StaticPage {
+    render(): void {
+        if (!this.container) throw new Error("Render called before create");
+        this.container.innerHTML = `
+            CIAO A TUTTI
         `;
     }
 }

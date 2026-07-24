@@ -7,7 +7,7 @@ import { QuizStatus } from "../common/quiz/quiz.model"
  * Snapshot of the quiz application state exposed to the display layer.
  */
 type AppState = {
-    quiz: { status: QuizStatus },
+    quiz: { status: QuizStatus, finalrankstate: number|null },
     game?: { name: string },
     question?: {
         name: string,
@@ -145,7 +145,7 @@ export class DisplayStateHandler {
      */
     async setup() {
         if (!!this.state) throw new Error("Setup already run!");
-        this.state = { app: { quiz: { status: QuizStatus.Booting } }, person: null, currentDecisionLeaf: "" };
+        this.state = { app: { quiz: { status: QuizStatus.Booting, finalrankstate: null } }, person: null, currentDecisionLeaf: "" };
         this._bindingCancel.push(this.db.onValue<AppState>(DisplayStateHandler.APPSTATEPATH, (data) => {
             if (data !== null && data !== undefined) {
                 this.state!.app = data;

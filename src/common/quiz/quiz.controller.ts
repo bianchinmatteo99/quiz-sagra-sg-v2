@@ -52,6 +52,11 @@ class QuizController implements QuizViewContext, QuizModelContext {
         this.stateUpdated();
     }
 
+    setFinalRankState(display: number|null = null){
+        this.model.finalrankstate = display;
+        this.stateUpdated();
+    }
+
     /**
      * Begin executing a game and update the model accordingly.
      * @param gameIndex Index of the game to start.

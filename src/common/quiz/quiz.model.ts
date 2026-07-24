@@ -10,6 +10,7 @@ enum QuizStatus {
     OnBoarding, // Players are joining and setting up their profiles
     RunningGame, // A game is currently running
     Idle, // No game is running, but the quiz is active (e.g. between games)
+    FinalRanking,
     Ended, // The quiz has ended
 }
 
@@ -25,7 +26,6 @@ interface QuizModelContext extends BaseModelContext {
  */
 enum GameStatus {
     NotStarted,
-    Disabled, /* DEPRECATED */
     InProgress,
     Completed,
 }
@@ -39,6 +39,7 @@ class QuizModel extends BaseModel {
     status: QuizStatus;
     currentGame: number | null;
     gamesStatuses: GameStatus[];
+    finalrankstate: number|null = null;
 
     context: QuizModelContext;
 
@@ -71,6 +72,7 @@ class QuizModel extends BaseModel {
             this.gamesStatuses = data.gamesStatuses ?? [...Array(this.definition.games.length).fill(GameStatus.NotStarted)];
             this.status = data.status ?? QuizStatus.Booting;
             this.currentGame = data.currentGame ?? null;
+            this.finalrankstate = data.finalrankstate ?? null;
             return true;
         } catch (error) {
             console.error('Error parsing quiz from JSON:', error);
@@ -87,6 +89,7 @@ class QuizModel extends BaseModel {
             gamesStatuses: this.gamesStatuses,
             status: this.status,
             currentGame: this.currentGame,
+            finalrankstate: this.finalrankstate,
         };
     }
 }
