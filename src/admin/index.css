@@ -19,6 +19,11 @@ header {
   flex-direction: row;
   align-items: center;
 }
+#header-actions {
+  display: flex;
+  gap: 30px;
+  align-items: center;
+}
 
 h1 {
   margin: 0 !important;

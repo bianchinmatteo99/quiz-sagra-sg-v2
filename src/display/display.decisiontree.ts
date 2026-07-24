@@ -34,7 +34,11 @@ export class DisplayRootPageChooser extends DecisionNode<DisplayStateHandler, Pa
             return new OnBoardingPage();
         } else if (state.read.app.quiz.status == QuizStatus.Idle) {
             this.clearSubTree();
-            return new RankingPage(state.readRanking(), (pos) => state.displayedRankingUpTo(pos));
+            if(state.read.app.quiz.displayRankOnIdle){
+                return new RankingPage(state.readRanking(), (pos) => state.displayedRankingUpTo(pos));
+            } else {
+                return new EmptyPage();
+            }            
         } else if (state.read.app.quiz.status == QuizStatus.RunningGame) {
             return this.delegateDecision("gameorchestrator", state)
         } else if (state.read.app.quiz.status == QuizStatus.FinalRanking) {

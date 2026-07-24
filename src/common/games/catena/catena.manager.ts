@@ -64,15 +64,18 @@ export class ReazioneCatenaGameManager extends GameManager {
                             setTimeout(() => {
                                 this.context.updateRanking(new Map(correct.map((id) => [id, this.controller.model.definition.pointsForCorrectAnswer])));
                             }, 1000);
-                        } else if (! await this.controller.adminInteraction({ advanceBtn: "Passa alla prossima lettera", otherBtn: "Completa la parola e vai alla prossima" })) {
-                            // If nobody answered correctly and admin chose to complete, finish the word.
-                            await this.controller.completeWord(5000);
                         }
-
+                        
                         // Keep showing results for a short fixed duration.
                         return 5000;
                     }
                 });
+
+                const correctN = res.entries().filter(([id, v]) => v).map(([id, v]) => id).toArray().length;
+                if(correctN == 0 && ! await this.controller.adminInteraction({ advanceBtn: "Passa alla prossima lettera", otherBtn: "Completa la parola e vai alla prossima" })){
+                    // If nobody answered correctly and admin chose to complete, finish the word.
+                    await this.controller.completeWord(1000);
+                }
 
                 // If retries are not allowed, add players who failed to the deny list.
                 if (!this.controller.model.definition.canRetryForSameWord) {

@@ -380,7 +380,13 @@ export class GreetingsPage extends StaticPage {
     render(): void {
         if (!this.container) throw new Error("Render called before create");
         this.container.innerHTML = `
-            CIAO A TUTTI
+            <span style="grid-column: span 12;display: flex;flex-direction: column;align-items: center;justify-content: center;gap: 30px;">
+                <img src="/favicon/favicon.svg" style="height: 25vh;">
+                <span style="color: var(--pico-secondary);">
+                    <h1 style="color: var(--pico-primary);">GRAZIE PER LA PARTECIPAZIONE</h1>
+                    ALLA PROSSIMA!
+                </span>
+            </span>  
         `;
     }
 }
