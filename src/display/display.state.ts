@@ -165,7 +165,7 @@ export class DisplayStateHandler {
         return ls
     }
 
-    displayedRankingUpTo(pos? : number){
+    displayedRankingUpTo(pos : number|null){
         this.db.set("/state/display/rankingupto", pos)
     }
 

@@ -211,8 +211,8 @@ export class OnBoardingPage extends StaticPage {
 
 export class RankingPage extends StaticPage {
     futureList : Promise<{ name: string, points: number, position: number}[]>;
-    notifyDisplayed: (pos?:number)=>void;
-    constructor(futureRankingList : Promise<{ name: string, points: number, position: number}[]>, notifyDisplayed: (pos?:number)=>void){
+    notifyDisplayed: (pos:number|null)=>void;
+    constructor(futureRankingList : Promise<{ name: string, points: number, position: number}[]>, notifyDisplayed: (pos:number|null)=>void){
         super()
         this.futureList = futureRankingList
         this.notifyDisplayed = notifyDisplayed;
@@ -286,7 +286,7 @@ export class RankingPage extends StaticPage {
         })
     }
     destroy(): void {
-        this.notifyDisplayed();
+        this.notifyDisplayed(null);
         super.destroy();
     }
 }
