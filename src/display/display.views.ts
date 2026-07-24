@@ -212,10 +212,12 @@ export class OnBoardingPage extends StaticPage {
 export class RankingPage extends StaticPage {
     futureList : Promise<{ name: string, points: number, position: number}[]>;
     notifyDisplayed: (pos:number|null)=>void;
-    constructor(futureRankingList : Promise<{ name: string, points: number, position: number}[]>, notifyDisplayed: (pos:number|null)=>void){
+    withIcons : boolean;
+    constructor(futureRankingList : Promise<{ name: string, points: number, position: number}[]>, notifyDisplayed: (pos:number|null)=>void, withIcons?: boolean){
         super()
         this.futureList = futureRankingList
         this.notifyDisplayed = notifyDisplayed;
+        this.withIcons = !!withIcons;
     }
     render(): void {
         if (!this.container) throw new Error("Render called before create");
@@ -275,7 +277,8 @@ export class RankingPage extends StaticPage {
                 }
                 await delay(500)
                 const div = document.createElement("div");
-                div.innerHTML = `<div><span>${x.position}</span><span>${x.name}</span><span>${x.points} punti</span></div>`
+                const pos = (this.withIcons && x.position<=3) ? `<img style="max-height: 100%; max-width: 100%;" src="/img/icons8-${["gold", "silver", "bronze"][x.position-1]}-medal-100.png"/>` : (x.position > 0 ? x.position : "")
+                div.innerHTML = `<div><span>${pos}</span><span>${x.name}</span><span>${x.points} punti</span></div>`
                 el.insertAdjacentElement("afterbegin", div)
                 div.offsetHeight
                 div.classList.add("open")
