@@ -40,6 +40,7 @@ class QuizModel extends BaseModel {
     currentGame: number | null;
     gamesStatuses: GameStatus[];
     finalrankstate: number|null = null;
+    displayRankOnIdle: boolean = true;
 
     context: QuizModelContext;
 
@@ -73,6 +74,7 @@ class QuizModel extends BaseModel {
             this.status = data.status ?? QuizStatus.Booting;
             this.currentGame = data.currentGame ?? null;
             this.finalrankstate = data.finalrankstate ?? null;
+            this.displayRankOnIdle = data.displayRankOnIdle ?? true;
             return true;
         } catch (error) {
             console.error('Error parsing quiz from JSON:', error);
@@ -90,6 +92,7 @@ class QuizModel extends BaseModel {
             status: this.status,
             currentGame: this.currentGame,
             finalrankstate: this.finalrankstate,
+            displayRankOnIdle: this.displayRankOnIdle,
         };
     }
 }

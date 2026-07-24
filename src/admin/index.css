@@ -111,7 +111,7 @@ button {
   justify-content: center;
 }
 
-#person-dialog-delete {
+#person-dialog-delete, button.delete {
   background-color: rgb(217, 53, 38);
   border-color: rgb(217, 53, 38);
 }

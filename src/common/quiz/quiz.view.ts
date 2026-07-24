@@ -8,6 +8,7 @@ interface QuizViewContext {
     model: QuizModel;
     startGame(gameIndex: number): void;
     viewGame(gameIndex: number): void;
+    endQuiz(): void;
 }
 
 /**
@@ -16,10 +17,12 @@ interface QuizViewContext {
 class QuizView {
     readonly quizTimelineContainer = "quiz-timeline-container";
     readonly quizAdvanceButtonContainer = "quiz-advance-button-container";
+    readonly endQuizButton = "end-quiz-button"
     context: QuizViewContext;
 
     constructor(context: QuizViewContext) {
         this.context = context;
+        document.getElementById(this.endQuizButton)?.addEventListener("click", ()=>this.context.endQuiz())
     }
 
     /**

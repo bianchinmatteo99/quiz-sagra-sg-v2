@@ -12,6 +12,7 @@ interface QuizControllerContext {
     getDatabase(): IDatabaseAdapter;
     startGame(game: GameDefinition): Promise<void>;
     setGameTimelineDisplaysCurrent(boolean: boolean): void;
+    endQuiz(): void;
 }
 
 /**
@@ -170,6 +171,12 @@ class QuizController implements QuizViewContext, QuizModelContext {
     stateUpdated(remote: boolean = false): void {
         if (!remote) this.model.saveToDatabase();
         this.view.render();
+    }
+
+    endQuiz(): void {
+        if(confirm("SEI SICURO DI VOLER TERMINARE ORA IL QUIZ?")){
+            this.context.endQuiz();
+        }
     }
 }
 

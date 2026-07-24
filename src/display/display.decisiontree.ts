@@ -114,7 +114,7 @@ export class FinalRankingPageChooser extends DecisionLeaf<DisplayStateHandler, P
         if(i==0 || this.alreadyshownpodium){
             this.page = undefined;
             this.alreadyshownpodium = true;
-            return new RankingPage(state.readRanking(), (x)=>state.displayedRankingUpTo(x))
+            return new RankingPage(state.readRanking(), (x)=>state.displayedRankingUpTo(x), true);
         }
         if(!this.page){
             this.page = new FinalRankingPage(state.readRanking())

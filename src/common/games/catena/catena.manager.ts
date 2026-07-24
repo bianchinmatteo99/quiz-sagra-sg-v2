@@ -30,7 +30,7 @@ export class ReazioneCatenaGameManager extends GameManager {
      * at a time while asking players for answers. Correct responses complete the
      * word and award points; incorrect answers may be denied for retries.
      */
-    async startGame(): Promise<void> {
+    async startGame(): Promise<boolean> {
         // Show the cover screen first and wait for admin to advance.
         this.controller.setState(CatenaState.DISPLAYCOVER);
         await this.controller.adminInteraction({ advanceBtn: "Mostra la catena" });
@@ -95,7 +95,7 @@ export class ReazioneCatenaGameManager extends GameManager {
 
         // No more words: set ending state and finalize the game.
         this.controller.setState(CatenaState.ENDING);
-        this.endGame();
+        return this.endGame();
     }
 
 }

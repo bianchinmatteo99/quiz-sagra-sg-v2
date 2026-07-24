@@ -592,17 +592,17 @@ export abstract class GameManager implements GameControllerContext, QuestionCont
      * 2. Collect and evaluate results
      * 3. Call `this.context.updateRanking(diff)` after each round
      * 4. Return when the game is complete
-     *
-     * The manager should not call `endGame()` explicitly; `QuizManager` will do this.
      */
-    abstract startGame(): Promise<void>;
+    abstract startGame(): Promise<boolean>;
 
     /**
      * Clear the game UI and persisted state.
      * Called by `QuizManager` after `startGame()` completes.
      * Invokes `GameController.clearAll()` to cleanup.
      */
-    endGame(){
+    async endGame(): Promise<boolean>{
+        const ret = await this.controller.adminInteraction({advanceBtn: "Mostra classifica", otherBtn: "Passa a un altro gioco"});
         this.controller.clearAll();
+        return ret;
     }
 }
