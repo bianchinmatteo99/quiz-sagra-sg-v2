@@ -143,7 +143,7 @@ export class IdleStatusPage extends StaticPage {
         let icon = "";
         if(!!this.icon){
             if(this.isGifIcon){
-                icon = `<img src="${this.icon}" style="width: 250px;"><br/>`;
+                icon = `<img src="${this.icon}" style="width: 250px;max-width: fit-content;"><br/>`;
             } else {
                 icon = `<span class="material-symbols-outlined" style="font-size: 2em;color: var(--pico-primary);">${this.icon}</span><br/>`;
             }
@@ -171,7 +171,7 @@ export class RankingUserPage extends IdleStatusPage{
     constructor(position : number | null, displayPos : number | null, icons : boolean){
         const shouldDisplay = position!==null && displayPos!==null && position >= displayPos;
         const icon = (shouldDisplay && icons && [1,2,3].includes(position)) ? `/img/icons8-${["gold", "silver", "bronze"][position-1]}-medal-100.png` : undefined;
-        super(shouldDisplay ? `<span style="color: var(--pico-secondary)">#</span> <span style="font-weight: bold; color: var(--pico-primary)">${position}</span>` : "", {bottom_image: "/img/ranking.jpg", icon: icon, isGifIcon: true}, {footer: false})
+        super(shouldDisplay ? `<span style="font-size: 100px; color: var(--pico-secondary)">#</span> <span style="font-size: 100px; font-weight: bold; color: var(--pico-primary)">${position}</span>` : "", {bottom_image: "/img/ranking.jpg", icon: icon, isGifIcon: true}, {footer: false})
     }
 }
 

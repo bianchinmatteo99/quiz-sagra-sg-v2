@@ -32,7 +32,7 @@ export class UserRootPageChooser extends DecisionNode<UserStateHandler, Page> {
         } else if (state.read.app.quiz.status == QuizStatus.Ended) {
             this.clearSubTree();
             return new IdleStatusPage("Il quiz è terminato! Grazie per aver partecipato!", { icon: "celebration" }, { footer: false });
-        } else if ((state.read.app.quiz.status == QuizStatus.Idle && state.read.app.quiz.displayRankOnIdle) || state.read.app.quiz.status == QuizStatus.FinalRanking) {
+        } else if ((state.read.app.quiz.status == QuizStatus.Idle && state.read.app.quiz.displayRankOnIdle && (state.read.person?.rank?.position??-1)>0) || state.read.app.quiz.status == QuizStatus.FinalRanking) {
             this.clearSubTree();
             return new RankingUserPage(state.read.person?.rank?.position ?? null, state.read.app.display?.rankingupto ?? null, state.read.app.quiz.status == QuizStatus.FinalRanking)
         } else if (state.read.app.quiz.status == QuizStatus.Idle || state.read.app.question?.state == undefined) {
