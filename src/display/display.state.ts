@@ -165,6 +165,10 @@ export class DisplayStateHandler {
         return ls
     }
 
+    displayedRankingUpTo(pos? : number){
+        this.db.set("/state/display/rankingupto", pos)
+    }
+
     /**
      * Records the current decision path so the UI can trace which page was selected.
      *

@@ -211,9 +211,11 @@ export class OnBoardingPage extends StaticPage {
 
 export class RankingPage extends StaticPage {
     futureList : Promise<{ name: string, points: number, position: number}[]>;
-    constructor(futureRankingList : Promise<{ name: string, points: number, position: number}[]>){
+    notifyDisplayed: (pos?:number)=>void;
+    constructor(futureRankingList : Promise<{ name: string, points: number, position: number}[]>, notifyDisplayed: (pos?:number)=>void){
         super()
         this.futureList = futureRankingList
+        this.notifyDisplayed = notifyDisplayed;
     }
     render(): void {
         if (!this.container) throw new Error("Render called before create");
@@ -266,15 +268,26 @@ export class RankingPage extends StaticPage {
         `;
         this.futureList.then(async (list)=>{
             const el = this.container!.querySelector("#ranking")!
+            let lastpos = Infinity;
             for(let x of list){
-                await delay(1000)
+                if(lastpos != Infinity && lastpos > x.position){
+                    this.notifyDisplayed(lastpos)
+                }
+                await delay(500)
                 const div = document.createElement("div");
                 div.innerHTML = `<div><span>${x.position}</span><span>${x.name}</span><span>${x.points} punti</span></div>`
                 el.insertAdjacentElement("afterbegin", div)
                 div.offsetHeight
                 div.classList.add("open")
+                await delay(500)
+                lastpos = x.position
             }
+            this.notifyDisplayed(0)
         })
+    }
+    destroy(): void {
+        this.notifyDisplayed();
+        super.destroy();
     }
 }
 
