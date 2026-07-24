@@ -50,14 +50,19 @@ class LoginPageChooser extends DecisionLeaf<UserStateHandler, Page> {
      * Choose between the login form and a welcome status page.
      */
     decide(state: UserStateHandler): Page {
-        if (this.alreadyLoggedIn && state.isRegisteredToQuiz()) {
-            state.setCurrentPath(this.path, "already logged in")
-            return new IdleStatusPage(`Benvenuta squadra<br/><b>${state.getName()}</b>!`, { icon: "person_check" }, { footer: false });
+        if (this.alreadyLoggedIn) {
+            if(state.isRegisteredToQuiz()){
+                state.setCurrentPath(this.path, "already logged in")
+                return new IdleStatusPage(`Benvenuta squadra<br/><b>${state.getName()}</b>!`, { icon: "person_check" }, { footer: false });
+            } else {
+                return new IdleStatusPage("Registrazione", {loading: true}, { footer: false })
+            }            
         } else {
             state.setCurrentPath(this.path, "login page")
             return new LoginPage(state.getName(), (name) => {
                 this.alreadyLoggedIn = true;
                 state.registerWithName(name);
+                state.scheduleUpdate();
             })
         }
     }
