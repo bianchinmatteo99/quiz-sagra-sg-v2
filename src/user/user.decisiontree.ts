@@ -1,7 +1,7 @@
 import { QuestionState } from "../common/questions/question.base";
 import { instantiatePageProviderForQuestion } from "../common/questions/questions.register";
 import { QuizStatus } from "../common/quiz/quiz.model";
-import { IdleStatusPage, LoginPage } from "./user.views";
+import { IdleStatusPage, LoginPage, RankingUserPage } from "./user.views";
 import { Page } from "../common/navigation/pages";
 import { UserStateHandler } from "./user.state";
 import { DecisionNode, DecisionLeaf } from "../common/navigation/decisiontree";
@@ -32,6 +32,9 @@ export class UserRootPageChooser extends DecisionNode<UserStateHandler, Page> {
         } else if (state.read.app.quiz.status == QuizStatus.Ended) {
             this.clearSubTree();
             return new IdleStatusPage("Il quiz è terminato! Grazie per aver partecipato!", { icon: "celebration" }, { footer: false });
+        } else if ((state.read.app.quiz.status == QuizStatus.Idle && state.read.app.quiz.displayRankOnIdle) || state.read.app.quiz.status == QuizStatus.FinalRanking) {
+            this.clearSubTree();
+            return new RankingUserPage(state.read.person?.rank?.position ?? null, state.read.app.display?.rankingupto ?? null, state.read.app.quiz.status == QuizStatus.FinalRanking)
         } else if (state.read.app.quiz.status == QuizStatus.Idle || state.read.app.question?.state == undefined) {
             this.clearSubTree();
             return new IdleStatusPage("In attesa della prossima domanda...", { bottom_image: IdleStatusPage.DEFAULT_IMAGES.waiting_for_start });

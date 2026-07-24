@@ -167,6 +167,14 @@ export class IdleStatusPage extends StaticPage {
     }
 }
 
+export class RankingUserPage extends IdleStatusPage{
+    constructor(position : number | null, displayPos : number | null, icons : boolean){
+        const shouldDisplay = position!==null && displayPos!==null && position >= displayPos;
+        const icon = (shouldDisplay && icons && [1,2,3].includes(position)) ? `/img/icons8-${["gold", "silver", "bronze"][position-1]}-medal-100.png` : undefined;
+        super(shouldDisplay ? `<span style="color: var(--pico-secondary)">#</span> <span style="font-weight: bold; color: var(--pico-primary)">${position}</span>` : "", {bottom_image: "/img/ranking.jpg", icon: icon, isGifIcon: true}, {footer: false})
+    }
+}
+
 /**
  * Base page class for question interactions requiring an answer callback.
  */

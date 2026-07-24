@@ -8,14 +8,15 @@ import { QuizStatus } from "../common/quiz/quiz.model"
  * Shared application state values the user UI consumes.
  */
 type AppState = {
-    quiz: { status: QuizStatus },
+    quiz: { status: QuizStatus, finalrankstate: number|null, displayRankOnIdle: boolean },
     game?: { name: string },
     question?: {
         name: string,
         state: QuestionState,
         enableAnswers: boolean,
         deny?: string[],
-    }
+    },
+    display?: {rankingupto?: number},
 }
 
 type PersonState = null | {
@@ -102,7 +103,7 @@ export class UserStateHandler {
      */
     async setup() {
         if (!!this.state) throw new Error("Setup already run!");
-        this.state = { app: { quiz: { status: QuizStatus.Booting } }, person: null, questionresult: null, currentDecisionLeaf: "" };
+        this.state = { app: { quiz: { status: QuizStatus.Booting, finalrankstate: null, displayRankOnIdle: true  } }, person: null, questionresult: null, currentDecisionLeaf: "" };
         this._bindingCancel.push(this.db.onValue<AppState>(UserStateHandler.APPSTATEPATH, (data) => {
             if (data !== null && data !== undefined) {
                 this.state!.app = data;

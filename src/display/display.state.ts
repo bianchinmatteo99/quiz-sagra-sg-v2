@@ -18,23 +18,11 @@ type AppState = {
     timerend?: number
 }
 
-/**
- * Optional information about the currently tracked person or team.
- */
-type PersonState = null | {
-    name: string,
-    rank?: {
-        lastpos: number,
-        lastupdate: number,
-        points: number,
-        position: number,
-    }
-}
 
 /**
  * The state shape consumed by the display flow, including app state, person state and current decision path.
  */
-export type DisplayState = { app: AppState, person: PersonState, currentDecisionLeaf: string }
+export type DisplayState = { app: AppState, currentDecisionLeaf: string }
 
 export class TimerHandler {
     endtime : number = -1
@@ -85,8 +73,6 @@ export class TimerHandler {
 export class DisplayStateHandler {
     static readonly APPSTATEPATH = "/state"
     static readonly PERSONPATH = "/people/list"
-    static readonly RESULTSPATH = "/results/evaluation"
-    static readonly ANSWERSPATH = "/results/answers"
     private db: IDatabaseAdapter;
     private state?: DisplayState;
     timer = new TimerHandler;
@@ -145,7 +131,7 @@ export class DisplayStateHandler {
      */
     async setup() {
         if (!!this.state) throw new Error("Setup already run!");
-        this.state = { app: { quiz: { status: QuizStatus.Booting, finalrankstate: null, displayRankOnIdle: true } }, person: null, currentDecisionLeaf: "" };
+        this.state = { app: { quiz: { status: QuizStatus.Booting, finalrankstate: null, displayRankOnIdle: true } }, currentDecisionLeaf: "" };
         this._bindingCancel.push(this.db.onValue<AppState>(DisplayStateHandler.APPSTATEPATH, (data) => {
             if (data !== null && data !== undefined) {
                 this.state!.app = data;
