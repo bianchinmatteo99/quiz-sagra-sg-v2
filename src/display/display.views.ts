@@ -289,6 +289,9 @@ export class RankingPage extends StaticPage {
         this.notifyDisplayed(null);
         super.destroy();
     }
+    isEqualTo(other: Page): boolean {
+        return other instanceof RankingPage
+    }
 }
 
 export class FinalRankingPage extends StaticPage {
