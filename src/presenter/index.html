@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
+    <link rel="manifest" href="/favicon/site.webmanifest" />
+    <title>SGQuiz - Presenter</title>
+
+    <script type="module" src="../firebase-init.ts"></script>
+
+    <link rel="stylesheet" href="../css/pico/css/pico.min.css">
+    <link rel="stylesheet" media="screen" href="index.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+</head>
+
+<body>
+    <header class="container-fluid">
+        <h1>Presenter Dashboard</h1>
+        <div id="header-actions">
+            <label>
+                <input id="mostra-segreti" name="secrets" type="checkbox" role="switch" />
+                MOSTRA SEGRETI
+            </label>
+        </div>
+    </header>
+    <main id="main-container" class="container-fluid">
+        
+        <main class="col">
+            <section id="game-current-state" class="panel top"></section>
+            <div class="resizer row-resizer"></div>
+            <article id="question-current-state" class="panel bottom"></article>
+        </main>
+
+        <div class="resizer col-resizer"></div>
+
+        <main class="col">
+            <section id="answers"></section>
+        </main>
+
+        <div class="resizer col-resizer"></div>
+
+        <main class="col">
+            <section id="ranking"></section>
+        </main>
+    </main>
+
+    <script type="module" src="../auth/check-auth.ts"></script>
+    <script type="module" src="../common/resizable-containers.ts"></script>
+    <script type="module" src="./index.ts"></script>
+</body>
+
+</html>
