@@ -1,10 +1,14 @@
 {
   "rules": {
-    ".read": "auth != null && auth.uid === 'ZPqIdKqf0yZxWkZzpbzmCvBmmlt2'",
+    ".read": "auth != null && (auth.uid === 'ZPqIdKqf0yZxWkZzpbzmCvBmmlt2' || auth.uid === 'f8jR4V96qIPgu5JOvDBs9TnHVmB2')",
     ".write": "auth != null && auth.uid === 'ZPqIdKqf0yZxWkZzpbzmCvBmmlt2'",
     
     "state": {
-      ".read": true
+      ".read": true,
+      
+      "display": {
+        ".read": "auth != null && auth.uid === 'f8jR4V96qIPgu5JOvDBs9TnHVmB2'"
+      }
     },
 
     "people": {

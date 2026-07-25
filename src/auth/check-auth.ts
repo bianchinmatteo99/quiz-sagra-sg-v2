@@ -28,8 +28,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 const urlParams = new URLSearchParams(window.location.search);
                 const redirect = urlParams.get('redirect');
                 window.location.href = redirect || '/';
-            }
-            if (['/admin/', '/admin/index.html'].includes(currentPath) && user.uid != "ZPqIdKqf0yZxWkZzpbzmCvBmmlt2"){
+            } else if (['/admin/', '/admin/index.html'].includes(currentPath) && user.uid != "ZPqIdKqf0yZxWkZzpbzmCvBmmlt2"){
+                window.location.href = `/auth/login.html?redirect=${encodeURIComponent(currentPath)}`;
+            } else if (['/display/', '/display/index.html', '/presenter/', '/presenter/index.html'].includes(currentPath) && !["ZPqIdKqf0yZxWkZzpbzmCvBmmlt2", "f8jR4V96qIPgu5JOvDBs9TnHVmB2"].includes(user.uid)){
                 window.location.href = `/auth/login.html?redirect=${encodeURIComponent(currentPath)}`;
             }
         }
