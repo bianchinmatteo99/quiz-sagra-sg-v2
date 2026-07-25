@@ -13,7 +13,8 @@ export default defineConfig({
                 main: resolve(__dirname, "src/index.html"),
                 login: resolve(__dirname, "src/auth/login.html"),
                 admin: resolve(__dirname, "src/admin/index.html"),
-                display: resolve(__dirname, "src/display/index.html")
+                display: resolve(__dirname, "src/display/index.html"),
+                presenter: resolve(__dirname, "src/presenter/index.html")
             }
         }
     }
