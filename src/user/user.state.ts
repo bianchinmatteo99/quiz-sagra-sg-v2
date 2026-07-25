@@ -1,33 +1,13 @@
 import { Auth, onAuthStateChanged, signInAnonymously } from "firebase/auth"
-import { IDatabaseAdapter } from "../common/database/database.types"
+import { IDatabaseAdapter, RealtimeDatabaseRoot, PersonRecord, createMockState } from "../common/database/database.types"
 import { CancelHandle } from "../common/general.utils"
-import { QuestionState } from "../common/questions/question.base"
-import { QuizStatus } from "../common/quiz/quiz.model"
 
 /**
  * Shared application state values the user UI consumes.
  */
-type AppState = {
-    quiz: { status: QuizStatus, finalrankstate: number|null, displayRankOnIdle: boolean },
-    game?: { name: string },
-    question?: {
-        name: string,
-        state: QuestionState,
-        enableAnswers: boolean,
-        deny?: string[],
-    },
-    display?: {rankingupto?: number},
-}
+type AppState = NonNullable<RealtimeDatabaseRoot["state"]>;
 
-type PersonState = null | {
-    name: string,
-    rank?: {
-        lastpos: number,
-        lastupdate: number,
-        points: number,
-        position: number,
-    }
-}
+type PersonState = null | PersonRecord
 
 /**
  * Combined state exposed by the user-facing application.
@@ -103,7 +83,7 @@ export class UserStateHandler {
      */
     async setup() {
         if (!!this.state) throw new Error("Setup already run!");
-        this.state = { app: { quiz: { status: QuizStatus.Booting, finalrankstate: null, displayRankOnIdle: true  } }, person: null, questionresult: null, currentDecisionLeaf: "" };
+        this.state = { app: createMockState().state!, person: null, questionresult: null, currentDecisionLeaf: "" };
         this._bindingCancel.push(this.db.onValue<AppState>(UserStateHandler.APPSTATEPATH, (data) => {
             if (data !== null && data !== undefined) {
                 this.state!.app = data;

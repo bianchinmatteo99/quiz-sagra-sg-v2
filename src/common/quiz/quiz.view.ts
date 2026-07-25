@@ -1,4 +1,5 @@
-import { QuizModel, GameStatus, QuizStatus } from "./quiz.model";
+import { QuizModel } from "./quiz.model";
+import { GameStatus, QuizStatus } from "./quiz.types";
 import { toHtml } from "../general.utils";
 
 /**

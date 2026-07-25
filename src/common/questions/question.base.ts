@@ -23,6 +23,7 @@
 import { IDatabaseAdapter } from "../database/database.types";
 import { BaseModel, BaseModelContext, delay, toHtml } from "../general.utils";
 import { Person } from "../people/people.model";
+import { QuestionState } from "./question.types";
 import { Timer } from "./timer";
 
 
@@ -45,18 +46,6 @@ export type QuestionResult = Map<string, boolean>;
  * Map of participant ids to submitted answers with timestamps.
  */
 export type QuestionAnswers = Map<string, { time: Date, answer: string }>;
-
-/**
- * State machine values for a running question.
- */
-export enum QuestionState {
-    SETUP,
-    ASKING,
-    EVALUATING,
-    IDLE,
-    SHOWRESULTS,
-    ENDED,
-}
 
 export abstract class QuestionModel extends BaseModel {
     /**

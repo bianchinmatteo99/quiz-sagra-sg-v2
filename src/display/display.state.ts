@@ -1,7 +1,7 @@
 import { IDatabaseAdapter } from "../common/database/database.types"
 import { CancelHandle } from "../common/general.utils"
-import { QuestionState } from "../common/questions/question.base"
-import { QuizStatus } from "../common/quiz/quiz.model"
+import { QuestionState } from "../common/questions/question.types"
+import { QuizStatus } from "../common/quiz/quiz.types"
 
 /**
  * Snapshot of the quiz application state exposed to the display layer.

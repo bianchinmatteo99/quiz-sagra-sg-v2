@@ -1,6 +1,6 @@
-import { QuestionState } from "../common/questions/question.base";
+import { QuestionState } from "../common/questions/question.types";
 import { instantiatePageProviderForQuestion } from "../common/questions/questions.register";
-import { QuizStatus } from "../common/quiz/quiz.model";
+import { QuizStatus } from "../common/quiz/quiz.types";
 import { IdleStatusPage, LoginPage, RankingUserPage } from "./user.views";
 import { Page } from "../common/navigation/pages";
 import { UserStateHandler } from "./user.state";

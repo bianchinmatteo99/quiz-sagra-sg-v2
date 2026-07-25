@@ -1,18 +1,6 @@
 import { BaseModel, BaseModelContext } from "../general.utils";
 import { QuizDefinition } from "./quiz.definition";
-
-/**
- * Represents the lifecycle state of the quiz as a whole.
- */
-enum QuizStatus {
-    Booting, // Loading quiz definition and setting up the database
-    AwaitingStart, // Waiting for the host to start the quiz
-    OnBoarding, // Players are joining and setting up their profiles
-    RunningGame, // A game is currently running
-    Idle, // No game is running, but the quiz is active (e.g. between games)
-    FinalRanking,
-    Ended, // The quiz has ended
-}
+import { GameStatus, QuizStatus } from "./quiz.types";
 
 /**
  * Marker interface for quiz model context data.
@@ -21,15 +9,6 @@ enum QuizStatus {
 interface QuizModelContext extends BaseModelContext {
 }
 
-/**
- * Represents the status of an individual game within the quiz.
- */
-enum GameStatus {
-    NotStarted,
-    InProgress,
-    Completed,
-}
-    
 /**
  * Maintains the current quiz state and exposes serialization helpers.
  */
@@ -97,5 +76,5 @@ class QuizModel extends BaseModel {
     }
 }
 
-export { QuizModel, QuizStatus, GameStatus };
+export { QuizModel };
 export type { QuizModelContext };

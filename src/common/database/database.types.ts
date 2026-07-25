@@ -1,9 +1,103 @@
 import { CancelHandle } from "../general.utils";
+import { QuestionState } from "../questions/question.types";
+import { GameStatus, QuizStatus } from "../quiz/quiz.types";
+
+/**
+ * Shared shape used by the quiz app's Firebase Realtime Database.
+ *
+ * The schema is intentionally modeled as a single root object for the
+ * general application state, while omitting game-specific and question-specific
+ * payloads that are stored under the shared state and results branches.
+ */
+export type PersonRecord = {
+    id?: string;
+    name: string;
+    rank?: {
+        points: number;
+        lastupdate: number;
+        position: number;
+        lastpos: number;
+    };
+};
+
+export interface RealtimeDatabaseRoot {
+    /** Quiz definition persisted at /definition. */
+    definition?: {
+        title: string;
+        games: unknown[];
+    };
+
+    /** General application state persisted at /state. */
+    state?: {
+        /** Shared quiz lifecycle state at /state/quiz. */
+        quiz: {
+            status: QuizStatus;
+            currentGame: number | null;
+            gamesStatuses: GameStatus[];
+            finalrankstate: number | null;
+            displayRankOnIdle: boolean;
+        };
+
+        /** General runtime game state at /state/game. */
+        game?: {
+            name: string;
+        };
+
+        /** General runtime question state at /state/question. */
+        question?: {
+            name: string;
+            state: QuestionState;
+            deny?: string[];
+            enableAnswers?: boolean;
+            enableManualEvaluation?: boolean;
+        };
+
+        /** Shared countdown end timestamp at /state/timerend. */
+        timerend?: number | null;
+
+        /** Presentation-only state at /state/display. */
+        display?: {
+            rankingupto?: number | null;
+        };
+    };
+
+    /** Participant onboarding and ranking data at /people. */
+    people?: {
+        allowOnboarding: boolean;
+        list?: Record<string, PersonRecord>;
+    };
+
+    /** Question answers and evaluation results at /results. */
+    results?: {
+        answers?: Record<string, {
+            time: string;
+            answer: string;
+        }>;
+        evaluation?: Record<string, boolean>;
+    };
+
+    /** Optional secret storage at /secrets. */
+    secrets?: Record<string, unknown>;
+}
 
 /**
  * Abstract database contract used to decouple application logic from
  * specific database implementations.
  */
+export function createMockState(): RealtimeDatabaseRoot {
+    return {
+        state: {
+            quiz: {
+                status: QuizStatus.Booting,
+                currentGame: null,
+                gamesStatuses: [],
+                finalrankstate: null,
+                displayRankOnIdle: true,
+            }
+        },
+    };
+}
+
 export interface IDatabaseAdapter {
     /**
      * Reads a value from the database at the given path.
@@ -40,3 +134,4 @@ export interface IDatabaseAdapter {
      */
     remove(path: string): Promise<void>;
 }
+
