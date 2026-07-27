@@ -9,7 +9,7 @@ Top-level keys and purpose
 
     {
       "title": "My Quiz",
-      "games": [ { "name": "catena", "...": "..." }, ... ]
+      "games": [ { "kind": "catena", "name": "Reazione a catena", "...": "..." }, ... ]
     }
 
 - `/state` — ephemeral application state used to coordinate displays and the quiz lifecycle. Subkeys usually written/read by various models' `DBPATH` values.
@@ -67,15 +67,25 @@ Other conventions
 
 Security and rules (current)
 - The repository's `database.rules.json` now enforces the following rules:
-  - Root `.read` and `.write` are restricted to a single hardcoded admin UID: `ZPqIdKqf0yZxWkZzpbzmCvBmmlt2`.
+  - Root `.read` requires authentication and is restricted to two hardcoded UIDs:
+    - admin: `ZPqIdKqf0yZxWkZzpbzmCvBmmlt2`
+    - display/presenter account: `f8jR4V96qIPgu5JOvDBs9TnHVmB2`
+  - Root `.write` requires authentication and is restricted to the admin UID `ZPqIdKqf0yZxWkZzpbzmCvBmmlt2`.
   - `/state` is publicly readable (`.read: true`). This allows displays and participant clients to observe quiz/app state.
+  - `/state/display` has an explicit stricter rule that only allows reads to UID `f8jR4V96qIPgu5JOvDBs9TnHVmB2`.
   - `/people/list/$uid` is readable only by the authenticated user with id equal to `$uid`. Writing the `name` field under that path is allowed only to the same `$uid`.
   - `/results/answers/$uid` may be written only by the authenticated user matching `$uid` (participants write their own answers).
   - `/results/evaluation/$uid` is readable only by the authenticated user matching `$uid` (individual evaluation visibility).
 
 Notes and implications
-- The admin UID is hardcoded in the rules file — TODO committing production admin UIDs or rotate to a more robust role-based rule (e.g. check `auth.token.admin == true`).
+- Admin and privileged display/presenter UIDs are hardcoded in the rules file.
 - Because `/state` is readable by anyone, presentation clients can render quizzes without additional auth, but control actions remain restricted to the admin UID.
+
+Auth guard alignment
+- `src/auth/check-auth.ts` enforces page-level access in the browser:
+  - admin pages: admin UID only,
+  - display and presenter pages: admin UID or display/presenter UID,
+  - public pages (`/`, `/index.html`, `/auth/login.html`) stay accessible.
 
 Emulator
 - `src/firebase-init.ts` supports emulator mode when `VITE_USE_FIREBASE_EMULATOR=true` (connects to local auth and database emulators). See [src/firebase-init.ts](src/firebase-init.ts#L1-L40).

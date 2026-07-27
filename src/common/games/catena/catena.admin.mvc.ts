@@ -1,5 +1,5 @@
 import { Secret, delay } from "../../general.utils";
-import { CatenaGameStateSnapshot, CatenaState } from "./catena.contracts";
+import { CatenaGameStateSnapshot, CatenaState, decodeCatenaGameStateSnapshot } from "./catena.contracts";
 import { CatenaGameDefinition } from "./catena.admin.definition";
 import {
     GameController,
@@ -13,11 +13,12 @@ import {
 /**
  * Runtime state container for a Catena game session.
  *
- * Tracks the active word index, how many letters are revealed, the current deny
- * list for retries, and the basic screen state.
+ * Persists state under the shared game state path inherited from GameModel and
+ * exposes helpers to read words in clear or secret-aware form for rendering.
  */
 export class CatenaGameModel extends GameModel {
 
+    /** Immutable definition payload used to configure this session. */
     definition: CatenaGameDefinition;
 
     /** Index of the currently active chain word. */
@@ -31,6 +32,13 @@ export class CatenaGameModel extends GameModel {
     /** Current game screen state. */
     state: CatenaState;
 
+    /**
+     * Create a Catena runtime model.
+     *
+     * @param ctx Model context providing persistence and update notifications.
+     * @param def Parsed Catena game definition.
+     * @param restoreState When true, starts best-effort state restoration from storage.
+     */
     constructor(ctx: GameModelContext, def: CatenaGameDefinition, restoreState: boolean = false) {
         super(ctx);
         this.definition = def;
@@ -46,6 +54,8 @@ export class CatenaGameModel extends GameModel {
 
     /**
      * Return the word at the given index, or null when the index is out of bounds.
+     * @param i Zero-based word index in the configured chain.
+     * @returns The configured word at index i, or null when missing.
      */
     getWord(i: number): string|null {
         if(i in this.definition.data.words){
@@ -59,6 +69,8 @@ export class CatenaGameModel extends GameModel {
      *
      * Past words are fully revealed, the active word shows only revealed letters,
      * and future words remain hidden.
+     * @param i Zero-based word index in the chain.
+     * @returns A secret-aware wrapper for the word, or null for invalid indexes.
      */
     getWordAsSecret(i: number): Secret<string>|null{
         const w = this.getWord(i);
@@ -75,6 +87,7 @@ export class CatenaGameModel extends GameModel {
     }
     /**
      * Return the currently active word, or null when no word is selected.
+     * @returns The active chain word for currentWordIndex.
      */
     getCurrentWord(): string|null {
         return this.getWord(this.currentWordIndex);
@@ -83,21 +96,30 @@ export class CatenaGameModel extends GameModel {
     /**
      * Restore persisted Catena state from JSON.
      *
-     * Only the current word index is restored here for resume support.
-     * @returns `true` on success, `false` on parse error.
+     * Payload validation is delegated to decodeCatenaGameStateSnapshot.
+        * Only runtime fields are restored; definition data stays bound to the
+        * constructor input.
+        * @param data Raw snapshot loaded from persistent storage.
+     * @returns `true` on success, `false` on decode error.
      */
     parseFromJSON(data: any): boolean {
-        // Parse quiz definition from JSON data
-        try {
-            this.currentWordIndex = data.currentWordIndex ?? 0;
-            this.currentWordLetters = data.currentWordLetters ?? 0;
-            return true;
-        } catch (error) {
-            console.error("Error parsing game from JSON:", error);
+        const snapshot = decodeCatenaGameStateSnapshot(data);
+        if (!snapshot) {
             return false;
         }
+
+        this.state = snapshot.state;
+        this.currentWordIndex = snapshot.currentWordIndex;
+        this.currentWordLetters = snapshot.currentWordLetters;
+        return true;
     }
 
+    /**
+     * Serialize the current game state into a Catena snapshot.
+     *
+     * The words array is emitted through secret-aware reads so unrevealed or
+     * future words are masked according to current reveal progress.
+     */
     toJSON(): CatenaGameStateSnapshot {
         return {
             kind: this.definition.kind,
@@ -120,6 +142,7 @@ export class CatenaGameModel extends GameModel {
  * Extends the generic view context with access to the Catena model.
  */
 export interface CatenaGameViewContext extends GameViewContext {
+    /** Live Catena model used by the active view. */
     model: CatenaGameModel;
 }
 
@@ -131,12 +154,17 @@ export interface CatenaGameViewContext extends GameViewContext {
  */
 export class CatenaGameView extends GameView {
 
+    /** Active controller-backed context; null when rendering static timeline mode. */
     activeGameContext: CatenaGameViewContext | null;
+    /** Definition used to render timeline labels and state metadata. */
     gameDef: CatenaGameDefinition
     /**
      * Create a Catena view for an active controller or static timeline.
      *
      * If a context is provided, the definition is derived from the model.
+     * @param ctx Active view context from a running controller.
+     * @param gameDef Definition for static timeline rendering when no context exists.
+     * @throws Error When neither ctx nor gameDef is provided.
      */
     constructor(ctx: CatenaGameViewContext | null = null, gameDef: CatenaGameDefinition | null = null) {
         super();
@@ -152,6 +180,10 @@ export class CatenaGameView extends GameView {
 
     /**
      * Build the Catena timeline steps used by the game preview and progress.
+        *
+        * Word steps are provided as secret-aware label factories so the base view
+        * can decide whether to reveal or mask content.
+        * @returns Ordered timeline entries from cover to conclusion.
      */
     getSteps(): (string | ((s: boolean) => string))[] {
         return [
@@ -161,6 +193,11 @@ export class CatenaGameView extends GameView {
     }
     /**
      * Compute the currently active timeline step for an active game.
+        *
+        * Step mapping:
+        * - 0 for cover display
+        * - currentWordIndex + 1 for chain progression
+        * @returns Timeline index, or null when no active context is attached.
      */
     getCurrentStep(): number | null {
         if (!this.activeGameContext) return null;
@@ -173,6 +210,11 @@ export class CatenaGameView extends GameView {
 
     /**
      * Render the current Catena game state into the provided container.
+     *
+     * This updates the container markup with current progress, points, timer,
+     * and retry-exclusion info. Sensitive values are masked when secret display
+     * is disabled.
+     * @param container Target element that receives the rendered state markup.
      */
     renderCurrentState(container: HTMLElement): void {
         if (!this.activeGameContext) return;
@@ -206,6 +248,13 @@ export class CatenaGameController extends GameController implements CatenaGameVi
     model: CatenaGameModel;
     view: CatenaGameView;
 
+    /**
+     * Create a Catena controller with its model and view.
+     *
+     * @param ctx Controller context provided by the game manager.
+     * @param def Parsed Catena definition for this run.
+     * @param restoreState When true, model restoration is attempted from storage.
+     */
     constructor(ctx: GameControllerContext, def: CatenaGameDefinition, restoreState: boolean = false){
         super(ctx);
         this.model = new CatenaGameModel(this, def, restoreState);
@@ -217,7 +266,8 @@ export class CatenaGameController extends GameController implements CatenaGameVi
      * Advance to the next word in the chain.
      *
      * Resets the letter reveal count for the newly active word.
-     * @returns `true` when another word exists, otherwise `false`.
+        * Persists and re-renders through stateUpdated when successful.
+        * @returns `true` when another word exists, otherwise `false`.
      */
     nextWord() : boolean{
         const next = this.model.currentWordIndex+1;
@@ -237,7 +287,7 @@ export class CatenaGameController extends GameController implements CatenaGameVi
      *
      * The game remains on the current word.
      * @param transitionT Delay in milliseconds after each state update.
-     * @returns `true` when more letters remain to be revealed.
+        * @returns `true` when more letters remain to be revealed after this call.
      */
     async nextLetter(transitionT: number = 0): Promise<boolean>{
         this.model.wordtransitiontime = transitionT;
@@ -254,6 +304,7 @@ export class CatenaGameController extends GameController implements CatenaGameVi
      * Mark the current word as fully revealed and optionally wait for a transition.
      *
      * Used when the answer is correct or the round is advanced manually.
+        * @param transitionT Delay in milliseconds applied after persisting state.
      */
     async completeWord(transitionT : number = 0): Promise<void>{
         this.model.wordtransitiontime = transitionT;
@@ -265,6 +316,8 @@ export class CatenaGameController extends GameController implements CatenaGameVi
 
     /**
      * Set and persist the current Catena screen state.
+     *
+     * Triggers stateUpdated, which saves model data and refreshes the view.
      * @param s New game state.
      */
     setState(s:CatenaState){

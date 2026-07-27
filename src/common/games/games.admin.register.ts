@@ -6,11 +6,14 @@ import { AnyGameDefinition, GameDefinitionBuilder, GameManager, GameManagerConte
 import { GameDefinitionData } from "./games.contracts";
 
 /**
- * Registry of game definition builders keyed by the game type name.
+ * Registry of game definition builders keyed by game kind.
  *
- * Each registered builder is responsible for parsing the game definition
- * from Markdown or JSON during quiz initialization and state restoration.
- * The key must match the game `kind` returned by the concrete definition.
+ * `QuizDefinitionBuilder` resolves each game section/header kind and uses this
+ * map to parse either Markdown (`parseFromMD`) or persisted JSON
+ * (`parseFromJSON`) into a concrete `GameDefinitionData` payload.
+ *
+ * Keys must match the `kind` discriminator used by runtime definitions and
+ * snapshots, otherwise parsing fails with an unknown-game error.
  */
 export const gamesDefBuilders: { [key: string]: GameDefinitionBuilder<GameDefinitionData>; } = {
     "catena": new CatenaGameDefinitionBuilder(),
@@ -18,11 +21,17 @@ export const gamesDefBuilders: { [key: string]: GameDefinitionBuilder<GameDefini
 
 
 /**
- * Factory helper that creates a concrete `GameManager` for a parsed game definition.
+ * Create the concrete runtime manager for a game definition.
  *
- * This is used when the quiz starts or when the system restores a running game
- * from persisted state. The `restoreState` flag is forwarded to the manager so it
- * can decide whether to restore existing runtime state or start fresh.
+ * Called by `QuizManager.startGame()` after a game is selected from the loaded
+ * quiz definition. When `restoreState` is true, the created manager is expected
+ * to load runtime state from database-backed model paths.
+ *
+ * @param def Parsed game definition selected by the quiz flow.
+ * @param ctx Host context implemented by `QuizManager`.
+ * @param restoreState Whether the game should restore persisted runtime state.
+ * @returns A concrete manager for `def.kind`.
+ * @throws Error When `def.kind` has no registered runtime manager.
  */
 export function instantiateGameManagerFor(def: AnyGameDefinition, ctx: GameManagerContext, restoreState : boolean = false): GameManager{
     switch(def.kind){
@@ -35,9 +44,15 @@ export function instantiateGameManagerFor(def: AnyGameDefinition, ctx: GameManag
 }
 
 /**
- * Factory helper that creates a concrete `GameView` for a game definition.
+ * Create a concrete game view for static timeline rendering.
  *
- * This view is intended to be used in static timeline mode.
+ * Used by the admin quiz controller when previewing a game different from the
+ * currently active one. The view is created without an active controller
+ * context and is expected to render timeline/definition data only.
+ *
+ * @param def Parsed game definition to visualize.
+ * @returns A concrete view for `def.kind`.
+ * @throws Error When `def.kind` has no registered view implementation.
  */
 export function instantiateGameViewerFor(def: AnyGameDefinition): GameView{
     switch(def.kind){

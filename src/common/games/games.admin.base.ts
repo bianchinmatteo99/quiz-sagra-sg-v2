@@ -69,6 +69,14 @@ import { QuestionContext } from "../questions/question.base";
 import { RankingDiff } from "../people/people.controller";
 import { GameDefinitionData } from "./games.contracts";
 
+/**
+ * Immutable runtime wrapper for a parsed game definition payload.
+ *
+ * Instances are created during quiz-definition parsing and consumed by game
+ * registries, managers, and views.
+ *
+ * @typeParam TData Concrete game payload type identified by `kind`.
+ */
 export class GameDefinition<TData extends GameDefinitionData> {
     /** Unique index within the quiz's games list. */
     readonly id: number;
@@ -77,6 +85,14 @@ export class GameDefinition<TData extends GameDefinitionData> {
     /** Game-specific configuration payload parsed from MD/JSON. */
     readonly data: TData;
 
+    /**
+     * Create a game definition wrapper and validate its kind discriminator.
+     *
+     * @param id Zero-based position inside the quiz definition game list.
+     * @param kind Game discriminator used by registries and runtime factories.
+     * @param data Parsed game payload.
+     * @throws Error When `data.kind` does not match `kind`.
+     */
     constructor(id: number, kind: TData["kind"], data: TData) {
         if (data.kind !== kind) {
             throw new Error(`GameDefinition kind mismatch: expected ${kind}, got ${data.kind}`);
@@ -87,7 +103,8 @@ export class GameDefinition<TData extends GameDefinitionData> {
     }
 }
 
-    export type AnyGameDefinition = GameDefinition<GameDefinitionData>;
+/** Union-friendly alias for passing around parsed game definitions. */
+export type AnyGameDefinition = GameDefinition<GameDefinitionData>;
 
 /**
  * Builder interface used to instantiate a concrete game definition from
@@ -104,7 +121,7 @@ export interface GameDefinitionBuilder<TData extends GameDefinitionData> {
     * @returns Parsed game data payload
      */
     parseFromMD(md: string): TData;
-    
+
     /**
      * Parse a game definition from persisted JSON (e.g., from database).
      * @param data - Serialized definition payload
@@ -152,10 +169,11 @@ export interface GameModelContext extends BaseModelContext {
 export abstract class GameModel extends BaseModel {
     /** Database path where game state is persisted. */
     readonly DBPATH = "/state/game";
-    
-    /** The immutable game definition containing rules and configuration. */
-        abstract definition: AnyGameDefinition;
 
+    /** The immutable game definition containing rules and configuration. */
+    abstract definition: AnyGameDefinition;
+
+    /** Context used for persistence and state-update notifications. */
     context: GameModelContext;
 
     constructor(ctx: GameModelContext) {
@@ -228,41 +246,66 @@ export interface GameViewContext {
 export abstract class GameView {
     /** DOM id for the timeline container (step-by-step progression display). */
     readonly timelineContainer = "game-timeline";
-    
+
     /** DOM id for the game current-state wrapper. */
     readonly currentStateContainer = "game-current-state";
-    
+
     /** DOM id for the game current-state content (inner). */
     readonly currentStateContent = "game-current-state-content";
-    
+
     /** Whether the timeline is currently being rendered. */
     isDisplayingTimeline: boolean = false;
-    
+
     /** The active game context (usually the controller). Null if game is not running. */
     abstract activeGameContext: GameViewContext | null;
-    
-    /** The immutable game definition for rendering rules and metadata. */
-        abstract gameDef: AnyGameDefinition;
 
+    /** The immutable game definition for rendering rules and metadata. */
+    abstract gameDef: AnyGameDefinition;
+
+    /** Controls lifecycle of DOM listeners attached by this view. */
     private listenerController = new AbortController();
-    
-    constructor(){
-        /* Re-render the game view when the secret visibility checkbox changes. */
+
+    constructor() {
+        /* Re-render when secret visibility changes. */
         (document.getElementById("mostra-segreti") as HTMLInputElement).addEventListener("change", (e) => this.render(), { signal: this.listenerController.signal })
     }
 
+    /**
+     * Whether the timeline section should be rendered.
+     *
+     * Overridable by subclasses that need conditional timeline visibility.
+     */
     shouldRenderTimeline(): boolean {
         return this.isDisplayingTimeline;
     }
+
+    /**
+     * Whether the current-state section should be rendered.
+     *
+     * By default this is true only for active-game mode.
+     */
     shouldRenderCurrentState(): boolean {
         return !!this.activeGameContext;
     }
-    canDisplaySecrets(): boolean{
+
+    /**
+     * Read the admin secret-visibility toggle.
+     *
+     * @returns `true` when sensitive timeline/state data can be shown in clear.
+     */
+    canDisplaySecrets(): boolean {
         return (document.getElementById("mostra-segreti") as HTMLInputElement).checked;
     }
+
+    /**
+     * Enable or disable timeline rendering for this view.
+     *
+     * Enabling triggers an immediate render; disabling clears timeline DOM.
+     * @param bool New timeline visibility flag.
+     */
     setIsDisplayingTimeline(bool: boolean): void {
         this.isDisplayingTimeline = bool;
-        if(bool){
+        if (bool) {
             this.render();
         } else {
             this.clearTimeline();
@@ -302,17 +345,17 @@ export abstract class GameView {
         const islive = !!this.activeGameContext;
         const curr = this.getCurrentStep() ?? Infinity;
         const s = this.canDisplaySecrets();
-        const getState = (i:number) => (islive ? (i == curr ? "current" : (i < curr ? "past" : "future")) : null);
-        const steps = this.getSteps().entries().map(([i,step])=>{
-            if(typeof step == "string"){
-                return {title: step, state: getState(i)};
+        const getState = (i: number) => (islive ? (i == curr ? "current" : (i < curr ? "past" : "future")) : null);
+        const steps = this.getSteps().entries().map(([i, step]) => {
+            if (typeof step == "string") {
+                return { title: step, state: getState(i) };
             } else {
-                /* Invoke function step with secret visibility; only show obfuscated content for future steps. */
-                return {title: step(!islive || i<curr || s), state: getState(i)}
+                /* Future steps stay obfuscated unless secrets are explicitly enabled. */
+                return { title: step(!islive || i < curr || s), state: getState(i) }
             }
         }).toArray();
 
-        const stepHtmlBuilder = (step: {title: string, state: string|null}) => `
+        const stepHtmlBuilder = (step: { title: string, state: string | null }) => `
         <article class="game-steps-list-item ${step.state == "current" ? "active" : ""}">${step.title}</article>
         `;
 
@@ -326,7 +369,7 @@ export abstract class GameView {
      * @param container - DOM element to populate
      */
     abstract renderCurrentState(container: HTMLElement): void;
-    
+
     /**
      * Return the list of timeline steps for this game.
      * Steps can be static strings or functions that conditionally obfuscate based on
@@ -335,18 +378,18 @@ export abstract class GameView {
      * @returns Array where each element is either a string label or a function that
      *          receives a boolean secret-visibility flag and returns a label.
      */
-    abstract getSteps(): (string | ((s:boolean)=>string))[]; 
-    
+    abstract getSteps(): (string | ((s: boolean) => string))[];
+
     /**
      * Return the current step index (0-based) in the game progression.
      * Used by `renderTimeline()` to mark steps as past/current/future.
      * @returns Step index, or null if the game is not active or not step-based.
      */
-    abstract getCurrentStep(): number|null;
+    abstract getCurrentStep(): number | null;
 
     /** Cache for the currently-active footer prompt element. */
     private _activeFooter: HTMLElement & { safeRemove: (result: boolean | null) => void } | null = null;
-    
+
     /**
      * Render a footer with action buttons and invoke a callback when clicked.
      * Removes any previous footer before rendering the new one.
@@ -363,12 +406,12 @@ export abstract class GameView {
         const element = toHtml(`
                 <footer>
                     <div role="group">
-                        ${!!options.otherBtn ? "<button class='game-admin-interaction-other contrast'>"+options.otherBtn+"</button>" : ""}
+                        ${!!options.otherBtn ? "<button class='game-admin-interaction-other contrast'>" + options.otherBtn + "</button>" : ""}
                         <button class="game-admin-interaction-advance active">${options.advanceBtn} <span class='material-symbols-outlined'>arrow_forward</span></button>
                     </div>
                 </footer>
         `) as HTMLElement & { safeRemove: (result: boolean | null) => void };
-        
+
         /* Attach cleanup method to invoke listener and clear cached reference. */
         element.safeRemove = (result: boolean | null) => {
             if (this._activeFooter !== element) return;
@@ -382,7 +425,7 @@ export abstract class GameView {
             event.stopPropagation();
             element.safeRemove(true);
         });
-        
+
         if (!!options.otherBtn) {
             const otherButton = element.querySelector(".game-admin-interaction-other");
             otherButton?.addEventListener("click", (event) => {
@@ -390,7 +433,7 @@ export abstract class GameView {
                 element.safeRemove(false);
             });
         }
-        
+
         this._activeFooter = element;
         container?.appendChild(element);
     }
@@ -399,29 +442,29 @@ export abstract class GameView {
      * Clear the timeline DOM content.
      * Called when hiding the timeline or during cleanup.
      */
-    clearTimeline(){
+    clearTimeline() {
         (document.getElementById(this.timelineContainer) as HTMLElement).innerHTML = "";
     }
-    
+
     /**
      * Clear the current state DOM content and remove any active footer.
      * Called when hiding the current state or during cleanup.
      */
-    clearCurrentState(){
-        (document.getElementById(this.currentStateContent)as HTMLElement).innerHTML = "";
-        if(!!this._activeFooter) this._activeFooter.safeRemove(null);
+    clearCurrentState() {
+        (document.getElementById(this.currentStateContent) as HTMLElement).innerHTML = "";
+        if (!!this._activeFooter) this._activeFooter.safeRemove(null);
     }
-    
+
     /**
      * Clear all game UI elements and unsubscribe from the secret visibility toggle.
      * Called by `GameController.clearAll()` during game shutdown.
      */
-    clearViews(){
+    clearViews() {
         this.listenerController.abort();
-        if(this.shouldRenderCurrentState()){
+        if (this.shouldRenderCurrentState()) {
             this.clearCurrentState();
         }
-        if(this.shouldRenderTimeline()){
+        if (this.shouldRenderTimeline()) {
             this.clearTimeline();
         }
     }
@@ -457,18 +500,24 @@ export interface GameControllerContext {
  *
  */
 export abstract class GameController implements GameViewContext, GameModelContext {
+    /** Context provided by the manager layer. */
     context: GameControllerContext;
-    
+
     /** The persisted game state. Subclass must initialize. */
     abstract model: GameModel;
-    
+
     /** The game UI renderer. Subclass must initialize. */
     abstract view: GameView;
-    
+
     constructor(ctx: GameControllerContext) {
         this.context = ctx;
     }
 
+    /**
+     * Access the shared database adapter.
+     *
+     * Used by models to persist state and by question flow helpers.
+     */
     getDatabase(): IDatabaseAdapter {
         return this.context.getDatabase();
     }
@@ -489,12 +538,12 @@ export abstract class GameController implements GameViewContext, GameModelContex
      * Blocks until the admin clicks advance or the alternate action.
      * @param options - { advanceBtn: primary button label, otherBtn?: alternate button label }
      * @returns true if advance button clicked, false if alternate button clicked.
-     * @throws Rejects if cancelled (e.g., via footer cleanup).
+    * @throws Rejects when the prompt is cancelled (for example during cleanup).
      */
-    async adminInteraction(options: {advanceBtn: string, otherBtn?: string}): Promise<boolean>{
-        return new Promise((resolve, reject)=>{
-            this.view.renderFooterChoice(options, (action)=>{
-                if(action!==null){
+    async adminInteraction(options: { advanceBtn: string, otherBtn?: string }): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            this.view.renderFooterChoice(options, (action) => {
+                if (action !== null) {
                     resolve(action);
                 } else {
                     reject();
@@ -508,7 +557,7 @@ export abstract class GameController implements GameViewContext, GameModelContex
      * Called at game end to remove the timeline, current state, and database records.
      * Typically invoked via `GameManager.endGame()` → `GameController.clearAll()`.
      */
-    clearAll(){
+    clearAll() {
         this.view.clearViews();
         this.model.clearDatabase();
     }
@@ -522,13 +571,13 @@ export abstract class GameController implements GameViewContext, GameModelContex
 export interface GameManagerContext {
     /** Returns the database adapter for state persistence. */
     getDatabase(): IDatabaseAdapter;
-    
+
     /**
      * Update the quiz ranking with score changes for participants.
      * @param diff - Map of participant ID → point delta. Used after question results.
      */
     updateRanking(diff: RankingDiff): void;
-    
+
     /** Returns the current list of all participants. */
     getPeopleList(): Map<string, Person>;
 }
@@ -555,6 +604,7 @@ export interface GameManagerContext {
  *
  */
 export abstract class GameManager implements GameControllerContext, QuestionContext {
+    /** Host-level services exposed by `QuizManager`. */
     context: GameManagerContext;
 
     /** The game controller (owns model and view). Subclass must initialize. */
@@ -564,12 +614,17 @@ export abstract class GameManager implements GameControllerContext, QuestionCont
         this.context = ctx;
     }
 
+    /**
+     * Access the shared database adapter.
+     *
+     * Forwarded from `GameManagerContext` for controllers and questions.
+     */
     getDatabase(): IDatabaseAdapter {
         return this.context.getDatabase();
     }
-    
+
     /** Get the current participant list from the app context. */
-    getPeopleList(): Map<string, Person>{
+    getPeopleList(): Map<string, Person> {
         return this.context.getPeopleList();
     }
 
@@ -579,17 +634,25 @@ export abstract class GameManager implements GameControllerContext, QuestionCont
      * 1. Ask questions via `new Question(this, ...).ask()`
      * 2. Collect and evaluate results
      * 3. Call `this.context.updateRanking(diff)` after each round
-     * 4. Return when the game is complete
+     * 4. Return `true` when idle screen should show ranking, otherwise `false`
      */
     abstract startGame(): Promise<boolean>;
 
     /**
-     * Clear the game UI and persisted state.
-     * Called by `QuizManager` after `startGame()` completes.
-     * Invokes `GameController.clearAll()` to cleanup.
+     * Finalize a game session with an admin choice and cleanup.
+     *
+     * Concrete managers typically call this at the end of `startGame()`.
+     * The resolved boolean is propagated to `QuizManager` to decide whether
+     * the idle quiz screen should show ranking.
+     *
+     * Side effects:
+     * - Renders a footer prompt through the active game controller.
+     * - Clears game UI and removes `/state/game` persisted data.
+     *
+     * @returns `true` if admin selected "Mostra classifica", otherwise `false`.
      */
-    async endGame(): Promise<boolean>{
-        const ret = await this.controller.adminInteraction({advanceBtn: "Mostra classifica", otherBtn: "Passa a un altro gioco"});
+    async endGame(): Promise<boolean> {
+        const ret = await this.controller.adminInteraction({ advanceBtn: "Mostra classifica", otherBtn: "Passa a un altro gioco" });
         this.controller.clearAll();
         return ret;
     }

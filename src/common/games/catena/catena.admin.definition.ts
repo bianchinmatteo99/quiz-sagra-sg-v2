@@ -1,18 +1,38 @@
 import { GameDefinition, GameDefinitionBuilder } from "../games.admin.base";
 import { CatenaGameDefinitionData } from "./catena.contracts";
 
+/**
+ * Runtime wrapper type for a parsed Catena game definition entry.
+ *
+ * The wrapper is created by the quiz definition parser after this builder
+ * returns a {@link CatenaGameDefinitionData} payload.
+ */
 export type CatenaGameDefinition = GameDefinition<CatenaGameDefinitionData>;
 
 /**
- * Builder for Catena game definitions.
+ * Parses and normalizes Catena game configuration data.
  *
- * Parses game sections from markdown and restores persisted definition JSON.
+ * This builder is registered under the `catena` key in the game-definition
+ * registry and is used by quiz loading flows for both Markdown and persisted
+ * JSON sources.
  */
 export class CatenaGameDefinitionBuilder implements GameDefinitionBuilder<CatenaGameDefinitionData> {
     /**
-     * Parse a Catena game definition from markdown content.
+     * Parse a Catena game definition from one Markdown game section.
      *
-     * Expects a title line `## catena` followed by configuration keys and a word list.
+     * Expected section format:
+     * - first non-empty line is a level-2 heading (`## Catena`, case-insensitive),
+     * - optional scalar keys (`title`, `time_for_answer`,
+     *   `can_retry_for_same_word`, `points_for_correct_answer`),
+     * - `words:` followed by list items (`- value`).
+     *
+     * Blank lines are ignored. Unknown lines stop list parsing until a new
+     * recognized key appears.
+     *
+     * @param md Markdown text for a single Catena section.
+     * @returns Normalized Catena definition payload with enforced `kind`/`name`
+     * and default values when optional keys are missing.
+     * @throws Error When the section heading is not `catena`.
      */
     parseFromMD(md: string): CatenaGameDefinitionData {
         const lines = md.split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
@@ -65,7 +85,18 @@ export class CatenaGameDefinitionBuilder implements GameDefinitionBuilder<Catena
     }
 
     /**
-     * Restore a Catena definition from stored JSON data.
+     * Restore a Catena game definition from persisted JSON-like data.
+     *
+     * The parser applies defensive coercions used by the quiz-definition
+     * restoration flow:
+     * - numeric fields are converted with `Number`,
+     * - `canRetryForSameWord` is true only for strict boolean `true`,
+     * - `words` is normalized to an array of strings,
+     * - `title` is included only when it is a non-empty string.
+     *
+     * @param data Raw stored payload from `/definition/games`.
+     * @returns Normalized Catena definition payload with enforced `kind`/`name`
+     * and fallback defaults for missing fields.
      */
     parseFromJSON(data: any): CatenaGameDefinitionData {
         return {

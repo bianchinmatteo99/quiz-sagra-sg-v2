@@ -2,8 +2,21 @@ import { Page, StaticPage } from "../../navigation/pages";
 import { GamePageChooser } from "../games.display.base";
 import { CatenaGameStateSnapshot, CatenaState } from "./catena.contracts";
 
+/**
+ * Display-side page chooser for Catena snapshots.
+ *
+ * Reuses a single chain page instance for incremental updates while returning
+ * a dedicated cover page during the opening states.
+ */
 export class CatenaGamePageChooser extends GamePageChooser<CatenaGameStateSnapshot> {
+    /** Reused chain page to preserve rendered state and animate deltas. */
     catena = new CatenaPage()
+
+    /**
+     * Select the display page for the current Catena snapshot.
+     * @param state Current game snapshot from display state.
+     * @returns Cover page during startup/cover states, otherwise the chain page.
+     */
     decide(state: CatenaGameStateSnapshot): Page {
         if(state.state==CatenaState.STARTING || state.state==CatenaState.DISPLAYCOVER){
             return new CoverPage()
@@ -14,10 +27,18 @@ export class CatenaGamePageChooser extends GamePageChooser<CatenaGameStateSnapsh
     }
 }
 
+/**
+ * Static Catena cover shown before the chain is revealed.
+ */
 class CoverPage extends StaticPage{
+    /** Single-column layout used by the display container. */
     templateColumnWidth = "1fr"
+
+    /**
+     * Render title and themed image for the Catena opening screen.
+     */
     render(): void {
-        if(!this.container) throw new Error("Render called before create"); // <div style="height: 100%; display: flex;justify-content: flex-end;align-items: center;flex-direction:column;">
+        if(!this.container) throw new Error("Render called before create");
         this.container.innerHTML = `
                 <h2>REAZIONE A CATENA</h2>
                 <img src="/img/domino.jpg" style="height:50%;"/>
@@ -31,9 +52,22 @@ class CoverPage extends StaticPage{
     }
 }
 
+/**
+ * Static page that renders the Catena chain words and reveal animations.
+ *
+ * The page receives masked/unmasked word strings from snapshots and updates only
+ * changed letters to keep transitions smooth on the display surface.
+ */
 class CatenaPage extends StaticPage{
+    /** Preferred fixed content width for the chain column. */
     templateColumnWidth = "600px"
+    /** Last rendered snapshot words used for incremental diff updates. */
     pastwords : string[]|null = null
+
+    /**
+     * Render the full chain using the most recent words snapshot.
+     * @throws Error When called before create or before any words are available.
+     */
     render(): void {
         if(!this.container) throw new Error("Render called before create");
         if(!this.pastwords) throw new Error("Nothing to render");
@@ -74,6 +108,16 @@ class CatenaPage extends StaticPage{
             }
         `;
     }
+
+    /**
+     * Apply snapshot updates to the rendered chain.
+     *
+     * When the container already exists, only appended letters for changed words
+     * are inserted and animated. Before first render, words are cached until the
+     * page is mounted.
+     *
+     * @param words Latest snapshot words array from Catena state.
+     */
     update(words: string[]){
         if(!this.container){
             this.pastwords = words;
@@ -97,6 +141,15 @@ class CatenaPage extends StaticPage{
             this.startAnimation(mode>1 ? 5000 : 1000)
         }
     }
+
+    /**
+     * Animate newly inserted letters from random glyphs to final characters.
+     *
+     * A longer duration is used when a full word is completed, while shorter
+     * duration is used for per-letter reveal progression.
+     *
+     * @param duration Animation duration in milliseconds.
+     */
     startAnimation(duration : number){
         const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         const targets = this.container!.querySelectorAll<HTMLElement>(".letter.animate")

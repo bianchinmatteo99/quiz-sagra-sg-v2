@@ -1,6 +1,16 @@
 import { CatenaGamePageChooser } from "./catena/catena.display.view";
 import { GamePageChooser } from "./games.display.base";
 
+/**
+ * Create the display-side page chooser registered for a game kind.
+ *
+ * This registry is used by `GamesPageChooserDelegator` to lazily instantiate
+ * the chooser that converts live game snapshots into concrete display pages.
+ *
+ * @param kind Game discriminator read from display state.
+ * @returns Concrete chooser able to render the requested game kind.
+ * @throws Error When no chooser is registered for `kind`.
+ */
 export function instantiatePageChooserForGame(kind: string): GamePageChooser<any> {
     switch (kind) {
         case "catena":

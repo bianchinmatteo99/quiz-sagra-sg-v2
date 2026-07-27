@@ -2,6 +2,8 @@
 
 This document describes the markdown format used by the quiz loader in [src/common/quiz/quiz.definition.ts](src/common/quiz/quiz.definition.ts) and the concrete game parsers registered in [src/common/games/games.admin.register.ts](src/common/games/games.admin.register.ts).
 
+For game module conventions, file layout, and registration workflow, see [src/common/games/README.md](src/common/games/README.md).
+
 The admin boot flow reads the quiz definition from [public/quiz_def.md](public/quiz_def.md) (served by the dev server at `/quiz_def.md`) or from the database when a saved definition exists, parses it into a quiz object, and then uses the parsed game definitions to start the quiz. The admin entrypoint calls the loader with the path `/quiz_def.md` by default.
 
 ## Parsing flow
@@ -71,3 +73,4 @@ Supported keys:
 - Unknown keys are ignored by the current builders.
 - The section order is preserved and becomes the game order in the quiz.
 - The same format can also be restored from the database JSON representation of the quiz definition, where each game object includes a `name` field and its serialized settings.
+- When adding a new game kind, keep this file focused on markdown authoring format and update game implementation details in [src/common/games/README.md](src/common/games/README.md).

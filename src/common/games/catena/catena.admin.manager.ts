@@ -6,16 +6,24 @@ import { CatenaGameDefinition } from "./catena.admin.definition";
 import { CatenaGameController } from "./catena.admin.mvc";
 
 /**
- * Manager that orchestrates the Catena gameplay loop.
+ * Runtime orchestrator for a Catena game session.
  *
- * Advances through the chain word by word, reveals letters progressively,
- * asks for text input, and awards points for correct answers.
+ * Coordinates controller state transitions, question lifecycle, and ranking
+ * updates while the game progresses through its configured word chain.
  */
 export class CatenaGameManager extends GameManager {
+    /** Controller owning Catena model state and admin-facing rendering. */
     controller: CatenaGameController;
     /** The currently active question while the game waits for player input. */
     currentQ: Question | null = null;
 
+    /**
+     * Create a Catena manager bound to host-level game context.
+     *
+     * @param ctx Manager context provided by the quiz runtime.
+     * @param def Parsed Catena game definition for this session.
+     * @param restoreState When true, controller/model attempt state restoration.
+     */
     constructor(ctx: GameManagerContext, def: CatenaGameDefinition, restoreState: boolean = false) {
         super(ctx);
         this.controller = new CatenaGameController(this, def, restoreState);
@@ -24,9 +32,20 @@ export class CatenaGameManager extends GameManager {
     /**
      * Execute the Catena game flow.
      *
-     * Shows the cover and chain screens, then for each word reveals letters one
-     * at a time while asking players for answers. Correct responses complete the
-     * word and award points; incorrect answers may be denied for retries.
+    * Flow summary:
+    * - show cover and chain intro states,
+    * - for each progressed word, reveal letters and ask a text-input question,
+    * - complete words on correct answers (or admin override),
+    * - update rankings for correct responders,
+    * - optionally deny retries for incorrect responders on the same word.
+    *
+    * Side effects:
+    * - updates and persists game state through controller transitions,
+    * - creates and clears question UI/state for each ask cycle,
+    * - writes ranking deltas through the host context.
+    *
+    * @returns Result of {@link GameManager.endGame}, used by quiz flow to decide
+    * idle-screen behavior (for example showing ranking).
      */
     async startGame(): Promise<boolean> {
         // Show the cover screen first and wait for admin to advance.
@@ -49,7 +68,7 @@ export class CatenaGameManager extends GameManager {
                 this.controller.setState(CatenaState.ASKINGQUESTION);
                 this.currentQ = new TextInputQuestion(this, { auto: w!, manual: true }, { timer: this.controller.model.definition.data.timeForAnswer }, this.controller.model.currentDenyList);
 
-                // Ask the question and provide a hook to run just before showing results.
+                // Ask the question and run post-evaluation logic before results are shown.
                 const res = await this.currentQ.ask({
                     beforeShowResults: async (res) => {
                         // Collect IDs of players who answered correctly.
@@ -64,7 +83,7 @@ export class CatenaGameManager extends GameManager {
                             }, 1000);
                         }
 
-                        // Keep showing results for a short fixed duration.
+                        // Keep the results screen visible for a fixed duration.
                         return 5000;
                     }
                 });
@@ -88,7 +107,7 @@ export class CatenaGameManager extends GameManager {
                     }
                 }
 
-                // Clear and discard the question instance before moving on.
+                // Always clear question resources before moving to the next cycle.
                 this.currentQ.clear();
                 this.currentQ = null;
             }

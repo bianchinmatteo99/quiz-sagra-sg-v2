@@ -4,24 +4,24 @@
 
 ## Overview
 
-- **What it is:** a serverless web app implementing realtime quizzes using Firebase Realtime Database as the single communication channel.
+- **What it is:** a serverless web app implementing realtime quizzes with Firebase Realtime Database as the shared state channel.
 - **Frontends:**
-  - **User:** mobile frontend for participants ([src/index.html](src/index.html#L1))
-  - **Admin:** controller for the quiz host ([src/admin/index.html](src/admin/index.html#L1))
-  - **(TODO) Display:** presentation for audience screens ([src/display/index.html](src/display/index.html#L1))
-  - **(TODO) Presenter:** planned presenter-facing UI
+  - **User:** participant interface ([src/index.html](src/index.html#L1))
+  - **Admin:** quiz host controls ([src/admin/index.html](src/admin/index.html#L1))
+  - **Display:** audience screen ([src/display/index.html](src/display/index.html#L1))
+  - **Presenter:** monitoring panel for live state and answers ([src/presenter/index.html](src/presenter/index.html#L1))
 
 ## Design principles
 
-- **Single source of truth:** state is stored in Firebase; admin publishes changes, other endpoints react.
-- **Modular:** logic is split into `people`, `quiz`, `games`, and `questions` so new games/questions are easy to add.
-- **Extendable UI:** questions are decoupled from games — UI components are pluggable providers.
+- **Single source of truth:** quiz state is stored in Firebase; admin writes transitions and other clients react through listeners.
+- **Modular core:** shared logic is split into `people`, `quiz`, `games`, `questions`, and `database` modules.
+- **Pluggable game surfaces:** admin, display, and presenter behaviors are selected by game kind via registries.
 
 ## Quick start (development)
 
 ### Prerequisites
 
-- Node.js 16+
+- Node.js LTS
 - npm or yarn
 
 ### Install dependencies
@@ -60,17 +60,25 @@ npm run dev
 ## Project layout (key folders)
 
 - **src/** — main app sources
-  - **admin/** — admin UI bootstrap and layout
-  - **display/** — public display UI
-  - **auth/** — login and auth helpers
-  - **common/** — shared code: `database`, `quiz`, `games`, `questions`, `people`, and utilities
-  - **user/** — participant UI code and state handling
+  - **admin/** — admin bootstrap and host flow start
+  - **display/** — audience display bootstrap
+  - **presenter/** — presenter monitor bootstrap
+  - **auth/** — login and auth guard scripts
+  - **common/** — shared modules (`database`, `quiz`, `games`, `questions`, `people`, navigation, utilities)
+  - **user/** — participant state and views
 - **public/** — static assets and `quiz_def.md` (quiz definition)
 - **database.rules.json** — current Realtime DB rules (development)
 
+## Documentation map
+
+- [ARCHITECTURE.md](ARCHITECTURE.md): system structure and runtime flow.
+- [FIREBASEDB.md](FIREBASEDB.md): database paths, payload shapes, and rule implications.
+- [QUIZDEF.md](QUIZDEF.md): markdown quiz-definition format loaded from `public/quiz_def.md`.
+- [src/common/games/README.md](src/common/games/README.md): game module conventions and registration workflow.
+
 ## Important files
 
-- [src/firebase-init.ts](src/firebase-init.ts#L1-L40): Firebase initialization and emulator wiring.
-- [src/common/database/firebase.adapter.ts](src/common/database/firebase.adapter.ts#L1-L120): thin adapter used across the app.
-- [src/common/quiz/quiz.manager.ts](src/common/quiz/quiz.manager.ts#L1-L200): central coordinator for quiz, people and games.
+- [src/firebase-init.ts](src/firebase-init.ts#L1-L80): Firebase initialization and emulator wiring.
+- [src/common/database/firebase.adapter.ts](src/common/database/firebase.adapter.ts#L1-L140): database adapter used by models/controllers.
+- [src/common/quiz/quiz.manager.ts](src/common/quiz/quiz.manager.ts#L1-L180): admin-side quiz lifecycle coordinator.
 
