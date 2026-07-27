@@ -1,6 +1,7 @@
 import { GameView, GameViewContext } from "../game.base";
-import { ReazioneCatenaGameDefinition } from "./catena.definition";
-import { CatenaState, ReazioneCatenaGameModel } from "./catena.model";
+import { CatenaState } from "./catena.contracts";
+import { CatenaGameDefinition } from "./catena.definition";
+import { ReazioneCatenaGameModel } from "./catena.model";
 
 /**
  * View context for the Catena game.
@@ -20,13 +21,13 @@ export interface CatenaGameViewContext extends GameViewContext {
 export class ReazioneCatenaGameView extends GameView {
 
     activeGameContext: CatenaGameViewContext | null;
-    gameDef: ReazioneCatenaGameDefinition
+    gameDef: CatenaGameDefinition
     /**
      * Create a Catena view for an active controller or static timeline.
      *
      * If a context is provided, the definition is derived from the model.
      */
-    constructor(ctx: CatenaGameViewContext | null = null, gameDef: ReazioneCatenaGameDefinition | null = null) {
+    constructor(ctx: CatenaGameViewContext | null = null, gameDef: CatenaGameDefinition | null = null) {
         super();
         this.activeGameContext = ctx;
         if (!!ctx) {
@@ -44,7 +45,7 @@ export class ReazioneCatenaGameView extends GameView {
     getSteps(): (string | ((s: boolean) => string))[] {
         return [
             "Mostra titolo", 
-            ...this.gameDef.words.map(word => ((s:boolean)=>`Parola: ${s ? word : "***"}`)),
+            ...this.gameDef.data.words.map(word => ((s:boolean)=>`Parola: ${s ? word : "***"}`)),
             "Conclusione"]
     }
     /**
@@ -66,12 +67,12 @@ export class ReazioneCatenaGameView extends GameView {
         if (!this.activeGameContext) return;
         const s = this.canDisplaySecrets();
         container.innerHTML = `
-            Parola in corso: ${this.activeGameContext.model.currentWordIndex + 1} di ${this.gameDef.words.length}<br/>
+            Parola in corso: ${this.activeGameContext.model.currentWordIndex + 1} di ${this.gameDef.data.words.length}<br/>
             Lettere ${this.activeGameContext.model.currentWordLetters} di ${this.activeGameContext.model.getSecret<string>("currentwordlength", s) ?? "?"}<br/>
             Parola corretta: ${this.activeGameContext.model.getSecret<string>("currentword", s)?.toUpperCase() ?? "?"}
-            ${this.gameDef.canRetryForSameWord ? "" : ("<br/>Persone escluse: " + this.activeGameContext.model.currentDenyList.length)}<br/>
-            Punti per risposta: ${this.gameDef.pointsForCorrectAnswer}<br/>
-            Tempo per risposta: ${this.gameDef.timeForAnswer}
+            ${this.gameDef.data.canRetryForSameWord ? "" : ("<br/>Persone escluse: " + this.activeGameContext.model.currentDenyList.length)}<br/>
+            Punti per risposta: ${this.gameDef.data.pointsForCorrectAnswer}<br/>
+            Tempo per risposta: ${this.gameDef.data.timeForAnswer}
         `;
     }
 

@@ -67,31 +67,23 @@ import { BaseModel, BaseModelContext, toHtml } from "../general.utils";
 import { Person } from "../people/people.model";
 import { QuestionContext } from "../questions/question.base";
 import { RankingDiff } from "../people/people.controller";
+import { GameDefinitionData } from "./games.contracts";
 
-export abstract class GameDefinition {
-    /**
-     * Logical identifier used by builders and registration lookup.
-     * Must match the key registered in `games.register.ts`.
-     */
-    abstract readonly name: string;
-
-    /**
-     * Human-visible title shown in the quiz UI.
-     * Rendered in game selection and results displays.
-     */
-    abstract readonly displayName: string;
-
-    /**
-     * Serialize the definition to JSON for storage or transmission.
-     * Must preserve all immutable game rules and configuration.
-     */
-    abstract toJSON(): any;
-
+export class GameDefinition<TData extends GameDefinitionData> {
     /** Unique index within the quiz's games list. */
     readonly id: number;
-    
-    constructor(id: number) {
+    /** Logical identifier used by builders and registry lookup. */
+    readonly kind: TData["kind"];
+    /** Game-specific configuration payload parsed from MD/JSON. */
+    readonly data: TData;
+
+    constructor(id: number, kind: TData["kind"], data: TData) {
+        if (data.kind !== kind) {
+            throw new Error(`GameDefinition kind mismatch: expected ${kind}, got ${data.kind}`);
+        }
         this.id = id;
+        this.kind = kind;
+        this.data = data;
     }
 }
 
@@ -103,22 +95,20 @@ export abstract class GameDefinition {
  * quiz initialization to parse game rules from `public/quiz_def.md` or restore
  * from `/definition/games` in the database.
  */
-export interface GameDefinitionBuilder<T extends GameDefinition> {
+export interface GameDefinitionBuilder<TData extends GameDefinitionData> {
     /**
      * Parse a game definition from Markdown section text.
-     * @param id - Game index within the quiz's games array
      * @param md - Markdown content for this game (e.g., rules, word list, point values)
-     * @returns Parsed definition instance
+    * @returns Parsed game data payload
      */
-    parseFromMD(id: number, md: string): T;
+    parseFromMD(md: string): TData;
     
     /**
      * Parse a game definition from persisted JSON (e.g., from database).
-     * @param id - Game index within the quiz's games array
-     * @param data - Serialized definition object from `definition.toJSON()`
-     * @returns Parsed definition instance
+     * @param data - Serialized definition payload
+     * @returns Parsed game data payload
      */
-    parseFromJSON(id: number, data: any): T;
+    parseFromJSON(data: any): TData;
 }
 
 /**
@@ -166,7 +156,7 @@ export abstract class GameModel extends BaseModel {
     protected readonly SECRETSPATH = "/game";
     
     /** The immutable game definition containing rules and configuration. */
-    abstract definition: GameDefinition;
+    abstract definition: GameDefinition<GameDefinitionData>;
 
     context: GameModelContext;
 
@@ -254,7 +244,7 @@ export abstract class GameView {
     abstract activeGameContext: GameViewContext | null;
     
     /** The immutable game definition for rendering rules and metadata. */
-    abstract gameDef: GameDefinition;
+    abstract gameDef: GameDefinition<GameDefinitionData>;
 
     private listenerController = new AbortController();
     

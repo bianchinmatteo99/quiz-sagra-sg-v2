@@ -40,7 +40,9 @@ export interface RealtimeDatabaseRoot {
 
         /** General runtime game state at /state/game. */
         game?: {
+            kind: string;
             name: string;
+            title?: string;
         };
 
         /** General runtime question state at /state/question. */

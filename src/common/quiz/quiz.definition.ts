@@ -1,5 +1,6 @@
 import { IDatabaseAdapter } from "../database/database.types";
 import { GameDefinition } from "../games/game.base";
+import { GameDefinitionData } from "../games/games.contracts";
 import { gamesDefBuilders } from "../games/games.register";
 
 /**
@@ -8,9 +9,9 @@ import { gamesDefBuilders } from "../games/games.register";
 export class QuizDefinition {
     static readonly DBPATH = "/definition";
     title: string;
-    games: GameDefinition[];
+    games: GameDefinition<GameDefinitionData>[];
 
-    constructor(title: string, games: GameDefinition[]) {
+    constructor(title: string, games: GameDefinition<GameDefinitionData>[]) {
         this.title = title;
         this.games = games;
     }
@@ -34,7 +35,7 @@ export class QuizDefinition {
     toJSON(): any {
         return {
             title: this.title,
-            games: this.games.map(game => game.toJSON()),
+            games: this.games.map(game => game.data),
         };
     }
 
@@ -119,7 +120,8 @@ export class QuizDefinitionBuilder {
                 const header = sectionLines[0] || "";
                 const gameTitle = header.startsWith("## ") ? header.substring(3).trim().toLowerCase() : "";
                 if (!(gameTitle in gamesDefBuilders)) throw new Error(`Unknown game type: ${gameTitle}`);
-                return gamesDefBuilders[gameTitle].parseFromMD(id, section);
+                const gameData = gamesDefBuilders[gameTitle].parseFromMD(section);
+                return new GameDefinition(id, gameTitle, gameData);
             });
 
             return new QuizDefinition(title, games);
@@ -137,9 +139,11 @@ export class QuizDefinitionBuilder {
         try {
             const title = data.title;
             const games = (data.games || []).entries().toArray().map(([id, gameData]: [number, any]) => {
-                if (!gameData.name) throw new Error("Game data missing 'name' property");
-                if (!(gameData.name in gamesDefBuilders)) throw new Error(`Unknown game type: ${gameData.name}`);
-                return gamesDefBuilders[gameData.name as string].parseFromJSON(id, gameData);
+                const gameKind = gameData?.kind;
+                if (!gameKind || typeof gameKind !== "string") throw new Error("Game data missing 'kind' property");
+                if (!(gameKind in gamesDefBuilders)) throw new Error(`Unknown game type: ${gameKind}`);
+                const parsedData = gamesDefBuilders[gameKind].parseFromJSON(gameData);
+                return new GameDefinition(id, gameKind, parsedData);
             });
             return new QuizDefinition(title, games);
         } catch (error) {

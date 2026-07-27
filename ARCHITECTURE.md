@@ -28,6 +28,25 @@ Extension points
 - Add a new game: implement definition/manager/view under `src/common/games/` and register it in `games.register.ts`.
 - Add a new question UI/provider: implement under `src/common/questions/` and register in `questions.register.ts`.
 
+Game module dependency pattern
+- Keep game contracts in a small shared file (example: `src/common/games/catena/catena.contracts.ts`) containing:
+  - discriminant-friendly serializable types (`kind` as literal game kind),
+  - shared enums used by multiple frontends,
+  - optional decoders/type guards for reading database snapshots safely.
+- Keep admin orchestration code separate (definition, model, controller, manager, admin view). Display and presenter should not import these admin files.
+- Display and presenter modules should import only contracts (and their own base interfaces) to avoid unnecessary coupling and accidental admin-side dependencies.
+- Preserve one-way dependencies to avoid cycles:
+  - contracts -> no game admin imports,
+  - admin/display/presenter modules -> may import contracts,
+  - registry files import concrete implementations, but concrete files must not import registries.
+
+GameDefinition<T> flow
+- Each game exposes a data contract (`GameDefinitionData` specialization) and a builder that parses MD/JSON into that data shape.
+- During quiz parsing, `QuizDefinitionBuilder` resolves the section `kind`, calls the registered builder, then wraps the result into `new GameDefinition(id, kind, data)`.
+- Runtime game modules (manager/model/view/controller) depend on `GameDefinition<TGameData>` and read configuration through `definition.data`.
+- Quiz persistence writes definitions as plain data objects (`game.data`), while kind/id are reattached when rebuilding the quiz model.
+- This keeps one canonical configuration payload per game and avoids duplicated class-vs-interface definition state.
+
 Concurrency and security notes
 - The app relies on optimistic client interactions and DB listeners; time-critical coordination is handled by the host (admin).
 

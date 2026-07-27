@@ -54,8 +54,10 @@ class QuizGameStateView {
         }
         this.quizStatusValue.textContent = quizStatus;
 
-        const gameNameFromState = typeof gameState?.name === "string" ? gameState.name : null;
-        const gameView = gameNameFromState ? this.getGameView(gameNameFromState) : null;
+        const gameKindFromState = typeof gameState?.kind === "string"
+            ? gameState.kind
+            : (typeof gameState?.name === "string" ? gameState.name : null);
+        const gameView = gameKindFromState ? this.getGameView(gameKindFromState) : null;
 
         if (gameView) {
             gameView.render(this.gameSpecificContainer, gameState, this.secretToggle.checked);
@@ -72,15 +74,15 @@ class QuizGameStateView {
         this.secretToggle.addEventListener("change", listener);
     }
 
-    private getGameView(gameName: string): GamePresenterStateView | null {
-        const existingView = this.gameViews.get(gameName);
+    private getGameView(gameKind: string): GamePresenterStateView | null {
+        const existingView = this.gameViews.get(gameKind);
         if (existingView) {
             return existingView;
         }
 
         try {
-            const gameView = instantiatePresenterStateViewForGame(gameName);
-            this.gameViews.set(gameName, gameView);
+            const gameView = instantiatePresenterStateViewForGame(gameKind);
+            this.gameViews.set(gameKind, gameView);
             return gameView;
         } catch {
             return null;

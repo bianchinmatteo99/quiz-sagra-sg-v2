@@ -1,16 +1,10 @@
 import { Page, StaticPage } from "../../navigation/pages";
 import { GamePageChooser } from "../games.display.base";
-import { CatenaState } from "./catena.model";
+import { CatenaGameStateSnapshot, CatenaState } from "./catena.contracts";
 
-interface CatenaDisplayState {
-    words: string[]
-    /** Current game screen state. */
-    state: CatenaState;
-}
-
-export class CatenaGamePageChooser extends GamePageChooser<CatenaDisplayState> {
+export class CatenaGamePageChooser extends GamePageChooser<CatenaGameStateSnapshot> {
     catena = new CatenaPage()
-    decide(state: CatenaDisplayState): Page {
+    decide(state: CatenaGameStateSnapshot): Page {
         if(state.state==CatenaState.STARTING || state.state==CatenaState.DISPLAYCOVER){
             return new CoverPage()
         }

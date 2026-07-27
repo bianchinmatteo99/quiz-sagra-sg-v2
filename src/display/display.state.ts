@@ -8,7 +8,7 @@ import { QuizStatus } from "../common/quiz/quiz.types"
  */
 type AppState = {
     quiz: { status: QuizStatus, finalrankstate: number|null, displayRankOnIdle: boolean },
-    game?: { name: string },
+    game?: { kind?: string, name: string, title?: string },
     question?: {
         name: string,
         state: QuestionState,

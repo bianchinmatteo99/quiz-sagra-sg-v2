@@ -2,9 +2,9 @@ import { delay } from "../../general.utils";
 import { Question } from "../../questions/question.base";
 import { TextInputQuestion } from "../../questions/text_input/text_input.question";
 import { GameManager, GameManagerContext } from "../game.base";
+import { CatenaState } from "./catena.contracts";
+import { CatenaGameDefinition } from "./catena.definition";
 import { ReazioneCatenaGameController } from "./catena.controller";
-import { ReazioneCatenaGameDefinition } from "./catena.definition";
-import { CatenaState } from "./catena.model";
 
 
 /**
@@ -18,7 +18,7 @@ export class ReazioneCatenaGameManager extends GameManager {
     /** The currently active question while the game waits for player input. */
     currentQ: Question | null = null;
 
-    constructor(ctx: GameManagerContext, def: ReazioneCatenaGameDefinition, restoreState: boolean = false) {
+    constructor(ctx: GameManagerContext, def: CatenaGameDefinition, restoreState: boolean = false) {
         super(ctx);
         this.controller = new ReazioneCatenaGameController(this, def, restoreState);
     }
@@ -49,7 +49,7 @@ export class ReazioneCatenaGameManager extends GameManager {
             while (await this.controller.nextLetter(1000)) {
                 // Move UI to asking-question state and create a text-input question.
                 this.controller.setState(CatenaState.ASKINGQUESTION);
-                this.currentQ = new TextInputQuestion(this, { auto: w!, manual: true }, { timer: this.controller.model.definition.timeForAnswer }, this.controller.model.currentDenyList);
+                this.currentQ = new TextInputQuestion(this, { auto: w!, manual: true }, { timer: this.controller.model.definition.data.timeForAnswer }, this.controller.model.currentDenyList);
 
                 // Ask the question and provide a hook to run just before showing results.
                 const res = await this.currentQ.ask({
@@ -62,7 +62,7 @@ export class ReazioneCatenaGameManager extends GameManager {
                             await this.controller.completeWord(5000);
                             // Defer ranking update slightly so UI can show winners.
                             setTimeout(() => {
-                                this.context.updateRanking(new Map(correct.map((id) => [id, this.controller.model.definition.pointsForCorrectAnswer])));
+                                this.context.updateRanking(new Map(correct.map((id) => [id, this.controller.model.definition.data.pointsForCorrectAnswer])));
                             }, 1000);
                         }
                         
@@ -80,7 +80,7 @@ export class ReazioneCatenaGameManager extends GameManager {
                 }
 
                 // If retries are not allowed, add players who failed to the deny list.
-                if (!this.controller.model.definition.canRetryForSameWord) {
+                if (!this.controller.model.definition.data.canRetryForSameWord) {
                     for (const [id, r] of res) {
                         if (!r && !this.controller.model.currentDenyList.includes(id)) {
                             this.controller.model.currentDenyList.push(id)

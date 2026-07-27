@@ -1,17 +1,7 @@
 import { Secret } from "../../general.utils";
 import { GameModel, GameModelContext } from "../game.base";
-import { ReazioneCatenaGameDefinition } from "./catena.definition";
-
-/**
- * States used by the Catena game to control screen flow.
- */
-export enum CatenaState {
-    STARTING,
-    DISPLAYCOVER,
-    DISPLAYCHAIN,
-    ASKINGQUESTION,
-    ENDING
-}
+import { CatenaGameStateSnapshot, CatenaState } from "./catena.contracts";
+import { CatenaGameDefinition } from "./catena.definition";
 
 /**
  * Runtime state container for a Catena game session.
@@ -21,7 +11,7 @@ export enum CatenaState {
  */
 export class ReazioneCatenaGameModel extends GameModel {
 
-    definition: ReazioneCatenaGameDefinition;
+    definition: CatenaGameDefinition;
 
     /** Index of the currently active chain word. */
     currentWordIndex: number;
@@ -34,11 +24,11 @@ export class ReazioneCatenaGameModel extends GameModel {
     /** Current game screen state. */
     state: CatenaState;
 
-    constructor(ctx: GameModelContext, def: ReazioneCatenaGameDefinition, restoreState: boolean = false) {
+    constructor(ctx: GameModelContext, def: CatenaGameDefinition, restoreState: boolean = false) {
         super(ctx);
         this.definition = def;
         this.currentWordIndex = 0;
-        this.currentWordLetters = def.words[0].length;
+        this.currentWordLetters = def.data.words[0].length;
         this.wordtransitiontime = -1;
         this.state = CatenaState.STARTING;
 
@@ -51,8 +41,8 @@ export class ReazioneCatenaGameModel extends GameModel {
      * Return the word at the given index, or null when the index is out of bounds.
      */
     getWord(i: number): string|null {
-        if(i in this.definition.words){
-            return this.definition.words[i]
+        if(i in this.definition.data.words){
+            return this.definition.data.words[i]
         } else {
             return null;
         }
@@ -100,20 +90,19 @@ export class ReazioneCatenaGameModel extends GameModel {
             return false;
         }
     }
-    /**
-     * Serialize the minimal runtime state required to resume the Catena game.
-     */
-    toJSON() {
+    
+    toJSON(): CatenaGameStateSnapshot {
         return {
-            name: this.definition.name,
+            kind: this.definition.kind,
+            name: this.definition.data.name,
+            title: this.definition.data.title,
             state: this.state,
             currentWordIndex: this.currentWordIndex,
             currentWordLetters: this.currentWordLetters,
-            displayName: this.definition.displayName,
-            timeForAnswer: this.definition.timeForAnswer,
-            canRetryForSameWord: this.definition.canRetryForSameWord,
-            pointsForCorrectAnswer: this.definition.pointsForCorrectAnswer,
-            words: this.definition.words.map((w,i)=>this.getWordAsSecret(i)?.read())
+            timeForAnswer: this.definition.data.timeForAnswer,
+            canRetryForSameWord: this.definition.data.canRetryForSameWord,
+            pointsForCorrectAnswer: this.definition.data.pointsForCorrectAnswer,
+            words: this.definition.data.words.map((w, i) => this.getWordAsSecret(i)?.read() ?? "***"),
         };
     }
 }

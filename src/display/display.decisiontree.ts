@@ -77,12 +77,12 @@ export class GamesPageChooserDelegator extends DecisionNode<DisplayStateHandler,
     name = "game";
     children: Record<string, DecisionNode<any, Page>> = {};
     decide(state: DisplayStateHandler): Page {
-        const gamename = state.read?.app?.game?.name
-        if (!gamename) return new EmptyPage()
-        if (!(gamename in this.children)) {
-            this.children[gamename] = instantiatePageChooserForGame(gamename)
+        const gameKind = state.read?.app?.game?.kind ?? state.read?.app?.game?.name
+        if (!gameKind || typeof gameKind !== "string") return new EmptyPage()
+        if (!(gameKind in this.children)) {
+            this.children[gameKind] = instantiatePageChooserForGame(gameKind)
         }
-        return this.children[gamename].decide(state.read?.app.game)
+        return this.children[gameKind].decide(state.read?.app.game)
     }
 
     clear(): void {

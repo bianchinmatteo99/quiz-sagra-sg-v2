@@ -1,7 +1,8 @@
 import { delay, Secret } from "../../general.utils";
 import { GameController, GameControllerContext } from "../game.base";
-import { ReazioneCatenaGameDefinition } from "./catena.definition";
-import { CatenaState, ReazioneCatenaGameModel } from "./catena.model";
+import { CatenaState } from "./catena.contracts";
+import { CatenaGameDefinition } from "./catena.definition";
+import { ReazioneCatenaGameModel } from "./catena.model";
 import { CatenaGameViewContext, ReazioneCatenaGameView } from "./catena.view";
 
 
@@ -15,7 +16,7 @@ export class ReazioneCatenaGameController extends GameController implements Cate
     model: ReazioneCatenaGameModel;
     view: ReazioneCatenaGameView;
 
-    constructor(ctx: GameControllerContext, def: ReazioneCatenaGameDefinition, restoreState: boolean = false){
+    constructor(ctx: GameControllerContext, def: CatenaGameDefinition, restoreState: boolean = false){
         super(ctx);
         this.model = new ReazioneCatenaGameModel(this, def, restoreState);
         this.view = new ReazioneCatenaGameView(this);
