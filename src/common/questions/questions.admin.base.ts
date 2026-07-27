@@ -214,6 +214,13 @@ export abstract class QuestionModel extends BaseModel {
  * The view depends on a model instance, a joined answer/result list, and
  * callbacks for manual user interactions.
  */
+export interface JoinedQuestionRow {
+    id: string;
+    name?: string;
+    answer?: string;
+    result?: boolean;
+}
+
 export interface QuestionViewContext {
     /** Active question model used to drive rendering. */
     model: QuestionModel;
@@ -221,7 +228,7 @@ export interface QuestionViewContext {
      * Returns answer/evaluation rows joined with participant metadata.
      * @param fillEmptyResults When true, missing results are initialized.
      */
-    getJoinedList(fillEmptyResults: boolean): { id: string, name?: string, answer?: string, result?: boolean }[];
+    getJoinedList(fillEmptyResults: boolean): JoinedQuestionRow[];
     /** Updates one participant evaluation result. */
     setResultOf(id: string, result: boolean): void;
     /** Manual callback to stop the ASKING phase. */
@@ -368,7 +375,10 @@ export interface QuestionContext {
  * - `auto` can be a string comparator or an answer predicate.
  * - `manual` enables a manual review step.
  */
-export type Evaluator = { auto?: string | ((answer: string) => boolean), manual?: boolean };
+export interface Evaluator {
+    auto?: string | ((answer: string) => boolean);
+    manual?: boolean;
+}
 
 /**
  * Question completion criteria.
@@ -377,7 +387,11 @@ export type Evaluator = { auto?: string | ((answer: string) => boolean), manual?
  * - `manual` allows manual stop controls.
  * - `stopWhen` evaluates submitted answers and triggers auto-stop.
  */
-export type Ender = { timer?: number, manual?: boolean, stopWhen?: (a: QuestionAnswers) => boolean } // manual default is true to avoid runtime stall
+export interface Ender {
+    timer?: number;
+    manual?: boolean;
+    stopWhen?: (a: QuestionAnswers) => boolean;
+}
 
 /**
  * Optional lifecycle hooks used by `Question.ask()`.

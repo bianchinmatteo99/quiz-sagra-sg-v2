@@ -1,28 +1,21 @@
-import { IDatabaseAdapter } from "../common/database/database.types"
+import { createMockState, IDatabaseAdapter, RealtimeDatabaseRoot } from "../common/database/database.types"
 import { CancelHandle } from "../common/general.utils"
 import { QuestionState } from "../common/questions/question.contract"
-import { QuizStatus } from "../common/quiz/quiz.types"
+import { QuizStateSnapshot, QuizStatus } from "../common/quiz/quiz.contract"
+import { DisplayStateSnapshot } from "./display.contract"
 
 /**
  * Snapshot of the quiz application state exposed to the display layer.
  */
-type AppState = {
-    quiz: { status: QuizStatus, finalrankstate: number|null, displayRankOnIdle: boolean },
-    game?: { kind?: string, name: string, title?: string },
-    question?: {
-        name: string,
-        state: QuestionState,
-        enableAnswers: boolean,
-        deny?: string[],
-    },
-    timerend?: number
-}
-
+type AppState = NonNullable<RealtimeDatabaseRoot["state"]>;
 
 /**
  * The state shape consumed by the display flow, including app state, person state and current decision path.
  */
-export type DisplayState = { app: AppState, currentDecisionLeaf: string }
+export interface DisplayState {
+    app: AppState;
+    currentDecisionLeaf: string;
+}
 
 export class TimerHandler {
     endtime : number = -1
@@ -131,7 +124,7 @@ export class DisplayStateHandler {
      */
     async setup() {
         if (!!this.state) throw new Error("Setup already run!");
-        this.state = { app: { quiz: { status: QuizStatus.Booting, finalrankstate: null, displayRankOnIdle: true } }, currentDecisionLeaf: "" };
+        this.state = { app: createMockState().state, currentDecisionLeaf: "" };
         this._bindingCancel.push(this.db.onValue<AppState>(DisplayStateHandler.APPSTATEPATH, (data) => {
             if (data !== null && data !== undefined) {
                 this.state!.app = data;

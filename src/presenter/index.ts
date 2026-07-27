@@ -1,10 +1,10 @@
 import { FirebaseDatabaseAdapter } from "../common/database/firebase.adapter";
-import { RealtimeDatabaseRoot } from "../common/database/database.types";
+import { createMockState, RealtimeDatabaseRoot } from "../common/database/database.types";
 import { GamePresenterStateView } from "../common/games/games.presenter.base";
 import { GameDefinitionData } from "../common/games/games.contracts";
 import { instantiatePresenterStateViewForGame } from "../common/games/games.presenter.register";
 import { QuestionState } from "../common/questions/question.contract";
-import { QuizStatus } from "../common/quiz/quiz.types";
+import { QuizStatus } from "../common/quiz/quiz.contract";
 
 class TimerView {
     private static readonly HEADER_ACTIONS_ID = "header-actions";
@@ -349,7 +349,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     const questionView = new QuestionStatusAnswersEvaluationView();
     const rankingView = new RankingView();
 
-    let latestRoot: RealtimeDatabaseRoot = {};
+    let latestRoot: RealtimeDatabaseRoot = createMockState();
     const renderAll = (): void => {
         timerView.render(latestRoot);
         quizGameStateView.render(latestRoot);
@@ -362,7 +362,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
 
     db.onValue<RealtimeDatabaseRoot>("/", (root) => {
-        latestRoot = root ?? {};
+        latestRoot = root ?? createMockState();
         renderAll();
     });
 });

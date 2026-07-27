@@ -1,7 +1,7 @@
 import { instantiatePageChooserForGame } from "../common/games/games.display.register";
 import { DecisionLeaf, DecisionNode } from "../common/navigation/decisiontree";
 import { Page } from "../common/navigation/pages";
-import { QuizStatus } from "../common/quiz/quiz.types";
+import { QuizStatus } from "../common/quiz/quiz.contract";
 import { DisplayStateHandler } from "./display.state";
 import { EmptyPage, GreetingsPage, GameQuestionColPage, OnBoardingPage, QuestionPage, RankingPage, WaitingStartPage, FinalRankingPage } from "./display.views";
 

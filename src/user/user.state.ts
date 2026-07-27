@@ -1,6 +1,7 @@
 import { Auth, onAuthStateChanged, signInAnonymously } from "firebase/auth"
-import { IDatabaseAdapter, RealtimeDatabaseRoot, PersonRecord, createMockState } from "../common/database/database.types"
+import { IDatabaseAdapter, RealtimeDatabaseRoot, createMockState } from "../common/database/database.types"
 import { CancelHandle } from "../common/general.utils"
+import { PersonRecord } from "../common/people/people.contract"
 
 /**
  * Shared application state values the user UI consumes.
@@ -12,7 +13,12 @@ type PersonState = null | PersonRecord
 /**
  * Combined state exposed by the user-facing application.
  */
-export type UserState = { app: AppState, person: PersonState, questionresult: boolean|null, currentDecisionLeaf: string }
+export interface UserState {
+    app: AppState;
+    person: PersonState;
+    questionresult: boolean | null;
+    currentDecisionLeaf: string;
+}
 
 /**
  * Handles user authentication, realtime state subscriptions, and answer submission.

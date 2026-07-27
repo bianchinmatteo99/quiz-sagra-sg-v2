@@ -1,6 +1,7 @@
 import { BaseModel, BaseModelContext } from "../general.utils";
 import { QuizDefinition } from "./quiz.definition";
-import { GameStatus, QuizStatus } from "./quiz.types";
+import { QuizStateSnapshot } from "./quiz.contract";
+import { GameStatus, QuizStatus } from "./quiz.contract";
 
 /**
  * Marker interface for quiz model context data.
@@ -47,13 +48,13 @@ class QuizModel extends BaseModel {
      * @param data Serialized quiz state data.
      * @returns True when parsing succeeds, false on error.
      */
-    parseFromJSON(data: any): boolean {
+    parseFromJSON(data: Partial<QuizStateSnapshot> | null | undefined): boolean {
         try {
-            this.gamesStatuses = data.gamesStatuses ?? [...Array(this.definition.games.length).fill(GameStatus.NotStarted)];
-            this.status = data.status ?? QuizStatus.Booting;
-            this.currentGame = data.currentGame ?? null;
-            this.finalrankstate = data.finalrankstate ?? null;
-            this.displayRankOnIdle = data.displayRankOnIdle ?? true;
+            this.gamesStatuses = data?.gamesStatuses ?? [...Array(this.definition.games.length).fill(GameStatus.NotStarted)];
+            this.status = data?.status ?? QuizStatus.Booting;
+            this.currentGame = data?.currentGame ?? null;
+            this.finalrankstate = data?.finalrankstate ?? null;
+            this.displayRankOnIdle = data?.displayRankOnIdle ?? true;
             return true;
         } catch (error) {
             console.error('Error parsing quiz from JSON:', error);
@@ -65,7 +66,7 @@ class QuizModel extends BaseModel {
      * Serialize the current quiz state for persistence.
      * @returns JSON-compatible state object.
      */
-    toJSON(): any {
+    toJSON(): QuizStateSnapshot {
         return {
             gamesStatuses: this.gamesStatuses,
             status: this.status,

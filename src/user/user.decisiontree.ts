@@ -1,6 +1,6 @@
 import { QuestionState } from "../common/questions/question.contract";
 import { instantiatePageProviderForQuestion } from "../common/questions/questions.user.register";
-import { QuizStatus } from "../common/quiz/quiz.types";
+import { QuizStatus } from "../common/quiz/quiz.contract";
 import { IdleStatusPage, LoginPage, RankingUserPage } from "./user.views";
 import { Page } from "../common/navigation/pages";
 import { UserStateHandler } from "./user.state";

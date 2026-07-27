@@ -1,6 +1,7 @@
 import { IDatabaseAdapter } from "../database/database.types";
 import { AnyGameDefinition, GameDefinition } from "../games/games.admin.base";
 import { gamesDefBuilders } from "../games/games.admin.register";
+import { QuizDefinitionSnapshot } from "./quiz.contract";
 
 function removeUndefinedDeep<T>(value: T): T {
     if (Array.isArray(value)) {
@@ -47,11 +48,11 @@ export class QuizDefinition {
      * Serialize the quiz definition into a JSON-compatible object.
      * @returns Serialized quiz definition.
      */
-    toJSON(): any {
+    toJSON(): QuizDefinitionSnapshot {
         return removeUndefinedDeep({
             title: this.title,
             games: this.games.map(game => game.data),
-        });
+        }) as QuizDefinitionSnapshot;
     }
 
     /**

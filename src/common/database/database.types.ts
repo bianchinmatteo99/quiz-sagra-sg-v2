@@ -1,6 +1,10 @@
+import { GameStateSnapshotBase } from "../games/games.contracts";
 import { CancelHandle } from "../general.utils";
-import { QuestionResultsSnapshot, QuestionState, QuestionStateSnapshot } from "../questions/question.contract";
-import { GameStatus, QuizStatus } from "../quiz/quiz.types";
+import { QuestionResultsSnapshot, QuestionStateSnapshot } from "../questions/question.contract";
+import { PeopleStateSnapshot, PersonRecord } from "../people/people.contract";
+import { QuizDefinitionSnapshot, QuizStateSnapshot } from "../quiz/quiz.contract";
+import { QuizStatus } from "../quiz/quiz.contract";
+import { DisplayStateSnapshot } from "../../display/display.contract";
 
 /**
  * Shared shape used by the quiz app's Firebase Realtime Database.
@@ -9,41 +13,17 @@ import { GameStatus, QuizStatus } from "../quiz/quiz.types";
  * general application state, while omitting game-specific and question-specific
  * payloads that are stored under the shared state and results branches.
  */
-export type PersonRecord = {
-    id?: string;
-    name: string;
-    rank?: {
-        points: number;
-        lastupdate: number;
-        position: number;
-        lastpos: number;
-    };
-};
-
 export interface RealtimeDatabaseRoot {
     /** Quiz definition persisted at /definition. */
-    definition?: {
-        title: string;
-        games: unknown[];
-    };
+    definition?: QuizDefinitionSnapshot;
 
     /** General application state persisted at /state. */
-    state?: {
+    state: {
         /** Shared quiz lifecycle state at /state/quiz. */
-        quiz: {
-            status: QuizStatus;
-            currentGame: number | null;
-            gamesStatuses: GameStatus[];
-            finalrankstate: number | null;
-            displayRankOnIdle: boolean;
-        };
+        quiz: QuizStateSnapshot;
 
         /** General runtime game state at /state/game. */
-        game?: {
-            kind: string;
-            name: string;
-            title?: string;
-        };
+        game?: GameStateSnapshotBase;
 
         /** General runtime question state at /state/question. */
         question?: QuestionStateSnapshot;
@@ -52,16 +32,11 @@ export interface RealtimeDatabaseRoot {
         timerend?: number | null;
 
         /** Presentation-only state at /state/display. */
-        display?: {
-            rankingupto?: number | null;
-        };
+        display?: DisplayStateSnapshot;
     };
 
     /** Participant onboarding and ranking data at /people. */
-    people?: {
-        allowOnboarding: boolean;
-        list?: Record<string, PersonRecord>;
-    };
+    people?: PeopleStateSnapshot;
 
     /** Question answers and evaluation results at /results. */
     results?: QuestionResultsSnapshot;

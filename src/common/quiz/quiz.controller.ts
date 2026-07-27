@@ -1,5 +1,5 @@
 import { QuizModel, QuizModelContext } from "./quiz.model";
-import { GameStatus, QuizStatus } from "./quiz.types";
+import { GameStatus, QuizStatus } from "./quiz.contract";
 import { QuizDefinition, QuizDefinitionBuilder } from "./quiz.definition";
 import { QuizView, QuizViewContext } from "./quiz.view";
 import { IDatabaseAdapter } from "../database/database.types";

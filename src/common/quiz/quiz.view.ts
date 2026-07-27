@@ -1,5 +1,5 @@
 import { QuizModel } from "./quiz.model";
-import { GameStatus, QuizStatus } from "./quiz.types";
+import { GameStatus, QuizStatus } from "./quiz.contract";
 import { toHtml } from "../general.utils";
 
 /**
