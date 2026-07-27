@@ -75,6 +75,8 @@ export class ReazioneCatenaGameManager extends GameManager {
                 if(correctN == 0 && ! await this.controller.adminInteraction({ advanceBtn: "Passa alla prossima lettera", otherBtn: "Completa la parola e vai alla prossima" })){
                     // If nobody answered correctly and admin chose to complete, finish the word.
                     await this.controller.completeWord(1000);
+                } else {
+                    await this.controller.adminInteraction({ advanceBtn: "Concludi la domanda"})
                 }
 
                 // If retries are not allowed, add players who failed to the deny list.
@@ -93,7 +95,7 @@ export class ReazioneCatenaGameManager extends GameManager {
 
             // After the word is completed, return to chain display and wait for admin.
             this.controller.setState(CatenaState.DISPLAYCHAIN);
-            await this.controller.adminInteraction({ advanceBtn: "Passa alla prossima parola o concludi" });
+            await this.controller.adminInteraction({ advanceBtn: "Inizia la prossima parola o concludi" });
         }
 
         // No more words: set ending state and finalize the game.

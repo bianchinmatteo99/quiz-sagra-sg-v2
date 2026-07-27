@@ -109,6 +109,10 @@ export class ReazioneCatenaGameModel extends GameModel {
             state: this.state,
             currentWordIndex: this.currentWordIndex,
             currentWordLetters: this.currentWordLetters,
+            displayName: this.definition.displayName,
+            timeForAnswer: this.definition.timeForAnswer,
+            canRetryForSameWord: this.definition.canRetryForSameWord,
+            pointsForCorrectAnswer: this.definition.pointsForCorrectAnswer,
             words: this.definition.words.map((w,i)=>this.getWordAsSecret(i)?.read())
         };
     }
