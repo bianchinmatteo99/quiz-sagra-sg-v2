@@ -48,6 +48,7 @@ export interface RealtimeDatabaseRoot {
         /** General runtime question state at /state/question. */
         question?: {
             name: string;
+            displayName: string;
             state: QuestionState;
             deny?: string[];
             enableAnswers?: boolean;

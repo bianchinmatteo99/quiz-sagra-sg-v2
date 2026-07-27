@@ -1,6 +1,7 @@
 import { FirebaseDatabaseAdapter } from "../common/database/firebase.adapter";
 import { RealtimeDatabaseRoot } from "../common/database/database.types";
 import { GamePresenterStateView } from "../common/games/games.presenter.base";
+import { GameDefinitionData } from "../common/games/games.contracts";
 import { instantiatePresenterStateViewForGame } from "../common/games/games.presenter.register";
 import { QuestionState } from "../common/questions/question.types";
 import { QuizStatus } from "../common/quiz/quiz.types";
@@ -24,7 +25,6 @@ class QuizGameStateView {
     private readonly quizStatusValue: HTMLElement;
     private readonly gameSpecificContainer: HTMLElement;
     private readonly secretToggle: HTMLInputElement;
-    private readonly gameViews = new Map<string, GamePresenterStateView>();
 
     constructor() {
         const container = document.getElementById(QuizGameStateView.CONTAINER_ID);
@@ -45,6 +45,10 @@ class QuizGameStateView {
     render(root: RealtimeDatabaseRoot): void {
         const quiz = root.state?.quiz;
         const gameState = (root.state?.game ?? null) as Record<string, unknown> | null;
+        const gameIndex = typeof quiz?.currentGame === "number" ? quiz.currentGame : null;
+        const gameDefinition = gameIndex !== null
+            ? (root.definition?.games?.[gameIndex] as GameDefinitionData | undefined) ?? null
+            : null;
 
         let quizStatus = typeof quiz?.status === "number"
             ? QuizGameStateView.QUIZ_STATUS_LABELS[quiz.status as QuizStatus] ?? String(quiz.status)
@@ -54,10 +58,7 @@ class QuizGameStateView {
         }
         this.quizStatusValue.textContent = quizStatus;
 
-        const gameKindFromState = typeof gameState?.kind === "string"
-            ? gameState.kind
-            : (typeof gameState?.name === "string" ? gameState.name : null);
-        const gameView = gameKindFromState ? this.getGameView(gameKindFromState) : null;
+        const gameView = gameDefinition ? this.getGameView(gameDefinition) : null;
 
         if (gameView) {
             gameView.render(this.gameSpecificContainer, gameState, this.secretToggle.checked);
@@ -74,15 +75,9 @@ class QuizGameStateView {
         this.secretToggle.addEventListener("change", listener);
     }
 
-    private getGameView(gameKind: string): GamePresenterStateView | null {
-        const existingView = this.gameViews.get(gameKind);
-        if (existingView) {
-            return existingView;
-        }
-
+    private getGameView(gameDefinition: GameDefinitionData): GamePresenterStateView<GameDefinitionData> | null {
         try {
-            const gameView = instantiatePresenterStateViewForGame(gameKind);
-            this.gameViews.set(gameKind, gameView);
+            const gameView = instantiatePresenterStateViewForGame(gameDefinition);
             return gameView;
         } catch {
             return null;
@@ -126,7 +121,7 @@ class QuestionStatusAnswersEvaluationView {
         const statusName = typeof question?.state === "number"
             ? QuestionStatusAnswersEvaluationView.QUESTION_STATUS_LABELS[question.state as QuestionState] ?? String(question.state)
             : "-";
-        const questionName = question?.name ?? "-";
+        const questionName = question?.displayName ?? "-";
         this.statusEl.textContent = `${questionName} - ${statusName}`;
 
         const answers = (root.results?.answers ?? {}) as Record<string, { time: string; answer: string }>;

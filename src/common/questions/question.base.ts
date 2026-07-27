@@ -185,6 +185,7 @@ export abstract class QuestionModel extends BaseModel {
         return {
             question: {
                 name: this.name,
+                displayName: this.displayName,
                 state: this.state,
                 deny: this.deny,
                 enableAnswers: this.enableAnswers,

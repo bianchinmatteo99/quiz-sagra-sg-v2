@@ -18,6 +18,8 @@ export interface CatenaGameDefinitionData {
     pointsForCorrectAnswer: number;
 }
 
+export type CatenaDefinitionData = CatenaGameDefinitionData;
+
 export interface CatenaGameStateSnapshot extends GameStateSnapshotBase {
     kind: "catena";
     state: CatenaState;

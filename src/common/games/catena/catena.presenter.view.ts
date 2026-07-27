@@ -1,7 +1,7 @@
 import { GamePresenterStateView } from "../games.presenter.base";
-import { decodeCatenaGameStateSnapshot } from "./catena.contracts";
+import { CatenaDefinitionData, decodeCatenaGameStateSnapshot } from "./catena.contracts";
 
-export class ReazioneCatenaGamePresenterStateView implements GamePresenterStateView {
+export class ReazioneCatenaGamePresenterStateView extends GamePresenterStateView<CatenaDefinitionData> {
     render(container: HTMLElement, gameState: unknown, showSecrets: boolean): void {
         const stateData = decodeCatenaGameStateSnapshot(gameState);
         if (!stateData) {
@@ -10,13 +10,13 @@ export class ReazioneCatenaGamePresenterStateView implements GamePresenterStateV
         }
 
         const title = document.createElement("h3");
-        title.textContent = stateData.title ?? stateData.name;
+        title.textContent = this.gameDefinition.title ?? this.gameDefinition.name;
 
         const settings = document.createElement("div");
         const settingsLines = [
-            `Punti per risposta corretta: ${stateData.pointsForCorrectAnswer}`,
-            `Tempo per risposta: ${stateData.timeForAnswer}s`,
-            `Tentativi sulla stessa parola: ${stateData.canRetryForSameWord ? "consentiti" : "non consentiti"}`,
+            `Punti per risposta corretta: ${this.gameDefinition.pointsForCorrectAnswer}`,
+            `Tempo per risposta: ${this.gameDefinition.timeForAnswer}s`,
+            `Tentativi sulla stessa parola: ${this.gameDefinition.canRetryForSameWord ? "consentiti" : "non consentiti"}`,
         ];
         settings.textContent = settingsLines.join(" | ");
 
@@ -28,7 +28,7 @@ export class ReazioneCatenaGamePresenterStateView implements GamePresenterStateV
             list.appendChild(li);
         };
 
-        stateData.words.forEach((word, index) => {
+        this.gameDefinition.words.forEach((word, index) => {
             appendWord(this.formatWord(word, index, stateData.currentWordIndex, stateData.currentWordLetters, showSecrets));
         });
 
