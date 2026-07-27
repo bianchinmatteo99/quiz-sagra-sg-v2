@@ -6,6 +6,83 @@ import { instantiatePresenterStateViewForGame } from "../common/games/games.pres
 import { QuestionState } from "../common/questions/question.types";
 import { QuizStatus } from "../common/quiz/quiz.types";
 
+class TimerView {
+    private static readonly HEADER_ACTIONS_ID = "header-actions";
+    private static readonly TIMER_ID = "question-timer";
+
+    private readonly timerEl: HTMLElement;
+    private endTime: number | null = null;
+    private intervalId: number | null = null;
+
+    constructor() {
+        const headerActions = document.getElementById(TimerView.HEADER_ACTIONS_ID);
+        const timerEl = document.getElementById(TimerView.TIMER_ID);
+
+        if (!headerActions || !timerEl) {
+            throw new Error("TimerView richiede #header-actions e #question-timer in index.html");
+        }
+
+        headerActions.prepend(timerEl);
+        this.timerEl = timerEl;
+    }
+
+    render(root: RealtimeDatabaseRoot): void {
+        const rawEndTime = root.state?.timerend;
+        const nextEndTime = typeof rawEndTime === "number" && rawEndTime > 0 ? rawEndTime : null;
+        if (nextEndTime !== this.endTime) {
+            this.endTime = nextEndTime;
+        }
+        this.sync();
+    }
+
+    private sync(): void {
+        if (this.endTime === null) {
+            this.stop();
+            this.setInactive();
+            return;
+        }
+
+        this.updateTick();
+
+        if (this.intervalId === null) {
+            this.intervalId = window.setInterval(() => {
+                this.updateTick();
+            }, 50);
+        }
+    }
+
+    private updateTick(): void {
+        if (this.endTime === null) {
+            this.stop();
+            this.setInactive();
+            return;
+        }
+
+        const remainingMs = this.endTime - Date.now();
+        if (remainingMs <= 0) {
+            this.stop();
+            this.setInactive();
+            return;
+        }
+
+        const remainingSeconds = Math.ceil(remainingMs / 1000);
+        this.timerEl.textContent = String(remainingSeconds);
+        this.timerEl.classList.add("active");
+    }
+
+    private stop(): void {
+        if (this.intervalId !== null) {
+            clearInterval(this.intervalId);
+            this.intervalId = null;
+        }
+    }
+
+    private setInactive(): void {
+        this.timerEl.textContent = "";
+        this.timerEl.classList.remove("active");
+    }
+}
+
 class QuizGameStateView {
     private static readonly CONTAINER_ID = "quiz-game-current-state";
     private static readonly QUIZ_STATUS_VALUE_ID = "quiz-status-value";
@@ -267,12 +344,14 @@ class RankingView {
 document.addEventListener('DOMContentLoaded', async function () {
     const db = new FirebaseDatabaseAdapter();
 
+    const timerView = new TimerView();
     const quizGameStateView = new QuizGameStateView();
     const questionView = new QuestionStatusAnswersEvaluationView();
     const rankingView = new RankingView();
 
     let latestRoot: RealtimeDatabaseRoot = {};
     const renderAll = (): void => {
+        timerView.render(latestRoot);
         quizGameStateView.render(latestRoot);
         questionView.render(latestRoot);
         rankingView.render(latestRoot);
