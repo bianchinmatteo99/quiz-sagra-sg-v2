@@ -1,4 +1,4 @@
-import { CatenaGamePageChooser } from "./catena/catena.display.pagechooser";
+import { CatenaGamePageChooser } from "./catena/catena.display.view";
 import { GamePageChooser } from "./games.display.base";
 
 export function instantiatePageChooserForGame(kind: string): GamePageChooser<any> {

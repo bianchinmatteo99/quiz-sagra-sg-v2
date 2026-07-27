@@ -1,7 +1,7 @@
 import { IDatabaseAdapter } from "../database/database.types";
-import { GameDefinition } from "../games/game.base";
+import { GameDefinition } from "../games/games.admin.base";
 import { GameDefinitionData } from "../games/games.contracts";
-import { gamesDefBuilders } from "../games/games.register";
+import { gamesDefBuilders } from "../games/games.admin.register";
 
 function removeUndefinedDeep<T>(value: T): T {
     if (Array.isArray(value)) {

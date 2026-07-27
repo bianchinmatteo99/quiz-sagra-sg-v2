@@ -1,11 +1,9 @@
-import { delay } from "../../general.utils";
 import { Question } from "../../questions/question.base";
 import { TextInputQuestion } from "../../questions/text_input/text_input.question";
-import { GameManager, GameManagerContext } from "../game.base";
+import { GameManager, GameManagerContext } from "../games.admin.base";
 import { CatenaState } from "./catena.contracts";
-import { CatenaGameDefinition } from "./catena.definition";
-import { ReazioneCatenaGameController } from "./catena.controller";
-
+import { CatenaGameDefinition } from "./catena.admin.definition";
+import { CatenaGameController } from "./catena.admin.mvc";
 
 /**
  * Manager that orchestrates the Catena gameplay loop.
@@ -13,14 +11,14 @@ import { ReazioneCatenaGameController } from "./catena.controller";
  * Advances through the chain word by word, reveals letters progressively,
  * asks for text input, and awards points for correct answers.
  */
-export class ReazioneCatenaGameManager extends GameManager {
-    controller: ReazioneCatenaGameController;
+export class CatenaGameManager extends GameManager {
+    controller: CatenaGameController;
     /** The currently active question while the game waits for player input. */
     currentQ: Question | null = null;
 
     constructor(ctx: GameManagerContext, def: CatenaGameDefinition, restoreState: boolean = false) {
         super(ctx);
-        this.controller = new ReazioneCatenaGameController(this, def, restoreState);
+        this.controller = new CatenaGameController(this, def, restoreState);
     }
 
     /**
@@ -65,16 +63,18 @@ export class ReazioneCatenaGameManager extends GameManager {
                                 this.context.updateRanking(new Map(correct.map((id) => [id, this.controller.model.definition.data.pointsForCorrectAnswer])));
                             }, 1000);
                         }
-                        
+
                         // Keep showing results for a short fixed duration.
                         return 5000;
                     }
                 });
 
                 const correctN = res.entries().filter(([id, v]) => v).map(([id, v]) => id).toArray().length;
-                if(correctN == 0 && ! await this.controller.adminInteraction({ advanceBtn: "Passa alla prossima lettera", otherBtn: "Completa la parola e vai alla prossima" })){
+                if(correctN == 0){
                     // If nobody answered correctly and admin chose to complete, finish the word.
-                    await this.controller.completeWord(1000);
+                    if(! await this.controller.adminInteraction({ advanceBtn: "Passa alla prossima lettera", otherBtn: "Completa la parola e vai alla prossima" })){
+                        await this.controller.completeWord(1000);
+                    }
                 } else {
                     await this.controller.adminInteraction({ advanceBtn: "Concludi la domanda"})
                 }
@@ -102,5 +102,4 @@ export class ReazioneCatenaGameManager extends GameManager {
         this.controller.setState(CatenaState.ENDING);
         return this.endGame();
     }
-
 }

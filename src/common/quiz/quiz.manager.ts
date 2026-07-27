@@ -1,6 +1,7 @@
 import { IDatabaseAdapter } from "../database/database.types";
-import { GameDefinition, GameManager, GameManagerContext } from "../games/game.base";
-import { instantiateGameManagerFor } from "../games/games.register";
+import { GameDefinition, GameManager, GameManagerContext } from "../games/games.admin.base";
+import { GameDefinitionData } from "../games/games.contracts";
+import { instantiateGameManagerFor } from "../games/games.admin.register";
 import { PeopleController, PeopleControllerContext, RankingDiff } from "../people/people.controller";
 import { Person } from "../people/people.model";
 import { QuizController, QuizControllerContext } from "./quiz.controller";
@@ -60,7 +61,7 @@ class QuizManager implements QuizControllerContext, GameManagerContext, PeopleCo
      * Start a game and update quiz state after completion.
      * @param game Game definition to execute.
      */
-    async startGame(game: GameDefinition): Promise<void> {
+    async startGame(game: GameDefinition<GameDefinitionData>): Promise<void> {
         this.activeGameManager = instantiateGameManagerFor(game, this);
         this.quiz.setStatus(QuizStatus.RunningGame);
         const shouldDisplayRanking = await this.activeGameManager.startGame();

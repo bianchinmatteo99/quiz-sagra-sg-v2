@@ -3,16 +3,19 @@ import { GameStatus, QuizStatus } from "./quiz.types";
 import { QuizDefinition, QuizDefinitionBuilder } from "./quiz.definition";
 import { QuizView, QuizViewContext } from "./quiz.view";
 import { IDatabaseAdapter } from "../database/database.types";
-import { GameDefinition, GameView } from "../games/game.base";
-import { instantiateGameViewerFor } from "../games/games.register";
+import { GameDefinition, GameView } from "../games/games.admin.base";
+import { GameDefinitionData } from "../games/games.contracts";
+import { instantiateGameViewerFor } from "../games/games.admin.register";
+
+type AnyGameDefinition = GameDefinition<GameDefinitionData>;
 
 /**
  * Context provided by the quiz manager to the quiz controller.
  */
-interface QuizControllerContext {
+export interface QuizControllerContext {
     getDatabase(): IDatabaseAdapter;
-    startGame(game: GameDefinition): Promise<void>;
-    setGameTimelineDisplaysCurrent(boolean: boolean): void;
+    startGame(game: AnyGameDefinition): Promise<void>;
+    setGameTimelineDisplaysCurrent(isCurrent: boolean): void;
     endQuiz(): void;
 }
 
@@ -182,4 +185,3 @@ class QuizController implements QuizViewContext, QuizModelContext {
 }
 
 export { QuizController }
-export type { QuizControllerContext }

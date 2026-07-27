@@ -1,4 +1,4 @@
-import { GameDefinition, GameDefinitionBuilder } from "../game.base";
+import { GameDefinition, GameDefinitionBuilder } from "../games.admin.base";
 import { CatenaGameDefinitionData } from "./catena.contracts";
 
 export type CatenaGameDefinition = GameDefinition<CatenaGameDefinitionData>;

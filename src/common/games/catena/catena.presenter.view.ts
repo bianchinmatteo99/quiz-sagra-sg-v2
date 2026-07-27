@@ -1,7 +1,7 @@
 import { GamePresenterStateView } from "../games.presenter.base";
 import { CatenaDefinitionData, decodeCatenaGameStateSnapshot } from "./catena.contracts";
 
-export class ReazioneCatenaGamePresenterStateView extends GamePresenterStateView<CatenaDefinitionData> {
+export class CatenaGamePresenterStateView extends GamePresenterStateView<CatenaDefinitionData> {
     render(container: HTMLElement, gameState: unknown, showSecrets: boolean): void {
         const stateData = decodeCatenaGameStateSnapshot(gameState);
         if (!stateData) {
@@ -10,13 +10,13 @@ export class ReazioneCatenaGamePresenterStateView extends GamePresenterStateView
         }
 
         const title = document.createElement("h3");
-        title.textContent = this.gameDefinition.title ?? this.gameDefinition.name;
+        title.textContent = stateData.title ?? stateData.name;
 
         const settings = document.createElement("div");
         const settingsLines = [
-            `Punti per risposta corretta: ${this.gameDefinition.pointsForCorrectAnswer}`,
-            `Tempo per risposta: ${this.gameDefinition.timeForAnswer}s`,
-            `Tentativi sulla stessa parola: ${this.gameDefinition.canRetryForSameWord ? "consentiti" : "non consentiti"}`,
+            `Punti per risposta corretta: ${stateData.pointsForCorrectAnswer}`,
+            `Tempo per risposta: ${stateData.timeForAnswer}s`,
+            `Tentativi sulla stessa parola: ${stateData.canRetryForSameWord ? "consentiti" : "non consentiti"}`,
         ];
         settings.textContent = settingsLines.join(" | ");
 

@@ -7,9 +7,10 @@ export class CatenaGamePageChooser extends GamePageChooser<CatenaGameStateSnapsh
     decide(state: CatenaGameStateSnapshot): Page {
         if(state.state==CatenaState.STARTING || state.state==CatenaState.DISPLAYCOVER){
             return new CoverPage()
+        } else {
+            this.catena.update(state.words)
+            return this.catena
         }
-        this.catena.update(state.words)
-        return this.catena
     }
 }
 

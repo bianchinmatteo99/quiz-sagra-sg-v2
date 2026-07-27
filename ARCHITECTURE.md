@@ -9,7 +9,7 @@ High-level components
 - **Common/shared** (`src/common/`) — contains core logic reused by all entry points:
   - `database/` — `firebase.adapter.ts` implements `IDatabaseAdapter` used throughout the app ([src/common/database/firebase.adapter.ts](src/common/database/firebase.adapter.ts#L1-L120)).
   - `quiz/` — quiz lifecycle, definitions, controller and manager (`QuizController`, `QuizManager`) ([src/common/quiz/quiz.manager.ts](src/common/quiz/quiz.manager.ts#L1-L200)).
-  - `games/` — game definitions, managers, and viewers; new games register in `games.register.ts` ([src/common/games/games.register.ts](src/common/games/games.register.ts#L1-L120)).
+  - `games/` — game definitions, managers, and viewers; new games register in `games.admin.register.ts` ([src/common/games/games.admin.register.ts](src/common/games/games.admin.register.ts#L1-L120)).
   - `questions/` — question models, views and registration for user page providers (`questions.register.ts`).
   - `people/` — participant list and ranking manager (`PeopleModel`, `PeopleController`).
 
@@ -21,11 +21,11 @@ Design and data flow
 Lifecycle (simplified)
 1. Admin starts app → `QuizManager.boot()` loads quiz definition either from `public/quiz_def.md` or database.
 2. Admin starts registration → `PeopleController.allowNewUsers(true)` opens onboarding and writes `/people` state.
-3. Admin starts a game → `QuizManager.startGame()` instantiates a `GameManager` via `games.register` and runs the game's flow.
+3. Admin starts a game → `QuizManager.startGame()` instantiates a `GameManager` via `games.admin.register` and runs the game's flow.
 4. Questions are asked via `Question.ask()` which coordinates answer collection (`/results/answers`) and evaluation (`/results/evaluation`).
 
 Extension points
-- Add a new game: implement definition/manager/view under `src/common/games/` and register it in `games.register.ts`.
+- Add a new game: implement definition/manager/view under `src/common/games/` and register it in `games.admin.register.ts`.
 - Add a new question UI/provider: implement under `src/common/questions/` and register in `questions.register.ts`.
 
 Game module dependency pattern

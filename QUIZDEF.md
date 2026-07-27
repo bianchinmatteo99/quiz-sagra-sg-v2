@@ -1,6 +1,6 @@
 # Quiz definition format
 
-This document describes the markdown format used by the quiz loader in [src/common/quiz/quiz.definition.ts](src/common/quiz/quiz.definition.ts) and the concrete game parsers registered in [src/common/games/games.register.ts](src/common/games/games.register.ts).
+This document describes the markdown format used by the quiz loader in [src/common/quiz/quiz.definition.ts](src/common/quiz/quiz.definition.ts) and the concrete game parsers registered in [src/common/games/games.admin.register.ts](src/common/games/games.admin.register.ts).
 
 The admin boot flow reads the quiz definition from [public/quiz_def.md](public/quiz_def.md) (served by the dev server at `/quiz_def.md`) or from the database when a saved definition exists, parses it into a quiz object, and then uses the parsed game definitions to start the quiz. The admin entrypoint calls the loader with the path `/quiz_def.md` by default.
 

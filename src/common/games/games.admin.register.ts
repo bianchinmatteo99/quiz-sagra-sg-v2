@@ -1,8 +1,8 @@
 import { CatenaGameDefinitionData } from "./catena/catena.contracts";
-import { CatenaGameDefinition, CatenaGameDefinitionBuilder } from "./catena/catena.definition";
-import { ReazioneCatenaGameManager } from "./catena/catena.manager";
-import { ReazioneCatenaGameView } from "./catena/catena.view";
-import { GameDefinition, GameDefinitionBuilder, GameManager, GameManagerContext, GameView } from "./game.base";
+import { CatenaGameDefinition, CatenaGameDefinitionBuilder } from "./catena/catena.admin.definition";
+import { CatenaGameManager } from "./catena/catena.admin.manager";
+import { CatenaGameView } from "./catena/catena.admin.mvc";
+import { GameDefinition, GameDefinitionBuilder, GameManager, GameManagerContext, GameView } from "./games.admin.base";
 import { GameDefinitionData } from "./games.contracts";
 
 /**
@@ -27,7 +27,7 @@ export const gamesDefBuilders: { [key: string]: GameDefinitionBuilder<GameDefini
 export function instantiateGameManagerFor(def: GameDefinition<GameDefinitionData>, ctx: GameManagerContext, restoreState : boolean = false): GameManager{
     switch(def.kind){
         case "catena":
-            return new ReazioneCatenaGameManager(ctx, def as CatenaGameDefinition, restoreState);
+            return new CatenaGameManager(ctx, def as CatenaGameDefinition, restoreState);
         
         default:
             throw new Error("Game type " + def.kind + " not registered.")
@@ -42,7 +42,7 @@ export function instantiateGameManagerFor(def: GameDefinition<GameDefinitionData
 export function instantiateGameViewerFor(def: GameDefinition<GameDefinitionData>): GameView{
     switch(def.kind){
         case "catena":
-            return new ReazioneCatenaGameView(null, def as CatenaGameDefinition);
+            return new CatenaGameView(null, def as CatenaGameDefinition);
         
         default:
             throw new Error("Game type " + def.kind + " not registered.")

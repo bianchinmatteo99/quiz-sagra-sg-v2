@@ -54,7 +54,7 @@
  *
  * ## Data Flow (Active Game)
  *
- * - Admin invokes `QuizManager.startGame()` → instantiates `GameManager` via `games.register`.
+ * - Admin invokes `QuizManager.startGame()` → instantiates `GameManager` via `games.admin.register`.
  * - `GameManager.startGame()` runs game loop (ask questions, collect answers, update rankings).
  * - State changes via `GameController.stateUpdated(remote)` → saves to DB → `GameView.render()` re-paints.
  * - Timeline and current state DOM update when secrets toggle or controller state changes.
@@ -91,7 +91,7 @@ export class GameDefinition<TData extends GameDefinitionData> {
  * Builder interface used to instantiate a concrete game definition from
  * Markdown or persisted JSON.
  *
- * Implementations are registered in `games.register.ts` and invoked during
+ * Implementations are registered in `games.admin.register.ts` and invoked during
  * quiz initialization to parse game rules from `public/quiz_def.md` or restore
  * from `/definition/games` in the database.
  */
@@ -170,7 +170,7 @@ export abstract class GameModel extends BaseModel {
  * access to game-specific model or view state. It allows GameView subclasses to type
  * their `activeGameContext` property more precisely.
  *
- * Example: `CatenaGameViewContext extends GameViewContext { model: ReazioneCatenaGameModel }`
+ * Example: `CatenaGameViewContext extends GameViewContext { model: CatenaGameModel }`
  * allows the view to access Catena-specific model methods and fields.
  */
 export interface GameViewContext {
