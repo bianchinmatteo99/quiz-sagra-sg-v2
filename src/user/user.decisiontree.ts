@@ -1,5 +1,5 @@
-import { QuestionState } from "../common/questions/question.types";
-import { instantiatePageProviderForQuestion } from "../common/questions/questions.register";
+import { QuestionState } from "../common/questions/question.contract";
+import { instantiatePageProviderForQuestion } from "../common/questions/questions.user.register";
 import { QuizStatus } from "../common/quiz/quiz.types";
 import { IdleStatusPage, LoginPage, RankingUserPage } from "./user.views";
 import { Page } from "../common/navigation/pages";

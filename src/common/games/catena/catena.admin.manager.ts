@@ -1,5 +1,5 @@
-import { Question } from "../../questions/question.base";
-import { TextInputQuestion } from "../../questions/text_input/text_input.question";
+import { Question } from "../../questions/questions.admin.base";
+import { TextInputQuestion } from "../../questions/text_input/text_input.question.admin";
 import { GameManager, GameManagerContext } from "../games.admin.base";
 import { CatenaState } from "./catena.contracts";
 import { CatenaGameDefinition } from "./catena.admin.definition";

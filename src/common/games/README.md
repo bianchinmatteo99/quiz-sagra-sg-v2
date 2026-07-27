@@ -13,6 +13,7 @@ The code in here is organized around one rule: each game should expose one stabl
 ## Recommended folder layout
 
 Use a lowercase folder name for each game, and keep the file names aligned with that folder name.
+Files with 'admin' or 'display' or 'presenter' in theri name should only be imported by the corresponding frontend. ('user' is not present since user ui is meant to be game-agnostic!)
 
 ```text
 src/common/games/
@@ -32,20 +33,7 @@ src/common/games/
     <game-name>.presenter.view.ts
 ```
 
-## Naming conventions
-
-- Use a lowercase, kebab-free identifier for the game folder and the `kind` discriminator.
-- Keep the same `kind` value across the definition, state snapshot, registries, and parsers.
-- Use the same base name for all files in the game folder so the implementation stays easy to discover.
-- Keep serializable data shapes in `*.contracts.ts` files and keep UI behavior out of those contracts.
-- Prefer descriptive suffixes for responsibility:
-  - `*.admin.definition.ts` for parsing and building the game definition.
-  - `*.admin.manager.ts` for orchestration and runtime control.
-  - `*.admin.mvc.ts` for admin-facing rendering and interaction.
-  - `*.display.view.ts` for the public display chooser and page rendering.
-  - `*.presenter.view.ts` for the presenter-side state panel.
-
-## Intended usage
+## Shared files
 
 The shared files in this folder are meant to keep each game implementation consistent:
 
@@ -56,6 +44,51 @@ The shared files in this folder are meant to keep each game implementation consi
 - The `*.register.ts` files map a `kind` value to the concrete implementation.
 
 New game code should live in its own subfolder and avoid leaking game-specific logic into the shared base files.
+
+## Required game-specific classes
+
+For each new game folder, implement these classes and keep responsibilities isolated by file.
+
+### `<game-name>.contracts.ts`
+
+- Aim: provide one shared, stable, and validated data contract that all surfaces can import safely.
+- Implement the game definition interface (the payload produced by `parseFromMD`/`parseFromJSON`).
+- Implement the persisted game state snapshot interface (the payload saved under `/state/game`).
+- If the game has discrete phases, implement an enum (or string-literal union) for state values used across admin/display/presenter.
+- Implement a decoder/validator function that narrows `unknown` to the snapshot type before any consumer reads game-specific fields.
+- Keep all fields JSON-friendly (string, number, boolean, arrays, plain objects) and avoid `undefined` in persisted shapes.
+- Do not include DOM/UI code, model/controller/manager/view logic, or class instances in this file.
+
+### `<game-name>.admin.definition.ts`
+
+- Implement one class that satisfies `GameDefinitionBuilder<...>`.
+- Aim: parse and normalize definition data from markdown and JSON, and return a stable serializable payload.
+
+### `<game-name>.admin.mvc.ts`
+
+- Implement one class extending `GameModel`.
+- Aim: own the persisted runtime state, expose state helpers, and provide snapshot serialization/deserialization.
+- Implement one class extending `GameView`.
+- Aim: render admin timeline and current game state, including secret-aware labels when needed.
+- Implement one class extending `GameController`.
+- Aim: coordinate model and view updates, handle game-specific transitions, and expose admin interaction points.
+
+### `<game-name>.admin.manager.ts`
+
+- Implement one class extending `GameManager`.
+- Aim: run the game loop, create questions, process results, update ranking, and finalize cleanup.
+
+### `<game-name>.display.view.ts`
+
+- Implement one class extending `GamePageChooser<...>`.
+- Aim: map live game snapshots to the correct public display page.
+- Optional: add internal page classes used only by the chooser.
+- Aim: render display-specific layouts/animations without embedding admin orchestration logic.
+
+### `<game-name>.presenter.view.ts`
+
+- Implement one class extending `GamePresenterStateView<...>`.
+- Aim: decode runtime snapshot and render presenter-facing operational state, respecting secret visibility.
 
 ## Step-by-step: adding a new game
 
@@ -147,26 +180,6 @@ If the new game introduces a new markdown section format, document that format a
 
 Keep the format documentation close to the parser behavior so it stays accurate.
 
-### 9. Validate the wiring
-
-Check the full path from definition to runtime:
-
-- parse the game definition from markdown
-- restore the same game definition from JSON
-- instantiate the admin manager and views
-- instantiate the display chooser
-- instantiate the presenter renderer
-
-If any factory still throws an unknown-kind error, the game is not fully registered yet.
-
-## Practical rules to follow
-
-- Keep shared code generic and game code local.
-- Keep all persisted shapes serializable.
-- Keep `kind` stable once it is chosen.
-- Keep naming consistent so files are easy to find.
-- Keep parser logic separate from runtime orchestration.
-- Keep display and presenter code independent from admin-only state transitions.
 
 ## Example mental model
 

@@ -75,6 +75,7 @@ npm run dev
 - [FIREBASEDB.md](FIREBASEDB.md): database paths, payload shapes, and rule implications.
 - [QUIZDEF.md](QUIZDEF.md): markdown quiz-definition format loaded from `public/quiz_def.md`.
 - [src/common/games/README.md](src/common/games/README.md): game module conventions and registration workflow.
+- [src/common/questions/README.md](src/common/questions/README.md): question module conventions, user UI extension workflow, and game-manager instantiation model.
 
 ## Important files
 

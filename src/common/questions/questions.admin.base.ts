@@ -23,8 +23,8 @@
 import { IDatabaseAdapter } from "../database/database.types";
 import { BaseModel, BaseModelContext, delay, toHtml } from "../general.utils";
 import { Person } from "../people/people.model";
-import { QuestionState } from "./question.types";
-import { Timer } from "./timer";
+import { QuestionAnswers, QuestionResult, QuestionState } from "./question.contract";
+import { Timer } from "./questions.admin.timer";
 
 
 /**
@@ -36,17 +36,12 @@ import { Timer } from "./timer";
 export interface QuestionModelContext extends BaseModelContext { }
 
 /**
- * Map of participant ids to evaluation results.
+ * Base persisted model for a running question.
  *
- * Each entry represents whether a given participant answered correctly.
+ * The model owns question lifecycle flags and runtime answer/evaluation maps,
+ * and delegates persistence/binding to `BaseModel` using the configured
+ * question-related database paths.
  */
-export type QuestionResult = Map<string, boolean>;
-
-/**
- * Map of participant ids to submitted answers with timestamps.
- */
-export type QuestionAnswers = Map<string, { time: Date, answer: string }>;
-
 export abstract class QuestionModel extends BaseModel {
     /**
      * Database locations for question lifecycle and results.
@@ -66,6 +61,7 @@ export abstract class QuestionModel extends BaseModel {
      */
     abstract readonly displayName: string;
 
+    /** Current question lifecycle state shared across clients. */
     state: QuestionState;
 
     /**
@@ -73,16 +69,27 @@ export abstract class QuestionModel extends BaseModel {
      * with remote clients during active question answering.
      */
     answers: QuestionAnswers = new Map();
+    /** Evaluation outcome keyed by participant id. */
     results: QuestionResult = new Map();
+    /** Participant ids that cannot answer the current question. */
     deny: string[] = [];
+    /** Enables/disables participant submissions. */
     enableAnswers: boolean = false;
+    /** Enables/disables manual evaluation controls in the admin view. */
     enableManualEvaluation: boolean = false;
+    /** Enables/disables manual stop control during the ASKING phase. */
     enableManualStopAnswer: boolean = false;
+    /** Enables/disables manual stop control during the SHOWRESULTS phase. */
     enableManualStopShowResults: boolean = false;
     private timer: Timer | null = null;
 
+    /** Context providing database access and state update callbacks. */
     context: QuestionModelContext;
 
+    /**
+     * @param ctx Model context used for persistence and update notifications.
+     * @param deny Initial deny-list for participants who cannot answer.
+     */
     constructor(ctx: QuestionModelContext, deny: string[] = []) {
         super();
         this.context = ctx;
@@ -119,6 +126,10 @@ export abstract class QuestionModel extends BaseModel {
         await this.timer.start();
         this.timer = null;
     }
+
+    /**
+     * Returns whether a question timer is currently active.
+     */
     isTimerActive() {
         return !!this.timer;
     }
@@ -204,11 +215,20 @@ export abstract class QuestionModel extends BaseModel {
  * callbacks for manual user interactions.
  */
 export interface QuestionViewContext {
+    /** Active question model used to drive rendering. */
     model: QuestionModel;
+    /**
+     * Returns answer/evaluation rows joined with participant metadata.
+     * @param fillEmptyResults When true, missing results are initialized.
+     */
     getJoinedList(fillEmptyResults: boolean): { id: string, name?: string, answer?: string, result?: boolean }[];
+    /** Updates one participant evaluation result. */
     setResultOf(id: string, result: boolean): void;
+    /** Manual callback to stop the ASKING phase. */
     manualStop: (() => void) | null;
+    /** Manual callback to complete the EVALUATING phase. */
     manualEvaluationEnded: (() => void) | null;
+    /** Manual callback to complete the SHOWRESULTS phase. */
     manualStopShowResults: (() => void) | null;
 }
 /**
@@ -220,10 +240,18 @@ export interface QuestionViewContext {
  * - `question-actions`
  */
 export class QuestionView {
+    /** DOM id of the question wrapper container. */
     readonly questionContainer = "question-container";
+    /** DOM id of the answers table body container. */
     readonly questionAnswersContainer = "question-answers";
+    /** DOM id of the question footer/action container. */
     readonly questionFooter = "question-actions";
+    /** Source of model data and action callbacks used by render/listeners. */
     context: QuestionViewContext;
+
+    /**
+     * @param context Runtime context used to render rows and invoke actions.
+     */
     constructor(context: QuestionViewContext) {
         this.context = context;
         this.attachListeners();
@@ -309,6 +337,9 @@ export class QuestionView {
         }, { signal: this.listenerController.signal });
     }
 
+    /**
+     * Clears listeners and removes rendered answer/footer content.
+     */
     clear() {
         this.listenerController.abort();
         const container = document.getElementById(this.questionAnswersContainer) as HTMLElement;
@@ -325,7 +356,9 @@ export class QuestionView {
  * participant metadata used to join answers with names.
  */
 export interface QuestionContext {
+    /** Returns the shared realtime database adapter. */
     getDatabase(): IDatabaseAdapter;
+    /** Returns the current participant list keyed by participant id. */
     getPeopleList(): Map<string, Person>;
 }
 
@@ -397,9 +430,11 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
      */
     ender: Ender;
 
-    
+    /** Concrete question model owned by this lifecycle orchestrator. */
     abstract model: QuestionModel;
+    /** Parent runtime context shared by game/quiz orchestration. */
     context: QuestionContext;
+    /** Admin-side question view renderer bound to this instance. */
     view: QuestionView;
 
     /**

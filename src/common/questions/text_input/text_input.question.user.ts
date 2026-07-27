@@ -2,44 +2,7 @@ import { UserQuestionPage } from "../../../user/user.views";
 import { EventPage } from "../../navigation/pages";
 import { UserStateHandler } from "../../../user/user.state";
 import { CancelHandle } from "../../general.utils";
-import { Ender, Evaluator, Question, QuestionContext, QuestionModel } from "../question.base";
-import { QuestionUserPageProvider } from "../question.user.base";
-
-/**
- * Model for a text input question variant.
- *
- * Persists the metadata and lifecycle state for open-ended text response questions.
- * This is registered as "text-input" and displayed to participants as "Risposta testuale".
- */
-class TextInputQuestionModel extends QuestionModel{
-    readonly name = "text-input";
-    readonly displayName = "Risposta testuale";
-}
-
-/**
- * Question implementation for open-ended text input responses.
- *
- * Orchestrates the lifecycle of a text input question, including answer collection,
- * evaluation (auto or manual), and result display. Participants submit free-form text
- * which can be evaluated using string comparison or custom predicates.
- */
-export class TextInputQuestion extends Question {
-    
-    readonly model : TextInputQuestionModel;
-
-    /**
-     * Creates a text input question instance.
-     * @param ctx Application context with database and people list.
-     * @param evaluate Auto/manual evaluation configuration (e.g., exact match string or predicate).
-     * @param stopAnswersCriteria Conditions for ending the answer collection phase (timer, manual stop, or custom predicate).
-     * @param deny Optional list of participant ids who cannot submit an answer to this question.
-     */
-    constructor(ctx: QuestionContext, evaluate: Evaluator, stopAnswersCriteria: Ender, deny: string[]=[]){
-        super(ctx, evaluate, stopAnswersCriteria);
-        this.model = new TextInputQuestionModel(this, deny);
-    }
-
-}
+import { QuestionUserPageProvider } from "../questions.user.base";
 
 /**
  * User-facing page for text input question responses.
@@ -49,17 +12,22 @@ export class TextInputQuestion extends Question {
  * Submits the text value when the user clicks the send button.
  */
 class UserTextInputPage extends UserQuestionPage {
+    /** Hides the standard header to keep focus on answer entry. */
     shouldDisplayHeader = false;
+    /** Hides the standard footer for a compact submission layout. */
     shouldDisplayFooter = false;
 
     /**
      * Attaches a click listener to the submit button that captures and submits the input value.
+     *
+     * The emitted value is the raw input text; normalization and persistence are
+     * handled by upstream question/user state flows.
      * @returns Array containing the cleanup handler for the attached listener.
      */
     attachListeners(): CancelHandle[] {
         const input = this.container?.getElementsByTagName("input")[0] as HTMLInputElement;
         const button = this.container?.getElementsByTagName("button")[0] as HTMLButtonElement;
-        return [this.attachListenerTo(button, "click", ()=>{
+        return [this.attachListenerTo(button, "click", () => {
             this.onAnswer(input.value);
         })];
     }
@@ -69,10 +37,13 @@ class UserTextInputPage extends UserQuestionPage {
      *
      * Creates a labeled input field and submit button. Throws if the container
      * has not been created.
+    *
+    * The template intentionally remains minimal because question-level state,
+    * feedback, and transitions are handled by the parent user flow.
      * @throws Error if render is called before the page is created.
      */
     render(): void {
-        if(!this.container) throw new Error("Render called before create");
+        if (!this.container) throw new Error("Render called before create");
         this.container.innerHTML = `
         <span>La vostra risposta:</span>
         <input />
@@ -82,7 +53,7 @@ class UserTextInputPage extends UserQuestionPage {
 }
 
 /**
- * Page provider factory for text input questions.
+ * User-page provider for text input questions.
  *
  * Instantiates the appropriate UI page based on the question state lifecycle.
  * For the answer enabled phase, returns a {@link UserTextInputPage} for text submission.
@@ -92,7 +63,7 @@ class UserTextInputPage extends UserQuestionPage {
 export class TextInputQuestionPageProvider extends QuestionUserPageProvider {
     /**
      * Creates a page for the answer submission phase.
-     * @param state User state handler (unused; provided by base interface contract).
+     * @param state User state handler (currently unused; part of the shared provider contract).
      * @param onAnswer Callback invoked when the user submits their text answer.
      * @returns A page displaying the text input form.
      */

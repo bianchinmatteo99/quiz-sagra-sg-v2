@@ -1,6 +1,6 @@
 import { CancelHandle, delay } from "../common/general.utils";
 import { MulticolPage, Page, Pager, StaticPage } from "../common/navigation/pages";
-import { QuestionState } from "../common/questions/question.types";
+import { QuestionState } from "../common/questions/question.contract";
 import { TimerHandler } from "./display.state";
 
 type PageColDef = [string, Page][]

@@ -3,7 +3,7 @@ import { RealtimeDatabaseRoot } from "../common/database/database.types";
 import { GamePresenterStateView } from "../common/games/games.presenter.base";
 import { GameDefinitionData } from "../common/games/games.contracts";
 import { instantiatePresenterStateViewForGame } from "../common/games/games.presenter.register";
-import { QuestionState } from "../common/questions/question.types";
+import { QuestionState } from "../common/questions/question.contract";
 import { QuizStatus } from "../common/quiz/quiz.types";
 
 class TimerView {

@@ -11,7 +11,7 @@ High-level components
   - `database/` — `firebase.adapter.ts` implements `IDatabaseAdapter` used throughout the app ([src/common/database/firebase.adapter.ts](src/common/database/firebase.adapter.ts#L1-L120)).
   - `quiz/` — quiz lifecycle, definitions, controller and manager (`QuizController`, `QuizManager`) ([src/common/quiz/quiz.manager.ts](src/common/quiz/quiz.manager.ts#L1-L200)).
   - `games/` — game definitions, managers, and viewers; new games register in `games.admin.register.ts` ([src/common/games/games.admin.register.ts](src/common/games/games.admin.register.ts#L1-L120)).
-  - `questions/` — question models, views and registration for user page providers (`questions.register.ts`).
+  - `questions/` — question models, views and registration for user page providers (`questions.user.register.ts`).
   - `people/` — participant list and ranking manager (`PeopleModel`, `PeopleController`).
 
 Design and data flow
@@ -27,7 +27,7 @@ Lifecycle (simplified)
 
 Extension points
 - Add a new game: follow [src/common/games/README.md](src/common/games/README.md) for folder layout, contracts, and registry wiring.
-- Add a new question UI/provider: implement under `src/common/questions/` and register in `questions.register.ts`.
+- Add a new question type/UI: follow [src/common/questions/README.md](src/common/questions/README.md) for runtime model constraints, provider wiring in `questions.user.register.ts`, and game-manager instantiation guidance.
 
 Concurrency and security notes
 - The app relies on optimistic client interactions and DB listeners; time-critical coordination is handled by the host (admin).

@@ -1,5 +1,5 @@
 import { CancelHandle } from "../general.utils";
-import { QuestionState } from "../questions/question.types";
+import { QuestionResultsSnapshot, QuestionState, QuestionStateSnapshot } from "../questions/question.contract";
 import { GameStatus, QuizStatus } from "../quiz/quiz.types";
 
 /**
@@ -46,14 +46,7 @@ export interface RealtimeDatabaseRoot {
         };
 
         /** General runtime question state at /state/question. */
-        question?: {
-            name: string;
-            displayName: string;
-            state: QuestionState;
-            deny?: string[];
-            enableAnswers?: boolean;
-            enableManualEvaluation?: boolean;
-        };
+        question?: QuestionStateSnapshot;
 
         /** Shared countdown end timestamp at /state/timerend. */
         timerend?: number | null;
@@ -71,13 +64,7 @@ export interface RealtimeDatabaseRoot {
     };
 
     /** Question answers and evaluation results at /results. */
-    results?: {
-        answers?: Record<string, {
-            time: string;
-            answer: string;
-        }>;
-        evaluation?: Record<string, boolean>;
-    };
+    results?: QuestionResultsSnapshot;
 }
 
 /**

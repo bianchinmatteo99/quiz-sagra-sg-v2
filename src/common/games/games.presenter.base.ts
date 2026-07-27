@@ -3,10 +3,6 @@ import { GameDefinitionData } from "./games.contracts";
 /**
  * Base presenter-side renderer contract for game-specific state panels.
  *
- * This abstraction is safe to share across frontend surfaces because it depends
- * only on shared contracts (`games.contracts.ts`) and DOM primitives, without
- * importing admin runtime orchestration.
- *
  * Concrete implementations are created by `games.presenter.register.ts` and used
  * by the presenter app to render a normalized view of `/state/game`.
  *

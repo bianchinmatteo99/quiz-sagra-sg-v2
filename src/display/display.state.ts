@@ -1,6 +1,6 @@
 import { IDatabaseAdapter } from "../common/database/database.types"
 import { CancelHandle } from "../common/general.utils"
-import { QuestionState } from "../common/questions/question.types"
+import { QuestionState } from "../common/questions/question.contract"
 import { QuizStatus } from "../common/quiz/quiz.types"
 
 /**

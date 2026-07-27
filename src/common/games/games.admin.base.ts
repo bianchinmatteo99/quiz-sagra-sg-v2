@@ -65,7 +65,7 @@
 import { IDatabaseAdapter } from "../database/database.types";
 import { BaseModel, BaseModelContext, toHtml } from "../general.utils";
 import { Person } from "../people/people.model";
-import { QuestionContext } from "../questions/question.base";
+import { QuestionContext } from "../questions/questions.admin.base";
 import { RankingDiff } from "../people/people.controller";
 import { GameDefinitionData } from "./games.contracts";
 
