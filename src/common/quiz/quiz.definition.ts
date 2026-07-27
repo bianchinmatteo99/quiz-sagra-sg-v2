@@ -1,6 +1,5 @@
 import { IDatabaseAdapter } from "../database/database.types";
-import { GameDefinition } from "../games/games.admin.base";
-import { GameDefinitionData } from "../games/games.contracts";
+import { AnyGameDefinition, GameDefinition } from "../games/games.admin.base";
 import { gamesDefBuilders } from "../games/games.admin.register";
 
 function removeUndefinedDeep<T>(value: T): T {
@@ -25,9 +24,9 @@ function removeUndefinedDeep<T>(value: T): T {
 export class QuizDefinition {
     static readonly DBPATH = "/definition";
     title: string;
-    games: GameDefinition<GameDefinitionData>[];
+    games: AnyGameDefinition[];
 
-    constructor(title: string, games: GameDefinition<GameDefinitionData>[]) {
+    constructor(title: string, games: AnyGameDefinition[]) {
         this.title = title;
         this.games = games;
     }

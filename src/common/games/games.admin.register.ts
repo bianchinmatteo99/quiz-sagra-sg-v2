@@ -2,7 +2,7 @@ import { CatenaGameDefinitionData } from "./catena/catena.contracts";
 import { CatenaGameDefinition, CatenaGameDefinitionBuilder } from "./catena/catena.admin.definition";
 import { CatenaGameManager } from "./catena/catena.admin.manager";
 import { CatenaGameView } from "./catena/catena.admin.mvc";
-import { GameDefinition, GameDefinitionBuilder, GameManager, GameManagerContext, GameView } from "./games.admin.base";
+import { AnyGameDefinition, GameDefinitionBuilder, GameManager, GameManagerContext, GameView } from "./games.admin.base";
 import { GameDefinitionData } from "./games.contracts";
 
 /**
@@ -24,7 +24,7 @@ export const gamesDefBuilders: { [key: string]: GameDefinitionBuilder<GameDefini
  * from persisted state. The `restoreState` flag is forwarded to the manager so it
  * can decide whether to restore existing runtime state or start fresh.
  */
-export function instantiateGameManagerFor(def: GameDefinition<GameDefinitionData>, ctx: GameManagerContext, restoreState : boolean = false): GameManager{
+export function instantiateGameManagerFor(def: AnyGameDefinition, ctx: GameManagerContext, restoreState : boolean = false): GameManager{
     switch(def.kind){
         case "catena":
             return new CatenaGameManager(ctx, def as CatenaGameDefinition, restoreState);
@@ -39,7 +39,7 @@ export function instantiateGameManagerFor(def: GameDefinition<GameDefinitionData
  *
  * This view is intended to be used in static timeline mode.
  */
-export function instantiateGameViewerFor(def: GameDefinition<GameDefinitionData>): GameView{
+export function instantiateGameViewerFor(def: AnyGameDefinition): GameView{
     switch(def.kind){
         case "catena":
             return new CatenaGameView(null, def as CatenaGameDefinition);

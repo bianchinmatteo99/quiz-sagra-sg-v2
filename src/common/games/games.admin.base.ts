@@ -87,6 +87,8 @@ export class GameDefinition<TData extends GameDefinitionData> {
     }
 }
 
+    export type AnyGameDefinition = GameDefinition<GameDefinitionData>;
+
 /**
  * Builder interface used to instantiate a concrete game definition from
  * Markdown or persisted JSON.
@@ -152,7 +154,7 @@ export abstract class GameModel extends BaseModel {
     readonly DBPATH = "/state/game";
     
     /** The immutable game definition containing rules and configuration. */
-    abstract definition: GameDefinition<GameDefinitionData>;
+        abstract definition: AnyGameDefinition;
 
     context: GameModelContext;
 
@@ -240,7 +242,7 @@ export abstract class GameView {
     abstract activeGameContext: GameViewContext | null;
     
     /** The immutable game definition for rendering rules and metadata. */
-    abstract gameDef: GameDefinition<GameDefinitionData>;
+        abstract gameDef: AnyGameDefinition;
 
     private listenerController = new AbortController();
     

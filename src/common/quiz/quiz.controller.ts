@@ -3,11 +3,8 @@ import { GameStatus, QuizStatus } from "./quiz.types";
 import { QuizDefinition, QuizDefinitionBuilder } from "./quiz.definition";
 import { QuizView, QuizViewContext } from "./quiz.view";
 import { IDatabaseAdapter } from "../database/database.types";
-import { GameDefinition, GameView } from "../games/games.admin.base";
-import { GameDefinitionData } from "../games/games.contracts";
+import { AnyGameDefinition, GameView } from "../games/games.admin.base";
 import { instantiateGameViewerFor } from "../games/games.admin.register";
-
-type AnyGameDefinition = GameDefinition<GameDefinitionData>;
 
 /**
  * Context provided by the quiz manager to the quiz controller.
