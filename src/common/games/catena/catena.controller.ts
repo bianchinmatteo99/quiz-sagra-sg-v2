@@ -1,4 +1,4 @@
-import { delay, Secret } from "../../general.utils";
+import { delay } from "../../general.utils";
 import { GameController, GameControllerContext } from "../game.base";
 import { CatenaState } from "./catena.contracts";
 import { CatenaGameDefinition } from "./catena.definition";
@@ -26,8 +26,7 @@ export class ReazioneCatenaGameController extends GameController implements Cate
     /**
      * Advance to the next word in the chain.
      *
-     * Resets the letter reveal count and updates the secret values for the
-     * newly active word.
+     * Resets the letter reveal count for the newly active word.
      * @returns `true` when another word exists, otherwise `false`.
      */
     nextWord() : boolean{
@@ -36,8 +35,6 @@ export class ReazioneCatenaGameController extends GameController implements Cate
         if(!!nextw) {
             this.model.currentWordIndex = next;
             this.model.currentWordLetters = 0;
-            this.model.setSecret("currentword", this.model.getWordAsSecret(next)!);
-            this.model.setSecret("currentwordlength", new Secret(String(nextw.length), ()=>"***"));
             this.stateUpdated();
             return true;
         } else {

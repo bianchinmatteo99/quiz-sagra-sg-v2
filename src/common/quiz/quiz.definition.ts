@@ -3,6 +3,22 @@ import { GameDefinition } from "../games/game.base";
 import { GameDefinitionData } from "../games/games.contracts";
 import { gamesDefBuilders } from "../games/games.register";
 
+function removeUndefinedDeep<T>(value: T): T {
+    if (Array.isArray(value)) {
+        return value.map((item) => item === undefined ? null : removeUndefinedDeep(item)) as T;
+    }
+
+    if (value !== null && typeof value === "object") {
+        return Object.fromEntries(
+            Object.entries(value)
+                .filter(([, entryValue]) => entryValue !== undefined)
+                .map(([key, entryValue]) => [key, removeUndefinedDeep(entryValue)])
+        ) as T;
+    }
+
+    return value;
+}
+
 /**
  * Represents the quiz definition and the list of games included in the quiz.
  */
@@ -33,10 +49,10 @@ export class QuizDefinition {
      * @returns Serialized quiz definition.
      */
     toJSON(): any {
-        return {
+        return removeUndefinedDeep({
             title: this.title,
             games: this.games.map(game => game.data),
-        };
+        });
     }
 
     /**

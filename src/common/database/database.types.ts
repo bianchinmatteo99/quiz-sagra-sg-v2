@@ -77,9 +77,6 @@ export interface RealtimeDatabaseRoot {
         }>;
         evaluation?: Record<string, boolean>;
     };
-
-    /** Optional secret storage at /secrets. */
-    secrets?: Record<string, unknown>;
 }
 
 /**

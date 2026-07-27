@@ -58,8 +58,6 @@ Top-level keys and purpose
       }
     }
 
-- `/secrets{SECRETSPATH}` — optional secret storage created by models that set `SECRETSPATH`. Example from `GameModel` (`SECRETSPATH = "/game"`) results in `/secrets/game/{key}` storing secret values.
-
 Other conventions
 - The client code uses a few canonical access paths in helpers/view/state handlers:
   - App state root: `/state` (read by user/display entrypoints).

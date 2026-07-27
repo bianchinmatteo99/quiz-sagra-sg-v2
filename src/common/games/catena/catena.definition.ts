@@ -21,7 +21,6 @@ export class CatenaGameDefinitionBuilder implements GameDefinitionBuilder<Catena
         if (gameTitle !== "catena") throw new Error(`Unexpected game type in section: ${gameTitle}`);
 
         const sectionData: Omit<CatenaGameDefinitionData, "kind" | "name"> = {
-            title: undefined,
             timeForAnswer: 0,
             canRetryForSameWord: false,
             words: [],
@@ -57,7 +56,7 @@ export class CatenaGameDefinitionBuilder implements GameDefinitionBuilder<Catena
         return {
             kind: "catena",
             name: "Reazione a catena",
-            title: sectionData.title,
+            ...(sectionData.title ? { title: sectionData.title } : {}),
             timeForAnswer: sectionData.timeForAnswer,
             canRetryForSameWord: sectionData.canRetryForSameWord,
             words: sectionData.words,
@@ -72,11 +71,11 @@ export class CatenaGameDefinitionBuilder implements GameDefinitionBuilder<Catena
         return {
             kind: "catena",
             name: "Reazione a catena",
-            title: typeof data?.title === "string" && data.title.length > 0 ? data.title : undefined,
             timeForAnswer: Number(data?.timeForAnswer ?? 0),
             canRetryForSameWord: data?.canRetryForSameWord === true,
             words: Array.isArray(data?.words) ? data.words.map((w: unknown) => String(w)) : [],
             pointsForCorrectAnswer: Number(data?.pointsForCorrectAnswer ?? 10),
+            ...(typeof data?.title === "string" && data.title.length > 0 ? { title: data.title } : {}),
         };
     }
 }

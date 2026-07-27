@@ -133,8 +133,7 @@ export interface GameModelContext extends BaseModelContext {
  * 2. Add fields for all mutable game state (current word index, score, etc.).
  * 3. Implement `parseFromJSON(data)` to restore state from database.
  * 4. Implement `toJSON()` to serialize state for persistence.
- * 5. Optional: call `setSecret()` to register secrets (e.g., hidden answers) that should
- *    be available only to the admin or obfuscated based on game logic.
+ * 5. Optionally use `Secret` helpers in concrete models/views for UI-only obfuscation.
  *
  * ## Context Requirements
  *
@@ -145,15 +144,12 @@ export interface GameModelContext extends BaseModelContext {
  * Typically, the `GameController` implements this interface and passes itself to the model.
  *
  * State is automatically saved to `/state/game` whenever the controller calls
- * `stateUpdated()`. Secrets are persisted under `/secrets/game/{key}`.
+ * `stateUpdated()`.
  *
  */
 export abstract class GameModel extends BaseModel {
     /** Database path where game state is persisted. */
     readonly DBPATH = "/state/game";
-    
-    /** Database path prefix for storing secrets (admin-only or obfuscated values). */
-    protected readonly SECRETSPATH = "/game";
     
     /** The immutable game definition containing rules and configuration. */
     abstract definition: GameDefinition<GameDefinitionData>;

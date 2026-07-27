@@ -82,8 +82,6 @@ export abstract class BaseModel {
      *   and `saveToDatabase` writes each keyed value to its associated path.
      */
     abstract readonly DBPATH: string | Map<string, string>;
-    protected readonly SECRETSPATH: string | null = null;
-    protected readonly secrets: Map<string, Secret<any>> = new Map();
     abstract context: BaseModelContext;
 
     abstract parseFromJSON(data: any): boolean;
@@ -142,25 +140,6 @@ export abstract class BaseModel {
     }
 
     /**
-     * Registers a secret value and optionally persists it to the secrets path.
-     */
-    setSecret<T>(key: string, secret: Secret<T>) {
-        this.secrets.set(key, secret)
-        if (!!this.SECRETSPATH) {
-            this.context.getDatabase().set("/secrets" + this.SECRETSPATH + `/${key}`, secret.toJSON())
-        }
-    }
-
-    /**
-     * Reads a registered secret value.
-     * @param key - Secret identifier.
-     * @param clear - Whether the returned value should be clear text.
-     */
-    getSecret<T>(key: string, clear: boolean): T | null {
-        return this.secrets.get(key)?.read(clear)
-    }
-
-    /**
      * Removes persisted values for this model and clears any active bindings.
      *
      * For string `DBPATH`, the single path is removed. For a `Map<string, string>`,
@@ -176,9 +155,6 @@ export abstract class BaseModel {
                     this.context.getDatabase().remove(path)
                 )
             );
-        }
-        if (!!this.SECRETSPATH) {
-            await this.context.getDatabase().remove("/secrets" + this.SECRETSPATH);
         }
     }
 
