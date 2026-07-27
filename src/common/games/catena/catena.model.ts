@@ -95,7 +95,7 @@ export class ReazioneCatenaGameModel extends GameModel {
         return {
             kind: this.definition.kind,
             name: this.definition.data.name,
-            title: this.definition.data.title,
+            ...(this.definition.data.title !== undefined ? { title: this.definition.data.title } : {}),
             state: this.state,
             currentWordIndex: this.currentWordIndex,
             currentWordLetters: this.currentWordLetters,
