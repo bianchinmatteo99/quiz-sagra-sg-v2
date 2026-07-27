@@ -5,9 +5,11 @@ time_for_answer: 30
 points_for_correct_answer: 10
 can_retry_for_same_word: False
 words:
-- catena
-- di
-- prova
+- boh
+- incerto
+- tempo
+- debito
+- promessa
 
 ## Catena
 time_for_answer: 30
