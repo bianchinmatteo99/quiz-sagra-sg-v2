@@ -32,19 +32,60 @@
     <main id="main-container" class="container-fluid">
         
         <main class="col">
-            <section id="quiz-game-current-state" class="panel top"></section>
+            <section id="quiz-game-current-state" class="panel">
+                <div class="quiz-state-layout">
+                    <div class="status-box">
+                        <span class="status-label">Stato quiz</span>
+                        <strong id="quiz-status-value" class="status-value">-</strong>
+                    </div>
+
+                    <section class="game-state-section" aria-labelledby="game-specific-title">
+                        <h3 id="game-specific-title">Stato del gioco</h3>
+                        <div id="game-specific-state">Nessun gioco attivo.</div>
+                    </section>
+                </div>
+            </section>
         </main>
 
         <div class="resizer col-resizer"></div>
 
         <main class="col">
-            <section id="question-and-answers"></section>
+            <section id="question-and-answers" class="panel">
+                <div class="question-state-layout">
+                    <div class="status-box">
+                        <span class="status-label">Domanda</span>
+                        <strong id="question-status" class="status-value">-</strong>
+                    </div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Squadra</th>
+                            <th>Risposta</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="question-answers-body"></tbody>
+                </table>
+            </section>
         </main>
 
         <div class="resizer col-resizer"></div>
 
         <main class="col">
-            <section id="ranking"></section>
+            <section id="ranking" class="panel">
+                <h3>Classifica</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Squadra</th>
+                            <th>Punti</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ranking-body"></tbody>
+                </table>
+            </section>
         </main>
     </main>
 

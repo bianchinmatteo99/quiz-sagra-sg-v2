@@ -1,92 +1,64 @@
 import { FirebaseDatabaseAdapter } from "../common/database/firebase.adapter";
 import { RealtimeDatabaseRoot } from "../common/database/database.types";
+import { GamePresenterStateView } from "../common/games/games.presenter.base";
+import { instantiatePresenterStateViewForGame } from "../common/games/games.presenter.register";
 import { QuestionState } from "../common/questions/question.types";
 import { QuizStatus } from "../common/quiz/quiz.types";
 
-class CatenaGameStateView {
-    render(container: HTMLElement, gameState: Record<string, unknown> | null, showSecrets: boolean): void {
-        if (!gameState) {
-            container.textContent = "Nessuno stato gioco disponibile.";
-            return;
+class QuizGameStateView {
+    private static readonly CONTAINER_ID = "quiz-game-current-state";
+    private static readonly QUIZ_STATUS_VALUE_ID = "quiz-status-value";
+    private static readonly GAME_SPECIFIC_STATE_ID = "game-specific-state";
+    private static readonly SECRETS_TOGGLE_ID = "mostra-segreti";
+    private static readonly QUIZ_STATUS_LABELS: Record<QuizStatus, string> = {
+        [QuizStatus.Booting]: "Avvio",
+        [QuizStatus.AwaitingStart]: "In attesa dell'inizio",
+        [QuizStatus.OnBoarding]: "Registrazione giocatori",
+        [QuizStatus.RunningGame]: "Gioco in corso",
+        [QuizStatus.Idle]: "In pausa",
+        [QuizStatus.FinalRanking]: "Classifica finale",
+        [QuizStatus.Ended]: "Terminato",
+    };
+
+    private readonly container: HTMLElement;
+    private readonly quizStatusValue: HTMLElement;
+    private readonly gameSpecificContainer: HTMLElement;
+    private readonly secretToggle: HTMLInputElement;
+    private readonly gameViews = new Map<string, GamePresenterStateView>();
+
+    constructor() {
+        const container = document.getElementById(QuizGameStateView.CONTAINER_ID);
+        const quizStatusValue = document.getElementById(QuizGameStateView.QUIZ_STATUS_VALUE_ID);
+        const gameSpecificContainer = document.getElementById(QuizGameStateView.GAME_SPECIFIC_STATE_ID);
+        const secretToggle = document.getElementById(QuizGameStateView.SECRETS_TOGGLE_ID);
+
+        if (!container || !quizStatusValue || !gameSpecificContainer || !(secretToggle instanceof HTMLInputElement)) {
+            throw new Error("QuizGameStateView richiede i contenitori statici in index.html");
         }
 
-        const currentWordIndex = typeof gameState.currentWordIndex === "number" ? gameState.currentWordIndex : null;
-        const currentWordLetters = typeof gameState.currentWordLetters === "number" ? gameState.currentWordLetters : null;
-        const state = typeof gameState.state === "number" ? gameState.state : null;
-        const words = Array.isArray(gameState.words) ? gameState.words : [];
-        const currentWordRaw = currentWordIndex !== null ? words[currentWordIndex] : null;
-        const currentWord = typeof currentWordRaw === "string" ? currentWordRaw : null;
-
-        const list = document.createElement("ul");
-
-        const appendItem = (label: string, value: string): void => {
-            const li = document.createElement("li");
-            li.textContent = `${label}: ${value}`;
-            list.appendChild(li);
-        };
-
-        appendItem("Stato catena", state !== null ? String(state) : "n/d");
-        appendItem("Parola indice", currentWordIndex !== null ? String(currentWordIndex + 1) : "n/d");
-        appendItem("Lettere rivelate", currentWordLetters !== null ? String(currentWordLetters) : "n/d");
-        appendItem("Parola corrente", showSecrets ? (currentWord ?? "n/d") : "***");
-
-        container.replaceChildren(list);
-    }
-}
-
-class QuizGameStateView {
-    private readonly gameSpecificContainer: HTMLElement;
-    private readonly catenaView = new CatenaGameStateView();
-
-    constructor(private readonly container: HTMLElement, private readonly secretToggle: HTMLInputElement) {
-        const gameSpecificContainer = document.createElement("div");
-        gameSpecificContainer.id = "game-specific-state";
+        this.container = container;
+        this.quizStatusValue = quizStatusValue;
         this.gameSpecificContainer = gameSpecificContainer;
+        this.secretToggle = secretToggle;
     }
 
     render(root: RealtimeDatabaseRoot): void {
         const quiz = root.state?.quiz;
-        const definition = root.definition;
         const gameState = (root.state?.game ?? null) as Record<string, unknown> | null;
 
-        const wrapper = document.createElement("div");
-        const quizTitle = document.createElement("h3");
-        quizTitle.textContent = "Quiz / Game state";
-        wrapper.appendChild(quizTitle);
+        let quizStatus = typeof quiz?.status === "number"
+            ? QuizGameStateView.QUIZ_STATUS_LABELS[quiz.status as QuizStatus] ?? String(quiz.status)
+            : "-";
+        if (quiz?.status === QuizStatus.Idle && quiz.displayRankOnIdle) {
+            quizStatus = "Classifica";
+        }
+        this.quizStatusValue.textContent = quizStatus;
 
-        const details = document.createElement("ul");
-        const addDetail = (label: string, value: string): void => {
-            const li = document.createElement("li");
-            li.textContent = `${label}: ${value}`;
-            details.appendChild(li);
-        };
-
-        const quizStatus = typeof quiz?.status === "number" ? QuizStatus[quiz.status] ?? String(quiz.status) : "n/d";
-        addDetail("Quiz status", quizStatus);
-
-        const currentGame = typeof quiz?.currentGame === "number" ? quiz.currentGame : null;
-        addDetail("Current game index", currentGame === null ? "-" : String(currentGame));
-
-        const gameDef = currentGame !== null && definition?.games?.[currentGame] ? definition.games[currentGame] as Record<string, unknown> : null;
         const gameNameFromState = typeof gameState?.name === "string" ? gameState.name : null;
-        const gameNameFromDefinition = gameDef && typeof gameDef.name === "string" ? gameDef.name : null;
-        const gameName = gameNameFromState ?? gameNameFromDefinition;
+        const gameView = gameNameFromState ? this.getGameView(gameNameFromState) : null;
 
-        const gameDisplayName = gameDef && typeof gameDef.displayName === "string" ? gameDef.displayName : null;
-        addDetail("Current game", gameDisplayName ?? gameName ?? "n/d");
-
-        const allStatuses = Array.isArray(quiz?.gamesStatuses) ? quiz.gamesStatuses : [];
-        addDetail("Games total", String(allStatuses.length));
-
-        wrapper.appendChild(details);
-
-        const gameHeader = document.createElement("h4");
-        gameHeader.textContent = "Game specific state";
-        wrapper.appendChild(gameHeader);
-        wrapper.appendChild(this.gameSpecificContainer);
-
-        if (gameName === "catena") {
-            this.catenaView.render(this.gameSpecificContainer, gameState, this.secretToggle.checked);
+        if (gameView) {
+            gameView.render(this.gameSpecificContainer, gameState, this.secretToggle.checked);
         } else if (gameState) {
             const pre = document.createElement("pre");
             pre.textContent = JSON.stringify(gameState, null, 2);
@@ -94,37 +66,66 @@ class QuizGameStateView {
         } else {
             this.gameSpecificContainer.textContent = "Nessun gioco attivo.";
         }
+    }
 
-        this.container.replaceChildren(wrapper);
+    onSecretsToggleChange(listener: () => void): void {
+        this.secretToggle.addEventListener("change", listener);
+    }
+
+    private getGameView(gameName: string): GamePresenterStateView | null {
+        const existingView = this.gameViews.get(gameName);
+        if (existingView) {
+            return existingView;
+        }
+
+        try {
+            const gameView = instantiatePresenterStateViewForGame(gameName);
+            this.gameViews.set(gameName, gameView);
+            return gameView;
+        } catch {
+            return null;
+        }
     }
 }
 
 class QuestionStatusAnswersEvaluationView {
+    private static readonly CONTAINER_ID = "question-and-answers";
+    private static readonly STATUS_ID = "question-status";
+    private static readonly TABLE_BODY_ID = "question-answers-body";
+    private static readonly QUESTION_STATUS_LABELS: Record<QuestionState, string> = {
+        [QuestionState.SETUP]: "PREPARAZIONE",
+        [QuestionState.ASKING]: "DOMANDA APERTA",
+        [QuestionState.EVALUATING]: "VALUTAZIONE",
+        [QuestionState.IDLE]: "IN ATTESA",
+        [QuestionState.SHOWRESULTS]: "RISULTATI",
+        [QuestionState.ENDED]: "CONCLUSA",
+    };
+
+    private readonly container: HTMLElement;
     private readonly statusEl: HTMLElement;
     private readonly tbody: HTMLTableSectionElement;
 
-    constructor(container: HTMLElement) {
-        const title = document.createElement("h3");
-        title.textContent = "Question / Answers / Evaluation";
+    constructor() {
+        const container = document.getElementById(QuestionStatusAnswersEvaluationView.CONTAINER_ID);
+        const statusEl = document.getElementById(QuestionStatusAnswersEvaluationView.STATUS_ID);
+        const tbody = document.getElementById(QuestionStatusAnswersEvaluationView.TABLE_BODY_ID);
 
-        const status = document.createElement("p");
-        this.statusEl = status;
+        if (!container || !statusEl || !(tbody instanceof HTMLTableSectionElement)) {
+            throw new Error("QuestionStatusAnswersEvaluationView richiede il contenitore in index.html");
+        }
 
-        const table = document.createElement("table");
-        const thead = document.createElement("thead");
-        thead.innerHTML = "<tr><th>Team</th><th>Answer</th><th>Time</th><th>Evaluation</th></tr>";
-        const tbody = document.createElement("tbody");
-        table.append(thead, tbody);
+        this.container = container;
+        this.statusEl = statusEl;
         this.tbody = tbody;
-
-        container.replaceChildren(title, status, table);
     }
 
     render(root: RealtimeDatabaseRoot): void {
         const question = root.state?.question;
-        const statusName = typeof question?.state === "number" ? QuestionState[question.state] ?? String(question.state) : "n/d";
-        const questionName = question?.name ?? "n/d";
-        this.statusEl.textContent = `Question: ${questionName} | State: ${statusName}`;
+        const statusName = typeof question?.state === "number"
+            ? QuestionStatusAnswersEvaluationView.QUESTION_STATUS_LABELS[question.state as QuestionState] ?? String(question.state)
+            : "-";
+        const questionName = question?.name ?? "-";
+        this.statusEl.textContent = `${questionName} - ${statusName}`;
 
         const answers = (root.results?.answers ?? {}) as Record<string, { time: string; answer: string }>;
         const evaluation = (root.results?.evaluation ?? {}) as Record<string, boolean>;
@@ -137,8 +138,10 @@ class QuestionStatusAnswersEvaluationView {
             const personName = people[id]?.name ?? id;
             const answer = answerEntry?.answer ?? "";
             const time = answerEntry?.time ?? "";
-            const evaluationDisplay = typeof evalEntry === "boolean" ? (evalEntry ? "Correct" : "Wrong") : "-";
-            return { id, personName, answer, time, evaluationDisplay };
+            const evaluationState = typeof evalEntry === "boolean"
+                ? (evalEntry ? "correct" : "wrong")
+                : "pending";
+            return { id, personName, answer, time, evaluationState };
         });
 
         rows.sort((a, b) => {
@@ -159,15 +162,26 @@ class QuestionStatusAnswersEvaluationView {
             if (!row) {
                 row = document.createElement("tr");
                 row.setAttribute("data-id", rowData.id);
-                for (let i = 0; i < 4; i++) {
+                for (let i = 0; i < 3; i++) {
                     row.appendChild(document.createElement("td"));
                 }
             }
             const cells = row.cells;
             cells[0].textContent = rowData.personName;
             cells[1].textContent = rowData.answer;
-            cells[2].textContent = rowData.time;
-            cells[3].textContent = rowData.evaluationDisplay;
+            const evaluationIcon = document.createElement("span");
+            evaluationIcon.className = `material-symbols-outlined evaluation-icon evaluation-${rowData.evaluationState}`;
+            evaluationIcon.textContent = rowData.evaluationState === "correct"
+                ? "check_circle"
+                : rowData.evaluationState === "wrong"
+                    ? "cancel"
+                    : "help";
+            evaluationIcon.setAttribute("aria-label", rowData.evaluationState === "correct"
+                ? "Corretta"
+                : rowData.evaluationState === "wrong"
+                    ? "Errata"
+                    : "In attesa");
+            cells[2].replaceChildren(evaluationIcon);
             this.tbody.appendChild(row);
             existing.delete(rowData.id);
         }
@@ -179,20 +193,22 @@ class QuestionStatusAnswersEvaluationView {
 }
 
 class RankingView {
+    private static readonly CONTAINER_ID = "ranking";
+    private static readonly TABLE_BODY_ID = "ranking-body";
+
+    private readonly container: HTMLElement;
     private readonly tbody: HTMLTableSectionElement;
 
-    constructor(container: HTMLElement) {
-        const title = document.createElement("h3");
-        title.textContent = "Ranking";
+    constructor() {
+        const container = document.getElementById(RankingView.CONTAINER_ID);
+        const tbody = document.getElementById(RankingView.TABLE_BODY_ID);
 
-        const table = document.createElement("table");
-        const thead = document.createElement("thead");
-        thead.innerHTML = "<tr><th>Pos</th><th>Team</th><th>Points</th><th>Last Δ</th></tr>";
-        const tbody = document.createElement("tbody");
-        table.append(thead, tbody);
+        if (!container || !(tbody instanceof HTMLTableSectionElement)) {
+            throw new Error("RankingView richiede il contenitore in index.html");
+        }
+
+        this.container = container;
         this.tbody = tbody;
-
-        container.replaceChildren(title, table);
     }
 
     render(root: RealtimeDatabaseRoot): void {
@@ -233,7 +249,7 @@ class RankingView {
             if (!row) {
                 row = document.createElement("tr");
                 row.setAttribute("data-id", rowData.id);
-                for (let i = 0; i < 4; i++) {
+                for (let i = 0; i < 3; i++) {
                     row.appendChild(document.createElement("td"));
                 }
             }
@@ -241,7 +257,6 @@ class RankingView {
             cells[0].textContent = rowData.position === Number.MAX_SAFE_INTEGER ? "-" : String(rowData.position);
             cells[1].textContent = rowData.name;
             cells[2].textContent = String(rowData.points);
-            cells[3].textContent = String(rowData.lastUpdate);
             this.tbody.appendChild(row);
             existing.delete(rowData.id);
         }
@@ -255,18 +270,9 @@ class RankingView {
 document.addEventListener('DOMContentLoaded', async function () {
     const db = new FirebaseDatabaseAdapter();
 
-    const stateContainer = document.getElementById("quiz-game-current-state");
-    const questionContainer = document.getElementById("question-and-answers");
-    const rankingContainer = document.getElementById("ranking");
-    const secretsToggle = document.getElementById("mostra-segreti") as HTMLInputElement | null;
-
-    if (!stateContainer || !questionContainer || !rankingContainer || !secretsToggle) {
-        throw new Error("Presenter containers are missing in index.html");
-    }
-
-    const quizGameStateView = new QuizGameStateView(stateContainer, secretsToggle);
-    const questionView = new QuestionStatusAnswersEvaluationView(questionContainer);
-    const rankingView = new RankingView(rankingContainer);
+    const quizGameStateView = new QuizGameStateView();
+    const questionView = new QuestionStatusAnswersEvaluationView();
+    const rankingView = new RankingView();
 
     let latestRoot: RealtimeDatabaseRoot = {};
     const renderAll = (): void => {
@@ -275,7 +281,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         rankingView.render(latestRoot);
     };
 
-    secretsToggle.addEventListener("change", () => {
+    quizGameStateView.onSecretsToggleChange(() => {
         renderAll();
     });
 
