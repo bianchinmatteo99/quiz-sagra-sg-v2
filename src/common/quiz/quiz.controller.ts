@@ -128,31 +128,48 @@ class QuizController implements QuizViewContext, QuizModelContext {
     }
 
     /**
-     * Decide whether to load the quiz from file, database restart, or continue from database.
+     * Decide whether to load the quiz from the example file, uploaded file,
+     * database restart, or continue from database.
      * @param filename File path to the quiz definition markdown.
      */
     async decideSourceAndLoad(filename: string): Promise<'new' | 'restore' | 'error'> {
         const builder = new QuizDefinitionBuilder();
-        const [db, file] = await Promise.all([
+        const [db, exampleFile] = await Promise.all([
             builder.loadFromDatabase(this.context.getDatabase()),
             builder.loadFromFile(filename)
         ]);
 
-        const choice = await this.view.showChoiceDialog(!!db, !!file);
+        const choice = await this.view.showChoiceDialog(!!db, !!exampleFile);
+        if (!choice) {
+            return 'error';
+        }
 
-        if (choice === 'file' && !!file) {
-            // Load from file and delete database quiz
-            this.context.getDatabase().remove("/");
-            file.saveToDatabase(this.context.getDatabase());
-            this.model = new QuizModel(this, file);
+        if (choice.kind === 'uploaded-file') {
+            const uploadedMarkdown = await choice.file.text();
+            const uploadedDefinition = await builder.parseFromMD(uploadedMarkdown);
+            if (!uploadedDefinition) {
+                return 'error';
+            }
+
+            await this.context.getDatabase().remove("/");
+            await uploadedDefinition.saveToDatabase(this.context.getDatabase());
+            this.model = new QuizModel(this, uploadedDefinition);
             return 'new';
-        } else if (choice === 'database-restart' && !!db) {
-            // Load from database and restart
-            this.context.getDatabase().remove("/");
-            db.saveToDatabase(this.context.getDatabase());
+        }
+
+        if (choice.kind === 'example-file' && !!exampleFile) {
+            // Load from bundled example file and reset runtime state.
+            await this.context.getDatabase().remove("/");
+            await exampleFile.saveToDatabase(this.context.getDatabase());
+            this.model = new QuizModel(this, exampleFile);
+            return 'new';
+        } else if (choice.kind === 'database-restart' && !!db) {
+            // Load from database definition and restart runtime state.
+            await this.context.getDatabase().remove("/");
+            await db.saveToDatabase(this.context.getDatabase());
             this.model = new QuizModel(this, db);
             return 'new';
-        } else if (choice === 'database-continue' && !!db) {
+        } else if (choice.kind === 'database-continue' && !!db) {
             // Load from database and continue as is
             this.model = new QuizModel(this, db, true);
             // TODO: Implement restore logic

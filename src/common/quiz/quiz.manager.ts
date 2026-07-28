@@ -29,7 +29,7 @@ class QuizManager implements QuizControllerContext, GameManagerContext, PeopleCo
         const policy = await this.quiz.decideSourceAndLoad(filename);
         switch (policy) {
             case 'new':
-                console.log("Loaded new quiz from file.");
+                console.log("Loaded quiz definition and reset runtime state.");
                 this.quiz.setStatus(QuizStatus.AwaitingStart);
                 break;
             case 'restore':
@@ -37,7 +37,7 @@ class QuizManager implements QuizControllerContext, GameManagerContext, PeopleCo
                 console.log("Restored quiz from database.");
                 break;
             case 'error':
-                console.error("Failed to load quiz from both sources.");
+                console.error("Failed to load quiz from any sources.");
                 break;
         }
         this.people = new PeopleController(this);

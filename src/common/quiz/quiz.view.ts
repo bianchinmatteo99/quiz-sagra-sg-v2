@@ -12,6 +12,12 @@ interface QuizViewContext {
     endQuiz(): void;
 }
 
+type QuizLoadChoice =
+    | { kind: 'example-file' }
+    | { kind: 'uploaded-file'; file: File }
+    | { kind: 'database-restart' }
+    | { kind: 'database-continue' };
+
 /**
  * Responsible for rendering quiz timeline UI and handling quiz actions.
  */
@@ -102,12 +108,13 @@ class QuizView {
     }
 
     /**
-     * Show the quiz source selection dialog to choose between file load or database restore.
+     * Show the quiz source selection dialog to choose between example file,
+     * uploaded file, and database restore options.
      * @param hasDatabase True when a quiz definition exists in the database.
-     * @param hasFile True when a definition file is available.
+     * @param hasExampleFile True when the bundled example definition file is available.
      * @returns Selected source option or null if the dialog cannot be displayed.
      */
-    async showChoiceDialog(hasDatabase: boolean, hasFile: boolean): Promise<'file' | 'database-restart' | 'database-continue' | null> {
+    async showChoiceDialog(hasDatabase: boolean, hasExampleFile: boolean): Promise<QuizLoadChoice | null> {
         return new Promise((resolve) => {
             const dialog = document.querySelector<HTMLDialogElement>('#quiz-choice-dialog');
             if (!dialog) {
@@ -116,42 +123,66 @@ class QuizView {
                 return;
             }
 
-            const fileBtn = document.querySelector<HTMLButtonElement>('#quiz-load-file');
+            const uploadInput = document.querySelector<HTMLInputElement>('#quiz-load-uploaded-file');
+            const exampleBtn = document.querySelector<HTMLButtonElement>('#quiz-load-example-file');
             const dbContinueBtn = document.querySelector<HTMLButtonElement>('#quiz-load-db-continue');
             const dbRestartBtn = document.querySelector<HTMLButtonElement>('#quiz-load-db-restart');
 
-            if (!fileBtn || !dbContinueBtn || !dbRestartBtn) {
+            if (!uploadInput || !exampleBtn || !dbContinueBtn || !dbRestartBtn) {
                 console.error('Quiz choice dialog buttons not found in DOM');
                 resolve(null);
                 return;
             }
 
-            fileBtn.disabled = !hasFile;
+            exampleBtn.disabled = !hasExampleFile;
             dbContinueBtn.disabled = !hasDatabase;
             dbRestartBtn.disabled = !hasDatabase;
 
-            const newFileBtn = fileBtn.cloneNode(true) as HTMLButtonElement;
+            const newUploadInput = uploadInput.cloneNode(true) as HTMLInputElement;
+            const newExampleBtn = exampleBtn.cloneNode(true) as HTMLButtonElement;
             const newDbContinueBtn = dbContinueBtn.cloneNode(true) as HTMLButtonElement;
             const newDbRestartBtn = dbRestartBtn.cloneNode(true) as HTMLButtonElement;
 
-            fileBtn.replaceWith(newFileBtn);
+            uploadInput.replaceWith(newUploadInput);
+            exampleBtn.replaceWith(newExampleBtn);
             dbContinueBtn.replaceWith(newDbContinueBtn);
             dbRestartBtn.replaceWith(newDbRestartBtn);
 
-            newFileBtn.addEventListener('click', () => {
-                dialog.close();
-                resolve('file');
+            let settled = false;
+            const finish = (choice: QuizLoadChoice | null): void => {
+                if (settled) {
+                    return;
+                }
+                settled = true;
+                if (dialog.open) {
+                    dialog.close();
+                }
+                resolve(choice);
+            };
+
+            newUploadInput.addEventListener('change', () => {
+                const file = newUploadInput.files?.[0];
+                if (!file) {
+                    return;
+                }
+                finish({ kind: 'uploaded-file', file });
+            });
+
+            newExampleBtn.addEventListener('click', () => {
+                finish({ kind: 'example-file' });
             });
 
             newDbContinueBtn.addEventListener('click', () => {
-                dialog.close();
-                resolve('database-continue');
+                finish({ kind: 'database-continue' });
             });
 
             newDbRestartBtn.addEventListener('click', () => {
-                dialog.close();
-                resolve('database-restart');
+                finish({ kind: 'database-restart' });
             });
+
+            dialog.addEventListener('close', () => {
+                finish(null);
+            }, { once: true });
 
             dialog.showModal();
         });

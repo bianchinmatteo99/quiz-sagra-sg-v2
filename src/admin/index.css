@@ -153,3 +153,24 @@ button {
 .row-resizer {
   cursor: row-resize;
 }
+
+#quiz-choice-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+#quiz-choice-actions-grid > * {
+  margin: 0;
+  width: 100%;
+}
+
+#quiz-load-uploaded-file {
+  max-width: 100%;
+}
+
+@media (max-width: 640px) {
+  #quiz-choice-actions-grid {
+    grid-template-columns: 1fr;
+  }
+}

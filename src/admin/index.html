@@ -87,9 +87,10 @@
                 <h2>Quiz Load Choice</h2>
             </header>
             <p>Select which quiz source to load:</p>
-            <p><strong>Note:</strong> Loading from file will delete the database quiz.</p>
-            <footer>
-                <button id="quiz-load-file" type="button">Load from File</button>
+            <p><strong>Note:</strong> Choosing uploaded/example file or database restart will reset quiz runtime state.</p>
+            <footer id="quiz-choice-actions-grid">
+                <input id="quiz-load-uploaded-file" type="file" accept=".md,text/markdown" aria-label="Upload quiz definition markdown file" />
+                <button id="quiz-load-example-file" type="button">Load Example File</button>
                 <button id="quiz-load-db-continue" type="button">Load from Database (Continue)</button>
                 <button id="quiz-load-db-restart" type="button">Load from Database (Restart)</button>
             </footer>
