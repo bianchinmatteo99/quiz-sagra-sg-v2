@@ -101,7 +101,7 @@ class QuestionPageChooser extends DecisionLeaf<UserStateHandler, Page> {
             this.clear();
             state.setCurrentPath(this.path, "end question")
             return new IdleStatusPage("In attesa della prossima domanda...", { bottom_image: IdleStatusPage.DEFAULT_IMAGES.waiting_for_start });
-        } else if (question.deny?.includes(state.getUserId()!)) {
+        } else if (!state.read.person?.enabledAnswers || question.deny?.includes(state.getUserId()!)) {
             state.setCurrentPath(this.path, "denied answer")
             return provider.whenAnswerDenied(state);
         } else if (question.state == QuestionState.ASKING) {

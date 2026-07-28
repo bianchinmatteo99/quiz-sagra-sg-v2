@@ -14,6 +14,7 @@ export interface PersonRankSnapshot {
 export interface PersonRecord {
     id?: string;
     name: string;
+    enabledAnswers?: boolean;
     rank?: PersonRankSnapshot;
 }
 

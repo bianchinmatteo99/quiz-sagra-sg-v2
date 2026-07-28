@@ -294,6 +294,7 @@ class RankingView {
             return {
                 id,
                 name: person.name,
+                enabledAnswers: person.enabledAnswers && !root.state.question?.deny.includes(id),
                 position: rank?.position ?? Number.MAX_SAFE_INTEGER,
                 points: rank?.points ?? 0,
                 lastUpdate: rank?.lastupdate ?? 0,
@@ -323,8 +324,8 @@ class RankingView {
                 }
             }
             const cells = row.cells;
-            cells[0].textContent = rowData.position === Number.MAX_SAFE_INTEGER ? "-" : String(rowData.position);
-            cells[1].textContent = rowData.name;
+            cells[0].textContent = rowData.position === -1 ? "-" : String(rowData.position);
+            cells[1].innerHTML = ( rowData.enabledAnswers ? "" : `<span class="material-symbols-outlined">block</span>` )+rowData.name;
             cells[2].textContent = String(rowData.points);
             this.tbody.appendChild(row);
             existing.delete(rowData.id);

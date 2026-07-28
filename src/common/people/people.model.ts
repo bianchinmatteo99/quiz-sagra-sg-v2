@@ -12,9 +12,11 @@ import { PersonRankSnapshot, PersonRecord, PeopleStateSnapshot } from "./people.
 export class Person {
     readonly id: string;
     name: string;
-    constructor(id: string, name: string) {
+    enabledAnswers : boolean;
+    constructor(id: string, name: string, enabledAnswers? : boolean) {
         this.id = id;
         this.name = name;
+        this.enabledAnswers = enabledAnswers ?? true;
     }
 
     /**
@@ -24,7 +26,7 @@ export class Person {
      * @returns A new `Person` instance.
      */
     static parseFromJSON(id: string, data: PersonRecord) {
-        return new Person(id, data.name)
+        return new Person(id, data.name, data.enabledAnswers)
     }
     /**
      * Serialize the person for persistence or transport.
@@ -34,6 +36,7 @@ export class Person {
         return {
             id: this.id,
             name: this.name,
+            enabledAnswers: this.enabledAnswers,
         }
     }
 }

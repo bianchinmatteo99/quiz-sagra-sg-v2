@@ -12,6 +12,7 @@ export interface PeopleViewContext {
     getPeopleAndRank: () => PersonRankList;
     deletePerson: (id: string) => void;
     updatePersonPoints: (id: string, points: number) => void;
+    updatePersonEnabledAnswers: (id: string, enabled: boolean) => void;
 }
 
 /**
@@ -19,6 +20,7 @@ export interface PeopleViewContext {
  *
  * Expected DOM structure / IDs:
  * - A container table body with id `people-list-container` where rows are appended.
+ * - A master checkbox with id `enable-disable-all-users` used to toggle/summarize row enabled states.
  * - A dialog element with id `person-actions-dialog` containing:
  *   - an element `#person-dialog-name` to show the person's name
  *   - an `input[name="points"]` to edit points
@@ -28,6 +30,7 @@ export interface PeopleViewContext {
 export class PeopleView {
     readonly peopleListContainer = "people-list-container";
     readonly dialog = "person-actions-dialog";
+    readonly enableDisableAllUsers = "enable-disable-all-users";
     context: PeopleViewContext;
 
     constructor(context: PeopleViewContext) {
@@ -43,11 +46,31 @@ export class PeopleView {
                 <tr data-id="${pr.person.id}">
                     <th scope="row">${pr.person.name}</th>
                     <td>${pr.rank.points}</td>
+                    <td><input type="checkbox" ${pr.person.enabledAnswers ? "checked" : ""}/></td>
                     <td><button class="secondary">Mostra azioni</button></td>
                 </tr>
             `);
             container.appendChild(row);
         }
+        this.syncEnableDisableAllUsersCheckbox();
+    }
+
+    private syncEnableDisableAllUsersCheckbox(): void {
+        const master = document.getElementById(this.enableDisableAllUsers) as HTMLInputElement | null;
+        if (!master) return;
+
+        const people = this.context.getPeopleAndRank();
+        const total = people.length;
+        const enabled = people.filter((pr) => pr.person.enabledAnswers).length;
+
+        if (total === 0) {
+            master.checked = false;
+            master.indeterminate = false;
+            return;
+        }
+
+        master.checked = enabled === total;
+        master.indeterminate = enabled > 0 && enabled < total;
     }
 
     openActionsDialog(personId: string) {
@@ -73,6 +96,30 @@ export class PeopleView {
             if (!personId) return;
 
             this.openActionsDialog(personId);
+        });
+
+        container?.addEventListener('change', (event) => {
+            const input = (event.target as HTMLElement).closest('input[type="checkbox"]') as HTMLInputElement | null;
+            if (!input || !container.contains(input)) return;
+
+            const row = input.closest('tr');
+            if (!row) return;
+
+            const personId = row.getAttribute('data-id');
+            if (!personId) return;
+
+            this.context.updatePersonEnabledAnswers(personId, input.checked);
+        });
+
+        const enableDisableAllUsers = document.getElementById(this.enableDisableAllUsers) as HTMLInputElement | null;
+        enableDisableAllUsers?.addEventListener('change', () => {
+            const nextEnabled = enableDisableAllUsers.checked;
+            const people = this.context.getPeopleAndRank();
+
+            for (const pr of people) {
+                if (pr.person.enabledAnswers === nextEnabled) continue;
+                this.context.updatePersonEnabledAnswers(pr.person.id, nextEnabled);
+            }
         });
 
         const dialog = document.getElementById('person-actions-dialog') as HTMLDialogElement;

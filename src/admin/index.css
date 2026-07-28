@@ -121,6 +121,9 @@ button {
   border-color: rgb(217, 53, 38);
 }
 
+#people-quiz-table input[type="checkbox"]{
+  border-color: var(--pico-secondary-border);
+}
 
 /* Columns */
 .col {
