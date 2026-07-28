@@ -116,6 +116,8 @@ export abstract class BaseModel<TSnapshot extends object> {
             const restore = await this.loadFromDatabase();
             if (!restore) {
                 await this.saveToDatabase();
+            } else {
+                this.context.stateUpdated(true);
             }
         } catch (error) {
             console.error('Error restoring or saving ' + this.DBPATH + ' from database:', error);
