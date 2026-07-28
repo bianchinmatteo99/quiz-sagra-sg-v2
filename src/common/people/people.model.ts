@@ -123,6 +123,7 @@ export class PeopleModel extends BaseModel<PeopleStateSnapshot> {
         this.list = new Map();
         this.ranking = new Map();
         this.allowOnboarding = false;
+        this.restoreOrSave();
     }
 
     /**

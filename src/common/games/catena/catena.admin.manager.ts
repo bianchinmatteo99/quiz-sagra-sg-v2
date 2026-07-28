@@ -27,6 +27,9 @@ export class CatenaGameManager extends GameManager {
     constructor(ctx: GameManagerContext, def: CatenaGameDefinition, restoreState: boolean = false) {
         super(ctx);
         this.controller = new CatenaGameController(this, def, restoreState);
+        if(restoreState){
+            console.log("Active game trying to restore state")
+        }
     }
 
     /**

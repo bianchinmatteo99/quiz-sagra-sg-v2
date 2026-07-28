@@ -172,3 +172,33 @@ export abstract class BaseModel<TSnapshot extends object> {
         }
     }
 }
+
+/**
+ * Runs checks to resume or clean states and decide whether
+ *  - state restore is complete: a call to endResume prevents other checkpoints to run
+ *  - some block code in the caller should be run (this is the meaning of the return boolean - if true means 'quiz/game flow should run normally')
+ */
+export type CheckPointAction = (endResume : ()=>void)=>boolean
+
+export class ResumeCheckpoints {
+    checkpoints : Record<string, CheckPointAction>
+    resumeEnded : boolean
+
+    constructor(checkpoints? : Record<string, CheckPointAction>){
+        if(!checkpoints){
+            this.resumeEnded = true;
+            this.checkpoints = {}
+        } else {
+            this.resumeEnded = false;
+            this.checkpoints = checkpoints
+        }
+    }
+
+    reachedCheckPoint(key: string): boolean {
+        if(this.resumeEnded) return true;
+
+        return this.checkpoints[key]?.(()=>{
+            this.resumeEnded = true;
+        }) ?? false;
+    }
+}

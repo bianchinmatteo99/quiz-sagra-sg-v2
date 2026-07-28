@@ -53,8 +53,7 @@ class QuizModel extends BaseModel<QuizStateSnapshot> {
             this.gamesStatuses = data?.gamesStatuses ?? [...Array(this.definition.games.length).fill(GameStatus.NotStarted)];
             this.status = data?.status ?? QuizStatus.Booting;
             this.currentGame = data?.currentGame ?? null;
-            this.finalrankstate = data?.finalrankstate ?? null;
-            this.displayRankOnIdle = data?.displayRankOnIdle ?? true;
+            this.displayRankOnIdle = data?.displayRankOnIdle ?? false;
             return true;
         } catch (error) {
             console.error('Error parsing quiz from JSON:', error);
