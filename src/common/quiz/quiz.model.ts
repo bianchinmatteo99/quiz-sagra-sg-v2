@@ -30,17 +30,14 @@ class QuizModel extends BaseModel<QuizStateSnapshot> {
      * @param def Loaded quiz definition containing games.
      * @param restoreState When true, attempts to load persisted state from the database.
      */
-    constructor(ctx: QuizModelContext, def: QuizDefinition, restoreState: boolean = false) {
+    constructor(ctx: QuizModelContext, def: QuizDefinition) {
         super();
         this.definition = def;
         this.gamesStatuses = [...Array(def.games.length).fill(GameStatus.NotStarted)];
         this.status = QuizStatus.Booting;
         this.currentGame = null;
         this.context = ctx;
-        if (restoreState) {
-            // Load state from database if needed
-            this.loadFromDatabase();
-        }
+        this.restoreOrSave();
     }
 
     /**

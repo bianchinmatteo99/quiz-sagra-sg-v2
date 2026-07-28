@@ -171,7 +171,7 @@ class QuizController implements QuizViewContext, QuizModelContext {
             return 'new';
         } else if (choice.kind === 'database-continue' && !!db) {
             // Load database definition, then let QuizManager.restoreState() normalize runtime state.
-            this.model = new QuizModel(this, db, true);
+            this.model = new QuizModel(this, db);
             return 'restore';
         }
         return 'error';
