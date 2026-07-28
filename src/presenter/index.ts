@@ -295,7 +295,7 @@ class RankingView {
                 id,
                 name: person.name,
                 enabledAnswers: person.enabledAnswers && !root.state.question?.deny?.includes(id),
-                position: rank?.position ?? Number.MAX_SAFE_INTEGER,
+                position: rank?.position ?? -1,
                 points: rank?.points ?? 0,
                 lastUpdate: rank?.lastupdate ?? 0,
             };
