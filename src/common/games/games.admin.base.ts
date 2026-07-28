@@ -360,7 +360,7 @@ export abstract class GameView {
         <article class="game-steps-list-item ${step.state == "current" ? "active" : ""}">${step.title}</article>
         `;
 
-        container.innerHTML = steps.map(stepHtmlBuilder).join("\n")
+        container.innerHTML = `<article class="game-steps-list-item title">${this.gameDef.data.title}</article>` + steps.map(stepHtmlBuilder).join("\n")
     }
 
     /**

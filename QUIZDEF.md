@@ -1,78 +1,54 @@
 # Quiz definition format
 
-This document describes the markdown format used by the quiz loader in [src/common/quiz/quiz.definition.ts](src/common/quiz/quiz.definition.ts) and the concrete game parsers registered in [src/common/games/games.admin.register.ts](src/common/games/games.admin.register.ts).
+Markdown format for quiz definitions loaded by [src/common/quiz/quiz.definition.ts](src/common/quiz/quiz.definition.ts).
+Quiz definitions are read from [public/quiz_def.md](public/quiz_def.md) or restored from the database.
+Game parsers are registered in [src/common/games/games.admin.register.ts](src/common/games/games.admin.register.ts).
 
-For game module conventions, file layout, and registration workflow, see [src/common/games/README.md](src/common/games/README.md).
-
-The admin boot flow reads the quiz definition from [public/quiz_def.md](public/quiz_def.md) (served by the dev server at `/quiz_def.md`) or from the database when a saved definition exists, parses it into a quiz object, and then uses the parsed game definitions to start the quiz. The admin entrypoint calls the loader with the path `/quiz_def.md` by default.
-
-## Parsing flow
-
-1. The loader reads the markdown file as plain text.
-2. It parses the markdown structure: first level-1 heading (`# ...`), optional key/value quiz options block, then game sections started by level-2 headings (`## ...`).
-3. Each game section title selects a registered builder for that game type.
-4. The section content (without the `## ...` line) is passed to the builder parser.
-5. The builder parses the section content into a game definition object.
-6. The resulting quiz definition is stored under the database path `/definition` and can later be restored from JSON.
-
-## File structure
-
-A quiz definition file is intentionally simple:
+## Complete sample file
 
 ```md
-# Quiz title
+# My Quiz Title
 
-## GameType
-key: value
-another_key: value
-
-## AnotherGameType
-...
-```
-
-### Rules
-
-- The first `# ` heading is treated as the quiz title.
-- Optional quiz-level options can be placed between the `# ...` title and the first `## ...` section as `key: value` or `key:` + list items.
-- Game sections start at `## ` headings.
-- Blank lines are ignored.
-- Section parsers trim and normalize values.
-- The game type is normalized to lowercase and must match a registered builder key.
-- Unknown game types cause the parser to fail.
-- Unexpected heading levels and malformed key/list lines cause the parser to fail with meaningful errors.
-
-## Supported game type
-
-At the moment the only registered game type is `catena`.
-
-### Catena section syntax
-
-A Catena game section uses this shape:
-
-```md
 ## Catena
-time_for_answer: 30
+title: Reazione a Catena
+time_for_answer: 20
 points_for_correct_answer: 10
-can_retry_for_same_word: False
+can_retry_for_same_word: true
 words:
-- catena
-- di
-- prova
+- first
+- chain
+- words
+
+## Other game
+...
+
 ```
 
-Supported keys:
+## Game type: Catena
 
-- `time_for_answer`: numeric value for the available answer time.
-- `points_for_correct_answer`: numeric value for the score awarded for a correct answer. If missing, the parser defaults to `10`.
-- `can_retry_for_same_word`: boolean-like value (`true`/`false`, case-insensitive). If missing, the parser defaults to `false`.
-- `words`: followed by one bullet item per line, starting with `- `.
+The `Catena` game type implements a word-chain word guessing game. Each game section starts with `## Catena` and contains the following properties:
 
+### Properties
 
+| Property | Type | Default | Required | Constraints |
+|----------|------|---------|----------|-------------|
+| `title` | string | "Reazione a catena" | No | - |
+| `time_for_answer` | number | 0 | No | Must be >= 0 |
+| `points_for_correct_answer` | number | 10 | No | Must be >= 0 |
+| `can_retry_for_same_word` | boolean | true | No | - |
+| `words` | list of strings | - | Yes | At least one word required |
 
-## Notes and limitations
+#### `title`
+Display name for this game instance. Defaults to "Reazione a catena" if not provided.
 
-- The markdown parser is intentionally lightweight; it does not support nested headings, YAML blocks, or complex formatting.
-- Section parsing is strict: unexpected formats and unsupported keys in game content fail fast.
-- The section order is preserved and becomes the game order in the quiz.
-- The same format can also be restored from the database JSON representation of the quiz definition, where each game object includes a `name` field and its serialized settings.
-- When adding a new game kind, keep this file focused on markdown authoring format and update game implementation details in [src/common/games/README.md](src/common/games/README.md).
+#### `time_for_answer`
+Time in seconds available for participants to provide each answer. Numeric value. Defaults to 0 if omitted. Must be non-negative.
+
+#### `points_for_correct_answer`
+Points awarded to each participant for a correct answer. Numeric value. Defaults to 10 if omitted. Must be non-negative.
+
+#### `can_retry_for_same_word`
+Boolean flag controlling whether a participant can retry the same word after an incorrect answer. Accepts `true` or `false` (case-insensitive). Defaults to `true` if omitted.
+
+#### `words`
+List of chain words to play in order. Each word must be on its own line prefixed with `- `. Required property; at least one word must be provided.

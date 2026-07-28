@@ -142,7 +142,7 @@ export class DisplayStateHandler {
             ls.push({
                 name: value.name,
                 points: value.rank?.points ?? 0,
-                position: value.rank?.position ?? Number.MAX_SAFE_INTEGER,
+                position: value.rank?.position ?? -1,
             })
         }
         ls.sort((a,b)=>a.points-b.points)

@@ -19,7 +19,7 @@ export class CatenaGamePageChooser extends GamePageChooser<CatenaGameStateSnapsh
      */
     decide(state: CatenaGameStateSnapshot): Page {
         if(state.state==CatenaState.STARTING || state.state==CatenaState.DISPLAYCOVER){
-            return new CoverPage()
+            return new CoverPage(state.title)
         } else {
             this.catena.update(state.words)
             return this.catena
@@ -33,14 +33,19 @@ export class CatenaGamePageChooser extends GamePageChooser<CatenaGameStateSnapsh
 class CoverPage extends StaticPage{
     /** Single-column layout used by the display container. */
     templateColumnWidth = "1fr"
+    title : string
 
+    constructor(title: string){
+        super()
+        this.title = title
+    }
     /**
      * Render title and themed image for the Catena opening screen.
      */
     render(): void {
         if(!this.container) throw new Error("Render called before create");
         this.container.innerHTML = `
-                <h2>REAZIONE A CATENA</h2>
+                <h2>${this.title.toUpperCase()}</h2>
                 <img src="/img/domino.jpg" style="height:50%;"/>
         `;
         Object.assign(this.container.style, {

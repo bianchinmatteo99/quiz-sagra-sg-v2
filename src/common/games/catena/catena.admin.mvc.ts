@@ -220,6 +220,7 @@ export class CatenaGameView extends GameView {
             ?.read(s)
             ?.toUpperCase() ?? "?";
         container.innerHTML = `
+            Titolo: ${this.activeGameContext.model.definition.data.title}<br/>
             Parola in corso: ${this.activeGameContext.model.currentWordIndex + 1} di ${this.gameDef.data.words.length}<br/>
             Lettere ${this.activeGameContext.model.currentWordLetters} di ${displayedWordLength}<br/>
             Parola corretta: ${displayedCurrentWord}
