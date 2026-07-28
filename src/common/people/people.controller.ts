@@ -96,6 +96,13 @@ export class PeopleController implements PeopleModelContext, PeopleViewContext {
         if(now.points==points) return;
         this.updateRanking(new Map([[id, points-now.points]]));
     }
+    updatePersonEnabledAnswers(id: string, enabled: boolean){
+        const p = this.model.list.get(id)
+        if(!!p){
+            p.enabledAnswers = enabled;
+            this.stateUpdated();
+        }
+    }
     getPeopleList(): Map<string, Person>{
         return this.model.list;
     }

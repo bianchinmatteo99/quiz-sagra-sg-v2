@@ -46,7 +46,7 @@ export class PeopleView {
                 <tr data-id="${pr.person.id}">
                     <th scope="row">${pr.person.name}</th>
                     <td>${pr.rank.points}</td>
-                    <td><input type="checkbox" ${pr.person.enabledAnswers ? "checked" : ""}/></td>
+                    <td style="text-align: center;"><input type="checkbox" ${pr.person.enabledAnswers ? "checked" : ""}/></td>
                     <td><button class="secondary">Mostra azioni</button></td>
                 </tr>
             `);

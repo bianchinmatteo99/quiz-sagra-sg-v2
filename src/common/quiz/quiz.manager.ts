@@ -28,8 +28,8 @@ class QuizManager implements QuizControllerContext, GameManagerContext, PeopleCo
      * @param filename File path to the quiz definition markdown.
      */
     async boot(filename = "/quiz_def.md"): Promise<void> {
-        this.people = new PeopleController(this);
         const policy = await this.quiz.decideSourceAndLoad(filename);
+        this.people = new PeopleController(this);
         switch (policy) {
             case 'new':
                 console.log("Loaded quiz definition and reset runtime state.");
