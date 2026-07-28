@@ -136,9 +136,20 @@ class CatenaPage extends StaticPage{
         let mode = 0
         for(let i = 0; i<words.length; i++){
             if(this.pastwords[i]!=words[i]){
-                mode = Math.max(mode, words[i].endsWith("*") ? 1 : 2)
-                const newLetters = words[i].replaceAll("*","").slice(this.pastwords[i].replaceAll("*","").length).split("")
-                this.container.querySelector(`#catena-word-${i}`)?.insertAdjacentHTML("beforeend", newLetters.map((l)=>`<span class="letter animate" data-target-letter="${l}"></span>`).join(""))
+                const row = this.container.querySelector(`#catena-word-${i}`)
+                const oldWord = this.pastwords[i] ?? ""
+                const oldPlain = oldWord.replaceAll("*","")
+                const newPlain = words[i].replaceAll("*","")
+
+                if(newPlain.startsWith(oldPlain) && newPlain.length > oldPlain.length){
+                    mode = Math.max(mode, words[i].endsWith("*") ? 1 : 2)
+                    const newLetters = newPlain.slice(oldPlain.length).split("")
+                    row?.insertAdjacentHTML("beforeend", newLetters.map((l)=>`<span class="letter animate" data-target-letter="${l}"></span>`).join(""))
+                } else {
+                    if(row){
+                        row.innerHTML = newPlain.split("").map((l)=>`<span class="letter">${l.toUpperCase()}</span>`).join("")
+                    }
+                }
             }
         }
         this.pastwords = words
