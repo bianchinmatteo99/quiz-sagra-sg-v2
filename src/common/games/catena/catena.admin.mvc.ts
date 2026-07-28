@@ -39,7 +39,7 @@ export class CatenaGameModel extends GameModel<CatenaGameStateSnapshot> {
      * @param def Parsed Catena game definition.
      * @param restoreState When true, starts best-effort state restoration from storage.
      */
-    constructor(ctx: GameModelContext, def: CatenaGameDefinition, restoreState: boolean = false) {
+    constructor(ctx: GameModelContext, def: CatenaGameDefinition) {
         super(ctx);
         this.definition = def;
         this.currentWordIndex = 0;
@@ -47,9 +47,7 @@ export class CatenaGameModel extends GameModel<CatenaGameStateSnapshot> {
         this.wordtransitiontime = -1;
         this.state = CatenaState.STARTING;
 
-        if (restoreState) {
-            this.loadFromDatabase();
-        }
+        this.restoreOrSave();
     }
 
     /**
@@ -249,9 +247,9 @@ export class CatenaGameController extends GameController implements CatenaGameVi
      * @param def Parsed Catena definition for this run.
      * @param restoreState When true, model restoration is attempted from storage.
      */
-    constructor(ctx: GameControllerContext, def: CatenaGameDefinition, restoreState: boolean = false){
+    constructor(ctx: GameControllerContext, def: CatenaGameDefinition){
         super(ctx);
-        this.model = new CatenaGameModel(this, def, restoreState);
+        this.model = new CatenaGameModel(this, def);
         this.view = new CatenaGameView(this);
         this.stateUpdated();
     }

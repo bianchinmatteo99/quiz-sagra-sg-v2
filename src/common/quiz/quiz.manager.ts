@@ -6,6 +6,7 @@ import { Person } from "../people/people.model";
 import { QuizController, QuizControllerContext } from "./quiz.controller";
 import { GameStatus, QuizStatus } from "./quiz.contract";
 import { ResumeCheckpoints } from "../admin.utils";
+import { delay } from "../general.utils";
 
 /**
  * Coordinates quiz lifecycle, game execution, and player management.
@@ -67,6 +68,7 @@ class QuizManager implements QuizControllerContext, GameManagerContext, PeopleCo
      */
     async startGame(game: AnyGameDefinition): Promise<void> {
         this.activeGameManager = instantiateGameManagerFor(game, this, !this.resumeCheckpoints.reachedCheckPoint("starting-game"));
+        await delay(20); // allow for game state db flush
         this.quiz.setStatus(QuizStatus.RunningGame);
         const shouldDisplayRanking = await this.activeGameManager.startGame();
         this.quiz.gameEnded();

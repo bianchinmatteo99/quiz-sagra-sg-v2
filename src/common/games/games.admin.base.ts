@@ -63,7 +63,7 @@
  */
 
 import { IDatabaseAdapter } from "../database/database.types";
-import { BaseModel, BaseModelContext } from "../admin.utils";
+import { BaseModel, BaseModelContext, ResumeCheckpoints } from "../admin.utils";
 import { toHtml } from "../general.utils";
 import { Person } from "../people/people.model";
 import { QuestionContext } from "../questions/questions.admin.base";
@@ -608,11 +608,14 @@ export abstract class GameManager implements GameControllerContext, QuestionCont
     /** Host-level services exposed by `QuizManager`. */
     context: GameManagerContext;
 
+    resumeCheckpoints : ResumeCheckpoints;
+
     /** The game controller (owns model and view). Subclass must initialize. */
     abstract controller: GameController;
 
-    constructor(ctx: GameManagerContext) {
+    constructor(ctx: GameManagerContext, restoreState : boolean) {
         this.context = ctx;
+        this.resumeCheckpoints = restoreState ? this.buildResumeCheckpoints() : new ResumeCheckpoints();
     }
 
     /**
@@ -657,4 +660,6 @@ export abstract class GameManager implements GameControllerContext, QuestionCont
         this.controller.clearAll();
         return ret;
     }
+
+    abstract buildResumeCheckpoints(): ResumeCheckpoints
 }

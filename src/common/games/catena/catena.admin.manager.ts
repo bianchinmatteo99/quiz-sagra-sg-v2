@@ -4,6 +4,7 @@ import { GameManager, GameManagerContext } from "../games.admin.base";
 import { CatenaState } from "./catena.contracts";
 import { CatenaGameDefinition } from "./catena.admin.definition";
 import { CatenaGameController } from "./catena.admin.mvc";
+import { ResumeCheckpoints } from "../../admin.utils";
 
 /**
  * Runtime orchestrator for a Catena game session.
@@ -25,11 +26,8 @@ export class CatenaGameManager extends GameManager {
      * @param restoreState When true, controller/model attempt state restoration.
      */
     constructor(ctx: GameManagerContext, def: CatenaGameDefinition, restoreState: boolean = false) {
-        super(ctx);
-        this.controller = new CatenaGameController(this, def, restoreState);
-        if(restoreState){
-            console.log("Active game trying to restore state")
-        }
+        super(ctx, restoreState);
+        this.controller = new CatenaGameController(this, def);
     }
 
     /**
@@ -51,13 +49,15 @@ export class CatenaGameManager extends GameManager {
     * idle-screen behavior (for example showing ranking).
      */
     async startGame(): Promise<boolean> {
-        // Show the cover screen first and wait for admin to advance.
-        this.controller.setState(CatenaState.DISPLAYCOVER);
-        await this.controller.adminInteraction({ advanceBtn: "Mostra la catena" });
+        if (this.resumeCheckpoints.reachedCheckPoint("start-phase")) {
+            // Show the cover screen first and wait for admin to advance.
+            this.controller.setState(CatenaState.DISPLAYCOVER);
+            await this.controller.adminInteraction({ advanceBtn: "Mostra la catena" });
 
-        // Switch to the chain display and wait for admin to start the first word.
-        this.controller.setState(CatenaState.DISPLAYCHAIN);
-        await this.controller.adminInteraction({ advanceBtn: "Inizia con la prima parola" });
+            // Switch to the chain display and wait for admin to start the first word.
+            this.controller.setState(CatenaState.DISPLAYCHAIN);
+            await this.controller.adminInteraction({ advanceBtn: "Inizia con la prima parola" });
+        }
 
         // For each word in the chain: reset per-word state and reveal letters one by one.
         while (this.controller.nextWord()) {
@@ -92,13 +92,13 @@ export class CatenaGameManager extends GameManager {
                 });
 
                 const correctN = res.entries().filter(([id, v]) => v).map(([id, v]) => id).toArray().length;
-                if(correctN == 0){
+                if (correctN == 0) {
                     // If nobody answered correctly and admin chose to complete, finish the word.
-                    if(! await this.controller.adminInteraction({ advanceBtn: "Passa alla prossima lettera", otherBtn: "Completa la parola e vai alla prossima" })){
+                    if (! await this.controller.adminInteraction({ advanceBtn: "Passa alla prossima lettera", otherBtn: "Completa la parola e vai alla prossima" })) {
                         await this.controller.completeWord(1000);
                     }
                 } else {
-                    await this.controller.adminInteraction({ advanceBtn: "Concludi la domanda"})
+                    await this.controller.adminInteraction({ advanceBtn: "Concludi la domanda" })
                 }
 
                 // If retries are not allowed, add players who failed to the deny list.
@@ -120,8 +120,32 @@ export class CatenaGameManager extends GameManager {
             await this.controller.adminInteraction({ advanceBtn: "Inizia la prossima parola o concludi" });
         }
 
+        this.resumeCheckpoints.reachedCheckPoint("end-phase");
         // No more words: set ending state and finalize the game.
         this.controller.setState(CatenaState.ENDING);
         return this.endGame();
+    }
+
+    buildResumeCheckpoints(): ResumeCheckpoints {
+        return new ResumeCheckpoints({
+            "start-phase": (endResume) => {
+                if (this.controller.model.state == CatenaState.STARTING || this.controller.model.state == CatenaState.DISPLAYCOVER || this.controller.model.currentWordIndex === 0) {
+                    endResume();
+                    return true;
+                }
+                if (this.controller.model.state == CatenaState.DISPLAYCHAIN || this.controller.model.state == CatenaState.ASKINGQUESTION){
+                    this.controller.model.currentWordIndex -= 1;
+                    this.controller.model.currentWordLetters = this.controller.model.getCurrentWord()?.length ?? 0;
+                    this.controller.model.currentDenyList = [];
+                    this.controller.setState(CatenaState.DISPLAYCHAIN);
+                    endResume();
+                }
+                return false;
+            },
+            "end-phase": (endResume)=>{
+                endResume();
+                return true;
+            }
+        });
     }
 }
