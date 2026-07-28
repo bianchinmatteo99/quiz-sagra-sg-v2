@@ -170,7 +170,7 @@ export abstract class QuestionModel extends BaseModel<QuestionModelSnapshot> {
                 some = true;
                 if (data.question.kind != this.kind) throw new Error("Question kind conflict")
                 this.state = data.question.state;
-                this.deny = data.question.deny;
+                this.deny = data.question.deny ?? [];
                 this.enableAnswers = data.question.enableAnswers;
                 this.enableManualEvaluation = data.question.enableManualEvaluation;
             }
