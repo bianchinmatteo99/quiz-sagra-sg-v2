@@ -200,7 +200,7 @@ class QuestionStatusAnswersEvaluationView {
         const statusName = typeof question?.state === "number"
             ? QuestionStatusAnswersEvaluationView.QUESTION_STATUS_LABELS[question.state as QuestionState] ?? String(question.state)
             : "-";
-        const questionName = question?.displayName ?? "-";
+        const questionName = question?.name ?? "-";
         this.statusEl.textContent = `${questionName} - ${statusName}`;
 
         const answers: QuestionAnswersSnapshot = root.results?.answers ?? {};

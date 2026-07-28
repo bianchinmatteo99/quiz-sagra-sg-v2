@@ -10,7 +10,7 @@
  *   and view updates.
  *
  * Intended usage:
- * 1. Implement a concrete `QuestionModel` subclass with `name` and `displayName`.
+ * 1. Implement a concrete `QuestionModel` subclass with `kind` and `name`.
  * 2. Implement a concrete `Question` subclass that provides the shared
  *    `QuestionContext` and owns the model instance.
  * 3. Use `ask()` to run the question through ASKING → EVALUATING → SHOWRESULTS → ENDED.
@@ -59,14 +59,14 @@ export abstract class QuestionModel extends BaseModel<QuestionModelSnapshot> {
      */
     readonly DBPATH = new Map([["question", "/state/question"], ["answers", "/results/answers"], ["results", "/results/evaluation"]]);
     /**
-     * Unique runtime question name used to validate persisted state.
+     * Unique runtime question kind used to validate persisted state.
      */
-    abstract readonly name: string;
+    abstract readonly kind: string;
 
     /**
      * Human facing label shown in the question view footer.
      */
-    abstract readonly displayName: string;
+    abstract readonly name: string;
 
     /** Current question lifecycle state shared across clients. */
     state: QuestionState;
@@ -168,7 +168,7 @@ export abstract class QuestionModel extends BaseModel<QuestionModelSnapshot> {
             var some = false;
             if (data.question) {
                 some = true;
-                if (data.question.name != this.name) throw new Error("Question name conflict")
+                if (data.question.kind != this.kind) throw new Error("Question kind conflict")
                 this.state = data.question.state;
                 this.deny = data.question.deny;
                 this.enableAnswers = data.question.enableAnswers;
@@ -202,8 +202,8 @@ export abstract class QuestionModel extends BaseModel<QuestionModelSnapshot> {
     toJSON(): QuestionModelSnapshot {
         return {
             question: {
+                kind: this.kind,
                 name: this.name,
-                displayName: this.displayName,
                 state: this.state,
                 deny: this.deny,
                 enableAnswers: this.enableAnswers,
@@ -312,7 +312,7 @@ export class QuestionView {
         } else if (this.context.model.enableManualStopShowResults && state == QuestionState.SHOWRESULTS) {
             button = `<button class="active">FINE</button>`
         }
-        footer.innerHTML = `<span>${this.context.model.displayName} - ${QuestionState[state]}</span><span>${hast ? `<span id='question-timer'>${this.context.model.timerTime ?? "&infin;"}</span>` : ""}${button}`;
+        footer.innerHTML = `<span>${this.context.model.name} - ${QuestionState[state]}</span><span>${hast ? `<span id='question-timer'>${this.context.model.timerTime ?? "&infin;"}</span>` : ""}${button}`;
         if (hast) {
             const timerContainer = footer.querySelector("#question-timer")!
             this.context.model.setTimerClockListener((t) => {
@@ -430,7 +430,7 @@ export interface QuestionAskCallbacks {
  * and view rendering.
  *
  * Concrete question implementations must provide a `model` instance and
- * define the question-specific metadata exposed through `name` and `displayName`.
+ * define the question-specific metadata exposed through `kind` and `name`.
  */
 export abstract class Question implements QuestionModelContext, QuestionViewContext {
     /**

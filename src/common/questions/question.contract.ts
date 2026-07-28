@@ -40,9 +40,9 @@ export type QuestionResult = Map<string, boolean>;
  */
 export interface QuestionStateSnapshot {
     /** Registered question kind identifier (for example `text-input`). */
-    name: string;
+    kind: string;
     /** Human-readable question label used in views. */
-    displayName: string;
+    name: string;
     /** Current lifecycle state shared across clients. */
     state: QuestionState;
     /** Participant ids that are not allowed to submit an answer. */

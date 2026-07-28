@@ -93,7 +93,7 @@ class QuestionPageChooser extends DecisionLeaf<UserStateHandler, Page> {
     decide(state: UserStateHandler): Page {
         if (!state.read?.app.question) throw new Error("Question state is undefined");
         const question = state.read.app.question;
-        const provider = instantiatePageProviderForQuestion(state.read.app.question.name, state);
+        const provider = instantiatePageProviderForQuestion(state.read.app.question.kind, state);
         if (question.state == QuestionState.SETUP) {
             state.setCurrentPath(this.path, "setup question")
             return provider.whenSetup(state);

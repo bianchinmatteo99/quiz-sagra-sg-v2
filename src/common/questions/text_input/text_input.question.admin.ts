@@ -7,10 +7,10 @@ import { Ender, Evaluator, Question, QuestionContext, QuestionModel } from "../q
  * This is registered as "text-input" and displayed to participants as "Risposta testuale".
  */
 class TextInputQuestionModel extends QuestionModel{
-    /** Registry identifier persisted in `/state/question.name`. */
-    readonly name = "text-input";
+    /** Registry identifier persisted in `/state/question.kind`. */
+    readonly kind = "text-input";
     /** Human-readable label shown in admin, display, and presenter views. */
-    readonly displayName = "Risposta testuale";
+    readonly name = "Risposta testuale";
 }
 
 /**

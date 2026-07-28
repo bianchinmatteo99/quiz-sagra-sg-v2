@@ -8,7 +8,7 @@ The code in here is organized around one rule: from the admin/runtime perspectiv
 
 - Shared question contracts and lifecycle abstractions in the root of this folder.
 - One subfolder per question implementation.
-- User-page registry files that map a question `name` to the concrete user UI provider.
+- User-page registry files that map a question `kind` to the concrete user UI provider.
 
 ## Recommended folder layout
 
@@ -34,7 +34,7 @@ The shared files in this folder keep question implementations consistent:
 - `questions.admin.base.ts` contains the shared admin runtime: model, view, evaluation flow, and `Question.ask()` lifecycle.
 - `questions.admin.timer.ts` provides timer behavior used by stop criteria.
 - `questions.user.base.ts` contains the user-side page provider abstraction and default pages for non-answer states.
-- `questions.user.register.ts` maps persisted question `name` values to concrete user page providers.
+- `questions.user.register.ts` maps persisted question `kind` values to concrete user page providers.
 
 New question code should live in its own subfolder and avoid leaking question-specific logic into the shared base files.
 
@@ -67,7 +67,7 @@ Questions are directly instantiated by game managers.
 
 There is no admin-side question registry in this folder: each game manager imports and constructs the question class it needs (for example `new TextInputQuestion(...)`).
 
-The only question registry here is user-side (`questions.user.register.ts`), used to choose the correct user page provider from persisted `/state/question.name`.
+The only question registry here is user-side (`questions.user.register.ts`), used to choose the correct user page provider from persisted `/state/question.kind`.
 
 ## Required question-specific files
 
@@ -75,7 +75,7 @@ For each new question folder, implement these files and keep responsibilities is
 
 ### `<question-name>.question.admin.ts`
 
-- Implement one `QuestionModel` subclass with a stable `name` and `displayName`.
+- Implement one `QuestionModel` subclass with a stable `kind` and `name`.
 - Implement one `Question` subclass that creates the model and forwards evaluator/stop criteria to the base class.
 - Keep this file runtime-focused: lifecycle orchestration and evaluation configuration, not user DOM rendering.
 
@@ -88,10 +88,10 @@ For each new question folder, implement these files and keep responsibilities is
 
 ## Step-by-step: adding a new question type
 
-### 1. Choose a stable question name
+### 1. Choose a stable question kind
 
-Pick a lowercase `name` string (for example `text-input`, `numeric-input`, `multi-field-input`).
-This `name` is persisted in `/state/question` and used by the user-page registry.
+Pick a lowercase `kind` string (for example `text-input`, `numeric-input`, `multi-field-input`).
+This `kind` is persisted in `/state/question` and used by the user-page registry.
 
 ### 2. Create the question folder and files
 
@@ -106,7 +106,7 @@ Keep admin/runtime and user-UI concerns separated.
 
 In `<question-name>.question.admin.ts`:
 
-- define the model `name` and `displayName`,
+- define the model `kind` and `name`,
 - subclass `Question` and initialize the model in the constructor,
 - rely on `questions.admin.base.ts` for answer collection and evaluation flow.
 
@@ -124,7 +124,7 @@ This is the main extension point and should carry the distinguishing UX of the q
 
 ### 5. Register user page provider
 
-Update `questions.user.register.ts` with a new `case` for the new `name` and return your provider.
+Update `questions.user.register.ts` with a new `case` for the new `kind` and return your provider.
 
 If this step is missing, users cannot render the answer page even if admin runtime works.
 
