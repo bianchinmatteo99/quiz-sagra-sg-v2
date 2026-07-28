@@ -1,5 +1,5 @@
 import { Secret, delay } from "../../general.utils";
-import { CatenaGameStateSnapshot, CatenaState, decodeCatenaGameStateSnapshot } from "./catena.contracts";
+import { CatenaGameRequiredData, CatenaGameStateSnapshot, CatenaState } from "./catena.contracts";
 import { CatenaGameDefinition } from "./catena.admin.definition";
 import {
     GameController,
@@ -16,7 +16,7 @@ import {
  * Persists state under the shared game state path inherited from GameModel and
  * exposes helpers to read words in clear or secret-aware form for rendering.
  */
-export class CatenaGameModel extends GameModel {
+export class CatenaGameModel extends GameModel<CatenaGameStateSnapshot> {
 
     /** Immutable definition payload used to configure this session. */
     definition: CatenaGameDefinition;
@@ -96,21 +96,15 @@ export class CatenaGameModel extends GameModel {
     /**
      * Restore persisted Catena state from JSON.
      *
-     * Payload validation is delegated to decodeCatenaGameStateSnapshot.
-        * Only runtime fields are restored; definition data stays bound to the
-        * constructor input.
-        * @param data Raw snapshot loaded from persistent storage.
+      * Only runtime fields are restored; definition data stays bound to the
+      * constructor input.
+      * @param data Partial snapshot loaded from persistent storage.
      * @returns `true` on success, `false` on decode error.
      */
-    parseFromJSON(data: any): boolean {
-        const snapshot = decodeCatenaGameStateSnapshot(data);
-        if (!snapshot) {
-            return false;
-        }
-
-        this.state = snapshot.state;
-        this.currentWordIndex = snapshot.currentWordIndex;
-        this.currentWordLetters = snapshot.currentWordLetters;
+    parseFromJSON(data: Partial<CatenaGameStateSnapshot>): boolean {
+        this.state = data.state ?? CatenaState.STARTING;
+        this.currentWordIndex = data.currentWordIndex ?? 0;
+        this.currentWordLetters = data.currentWordLetters ?? this.definition.data.words[0].length;
         return true;
     }
 
@@ -122,9 +116,8 @@ export class CatenaGameModel extends GameModel {
      */
     toJSON(): CatenaGameStateSnapshot {
         return {
-            kind: this.definition.kind,
-            name: this.definition.data.name,
-            ...(this.definition.data.title !== undefined ? { title: this.definition.data.title } : {}),
+            ...CatenaGameRequiredData,
+            title: this.definition.data.title,
             state: this.state,
             currentWordIndex: this.currentWordIndex,
             currentWordLetters: this.currentWordLetters,

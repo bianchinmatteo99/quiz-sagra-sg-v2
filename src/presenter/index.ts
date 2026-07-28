@@ -3,7 +3,9 @@ import { createMockState, RealtimeDatabaseRoot } from "../common/database/databa
 import { GamePresenterStateView } from "../common/games/games.presenter.base";
 import { GameDefinitionData } from "../common/games/games.contracts";
 import { instantiatePresenterStateViewForGame } from "../common/games/games.presenter.register";
+import { PersonRecord } from "../common/people/people.contract";
 import { QuestionState } from "../common/questions/question.contract";
+import { QuestionAnswersSnapshot, QuestionResultSnapshot } from "../common/questions/question.contract";
 import { QuizStatus } from "../common/quiz/quiz.contract";
 
 class TimerView {
@@ -121,7 +123,7 @@ class QuizGameStateView {
 
     render(root: RealtimeDatabaseRoot): void {
         const quiz = root.state?.quiz;
-        const gameState = (root.state?.game ?? null) as Record<string, unknown> | null;
+        const gameState = root.state?.game ?? null;
         const gameIndex = typeof quiz?.currentGame === "number" ? quiz.currentGame : null;
         const gameDefinition = gameIndex !== null
             ? (root.definition?.games?.[gameIndex] as GameDefinitionData | undefined) ?? null
@@ -201,9 +203,9 @@ class QuestionStatusAnswersEvaluationView {
         const questionName = question?.displayName ?? "-";
         this.statusEl.textContent = `${questionName} - ${statusName}`;
 
-        const answers = (root.results?.answers ?? {}) as Record<string, { time: string; answer: string }>;
-        const evaluation = (root.results?.evaluation ?? {}) as Record<string, boolean>;
-        const people = (root.people?.list ?? {}) as Record<string, { name: string }>;
+        const answers: QuestionAnswersSnapshot = root.results?.answers ?? {};
+        const evaluation: QuestionResultSnapshot = root.results?.evaluation ?? {};
+        const people: Record<string, PersonRecord> = root.people?.list ?? {};
 
         const allIds = new Set<string>([...Object.keys(answers), ...Object.keys(evaluation)]);
         const rows = Array.from(allIds).map((id) => {
@@ -286,14 +288,7 @@ class RankingView {
     }
 
     render(root: RealtimeDatabaseRoot): void {
-        const people = (root.people?.list ?? {}) as Record<string, {
-            name: string;
-            rank?: {
-                points: number;
-                lastupdate: number;
-                position: number;
-            };
-        }>;
+        const people: Record<string, PersonRecord> = root.people?.list ?? {};
         const rankingRows = Object.entries(people).map(([id, person]) => {
             const rank = person.rank;
             return {

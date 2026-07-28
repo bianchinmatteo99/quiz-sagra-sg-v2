@@ -1,4 +1,4 @@
-import { GameDefinitionData } from "./games.contracts";
+import { AnyGameDefinitionData, AnyGameStateSnapshotBase } from "./games.contracts";
 
 /**
  * Base presenter-side renderer contract for game-specific state panels.
@@ -8,7 +8,7 @@ import { GameDefinitionData } from "./games.contracts";
  *
  * @typeParam TDefinition Concrete game definition payload used by the renderer.
  */
-export abstract class GamePresenterStateView<TDefinition extends GameDefinitionData = GameDefinitionData> {
+export abstract class GamePresenterStateView<TDefinition extends AnyGameDefinitionData = AnyGameDefinitionData, TState extends AnyGameStateSnapshotBase = AnyGameStateSnapshotBase> {
     /** Immutable game definition used to render labels and static settings. */
     protected readonly gameDefinition: TDefinition;
 
@@ -31,5 +31,5 @@ export abstract class GamePresenterStateView<TDefinition extends GameDefinitionD
      * @param gameState Runtime snapshot read from `/state/game`.
      * @param showSecrets Whether sensitive values can be displayed in clear text.
      */
-    abstract render(container: HTMLElement, gameState: unknown, showSecrets: boolean): void;
+    abstract render(container: HTMLElement, gameState: Partial<TState> | null, showSecrets: boolean): void;
 }

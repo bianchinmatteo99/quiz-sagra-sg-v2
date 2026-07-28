@@ -1,3 +1,5 @@
+import { GameDefinitionData } from "../games/games.contracts";
+
 /**
  * Lifecycle states for the quiz as a whole.
  */
@@ -27,7 +29,7 @@ export interface QuizDefinitionSnapshot {
     /** Quiz title shown in the UI and admin tools. */
     title: string;
     /** Serialized game definitions included in this quiz. */
-    games: unknown[];
+    games: GameDefinitionData[];
 }
 
 /**

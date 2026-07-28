@@ -1,10 +1,10 @@
-import { BaseModel, BaseModelContext } from "../general.utils";
-import { PersonRecord, PeopleStateSnapshot } from "./people.contract";
+import { BaseModel, BaseModelContext } from "../admin.utils";
+import { PersonRankSnapshot, PersonRecord, PeopleStateSnapshot } from "./people.contract";
 
 /**
  * Simple data container representing a person in the system.
  *
- * Purpose: hold identifying information for a user or participant.
+    * Extends `BaseModelContext` from `admin.utils` and does not add additional
  * Responsibilities:
  * - Provide a small serializable representation (`toJSON`).
  * - Construct instances from raw database payloads (`parseFromJSON`).
@@ -30,7 +30,7 @@ export class Person {
      * Serialize the person for persistence or transport.
      * @returns Plain object containing `id` and `name`.
      */
-    toJSON() {
+    toJSON(): PersonRecord {
         return {
             id: this.id,
             name: this.name,
@@ -63,7 +63,7 @@ export class Rank {
      * Serialize the rank for storage or transport.
      * @returns Plain object with numeric rank fields.
      */
-    toJSON() {
+    toJSON(): PersonRankSnapshot {
         return {
             points: this.points,
             lastupdate: this.lastupdate,
@@ -107,7 +107,7 @@ export interface PeopleModelContext extends BaseModelContext {
  * Persistence:
  * - `DBPATH` is `/people` and holds the persisted model JSON.
  */
-export class PeopleModel extends BaseModel {
+export class PeopleModel extends BaseModel<PeopleStateSnapshot> {
     readonly DBPATH = "/people";
     context: PeopleModelContext;
     /** Controls whether new users may be created via onboarding flows. */
@@ -146,21 +146,16 @@ export class PeopleModel extends BaseModel {
      * @param data - Raw object read from the database for the `/people` path.
      * @returns True when parsing succeeded; false on error (and logs the error).
      */
-    parseFromJSON(data: unknown): boolean {
+    parseFromJSON(data: Partial<PeopleStateSnapshot>): boolean {
         try {
-            if (typeof data !== "object" || data === null) {
-                throw new Error("People payload must be an object");
-            }
-            const snapshot = data as Partial<PeopleStateSnapshot>;
-            this.allowOnboarding = snapshot.allowOnboarding ?? false;
+            this.allowOnboarding = data.allowOnboarding ?? false;
             const l = new Map<string, Person>();
             const r = new Map<string, Rank>();
-            const list = snapshot.list ?? {};
+            const list = data.list ?? {};
             for (const [id, p] of Object.entries(list)) {
-                const personRecord = p as PersonRecord;
-                l.set(id, Person.parseFromJSON(id, personRecord));
-                if (personRecord.rank) {
-                    r.set(id, Rank.parseFromJSON(personRecord.rank));
+                l.set(id, Person.parseFromJSON(id, p));
+                if (p.rank) {
+                    r.set(id, Rank.parseFromJSON(p.rank));
                 } else {
                     r.set(id, new Rank());
                 }
@@ -181,7 +176,7 @@ export class PeopleModel extends BaseModel {
     toJSON(): PeopleStateSnapshot {
         return {
             allowOnboarding: this.allowOnboarding,
-            list: Object.fromEntries([...this.list.entries()].map(([id, person]) => [id, { ...person.toJSON(), rank: this.ranking.get(id) ?? new Rank() }])) as Record<string, PersonRecord>,
+            list: Object.fromEntries([...this.list.entries()].map(([id, person]) => [id, { ...person.toJSON(), rank: (this.ranking.get(id) ?? new Rank()).toJSON() }])),
         };
     }
 

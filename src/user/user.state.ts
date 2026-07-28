@@ -2,6 +2,7 @@ import { Auth, onAuthStateChanged, signInAnonymously } from "firebase/auth"
 import { IDatabaseAdapter, RealtimeDatabaseRoot, createMockState } from "../common/database/database.types"
 import { CancelHandle } from "../common/general.utils"
 import { PersonRecord } from "../common/people/people.contract"
+import { QuestionAnswersSnapshot, QuestionResultSnapshot } from "../common/questions/question.contract"
 
 /**
  * Shared application state values the user UI consumes.
@@ -116,7 +117,7 @@ export class UserStateHandler {
             this.state!.person = data;
             this.scheduleUpdate();
         }));
-        this._bindingCancel.push(this.db.onValue<boolean | null>(`${UserStateHandler.RESULTSPATH}/${this.getUserId()}`, (data) => {
+        this._bindingCancel.push(this.db.onValue<QuestionResultSnapshot[string] | null>(`${UserStateHandler.RESULTSPATH}/${this.getUserId()}`, (data) => {
             this.state!.questionresult = data ?? null;
             this.scheduleUpdate();
         }));
@@ -146,7 +147,8 @@ export class UserStateHandler {
         this.requiresSetup();
         if (!this.isRegisteredToQuiz()) throw new Error("User must be registered to quiz before answering questions");
         if (!this.state?.app.question) throw new Error("Question state is undefined");
-        await this.db.set(`${UserStateHandler.ANSWERSPATH}/${this.getUserId()}`, { time: new Date(Date.now()).toISOString(), answer: answer });
+        const answerPayload: QuestionAnswersSnapshot[string] = { time: new Date(Date.now()).toISOString(), answer: answer };
+        await this.db.set(`${UserStateHandler.ANSWERSPATH}/${this.getUserId()}`, answerPayload);
         this.scheduleUpdate();
     }
     /**

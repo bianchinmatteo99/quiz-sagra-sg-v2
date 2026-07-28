@@ -1,9 +1,9 @@
-import { CatenaGameDefinitionData } from "./catena/catena.contracts";
+import { CatenaGameRequiredData } from "./catena/catena.contracts";
 import { CatenaGameDefinition, CatenaGameDefinitionBuilder } from "./catena/catena.admin.definition";
 import { CatenaGameManager } from "./catena/catena.admin.manager";
 import { CatenaGameView } from "./catena/catena.admin.mvc";
 import { AnyGameDefinition, GameDefinitionBuilder, GameManager, GameManagerContext, GameView } from "./games.admin.base";
-import { GameDefinitionData } from "./games.contracts";
+import { AnyGameDefinitionData } from "./games.contracts";
 
 /**
  * Registry of game definition builders keyed by game kind.
@@ -15,8 +15,8 @@ import { GameDefinitionData } from "./games.contracts";
  * Keys must match the `kind` discriminator used by runtime definitions and
  * snapshots, otherwise parsing fails with an unknown-game error.
  */
-export const gamesDefBuilders: { [key: string]: GameDefinitionBuilder<GameDefinitionData>; } = {
-    "catena": new CatenaGameDefinitionBuilder(),
+export const gamesDefBuilders: { [key: string]: GameDefinitionBuilder<AnyGameDefinitionData>; } = {
+    [CatenaGameRequiredData.kind]: new CatenaGameDefinitionBuilder(),
 };
 
 
@@ -35,7 +35,7 @@ export const gamesDefBuilders: { [key: string]: GameDefinitionBuilder<GameDefini
  */
 export function instantiateGameManagerFor(def: AnyGameDefinition, ctx: GameManagerContext, restoreState : boolean = false): GameManager{
     switch(def.kind){
-        case "catena":
+        case CatenaGameRequiredData.kind:
             return new CatenaGameManager(ctx, def as CatenaGameDefinition, restoreState);
         
         default:
@@ -56,7 +56,7 @@ export function instantiateGameManagerFor(def: AnyGameDefinition, ctx: GameManag
  */
 export function instantiateGameViewerFor(def: AnyGameDefinition): GameView{
     switch(def.kind){
-        case "catena":
+        case CatenaGameRequiredData.kind:
             return new CatenaGameView(null, def as CatenaGameDefinition);
         
         default:

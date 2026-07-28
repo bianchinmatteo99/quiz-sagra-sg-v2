@@ -63,11 +63,12 @@
  */
 
 import { IDatabaseAdapter } from "../database/database.types";
-import { BaseModel, BaseModelContext, toHtml } from "../general.utils";
+import { BaseModel, BaseModelContext } from "../admin.utils";
+import { toHtml } from "../general.utils";
 import { Person } from "../people/people.model";
 import { QuestionContext } from "../questions/questions.admin.base";
 import { RankingDiff } from "../people/people.controller";
-import { GameDefinitionData } from "./games.contracts";
+import { AnyGameDefinitionData, AnyGameStateSnapshotBase } from "./games.contracts";
 
 /**
  * Immutable runtime wrapper for a parsed game definition payload.
@@ -77,7 +78,7 @@ import { GameDefinitionData } from "./games.contracts";
  *
  * @typeParam TData Concrete game payload type identified by `kind`.
  */
-export class GameDefinition<TData extends GameDefinitionData> {
+export class GameDefinition<TData extends AnyGameDefinitionData> {
     /** Unique index within the quiz's games list. */
     readonly id: number;
     /** Logical identifier used by builders and registry lookup. */
@@ -104,7 +105,7 @@ export class GameDefinition<TData extends GameDefinitionData> {
 }
 
 /** Union-friendly alias for passing around parsed game definitions. */
-export type AnyGameDefinition = GameDefinition<GameDefinitionData>;
+export type AnyGameDefinition = GameDefinition<AnyGameDefinitionData>;
 
 /**
  * Builder interface used to instantiate a concrete game definition from
@@ -114,11 +115,11 @@ export type AnyGameDefinition = GameDefinition<GameDefinitionData>;
  * quiz initialization to parse game rules from `public/quiz_def.md` or restore
  * from `/definition/games` in the database.
  */
-export interface GameDefinitionBuilder<TData extends GameDefinitionData> {
+export interface GameDefinitionBuilder<TData extends AnyGameDefinitionData> {
     /**
      * Parse a game definition from Markdown section text.
-     * @param md - Markdown content for this game (e.g., rules, word list, point values)
-    * @returns Parsed game data payload
+     * @param md - Markdown section content for this game (without the `## <game>` heading)
+     * @returns Parsed game data payload
      */
     parseFromMD(md: string): TData;
 
@@ -127,7 +128,7 @@ export interface GameDefinitionBuilder<TData extends GameDefinitionData> {
      * @param data - Serialized definition payload
      * @returns Parsed game data payload
      */
-    parseFromJSON(data: any): TData;
+    parseFromJSON(data: Partial<TData>): TData;
 }
 
 /**
@@ -166,7 +167,7 @@ export interface GameModelContext extends BaseModelContext {
  * `stateUpdated()`.
  *
  */
-export abstract class GameModel extends BaseModel {
+export abstract class GameModel<TSnapshot extends AnyGameStateSnapshotBase = AnyGameStateSnapshotBase> extends BaseModel<TSnapshot> {
     /** Database path where game state is persisted. */
     readonly DBPATH = "/state/game";
 

@@ -1,3 +1,4 @@
+import { CatenaGameRequiredData } from "./catena/catena.contracts";
 import { CatenaGamePageChooser } from "./catena/catena.display.view";
 import { GamePageChooser } from "./games.display.base";
 
@@ -13,7 +14,7 @@ import { GamePageChooser } from "./games.display.base";
  */
 export function instantiatePageChooserForGame(kind: string): GamePageChooser<any> {
     switch (kind) {
-        case "catena":
+        case CatenaGameRequiredData.kind:
             return new CatenaGamePageChooser();
         default:
             throw new Error("Page provider for game " + kind + " not registered.")

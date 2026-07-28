@@ -1,5 +1,6 @@
 import { createMockState, IDatabaseAdapter, RealtimeDatabaseRoot } from "../common/database/database.types"
 import { CancelHandle } from "../common/general.utils"
+import { PersonRecord } from "../common/people/people.contract"
 import { QuestionState } from "../common/questions/question.contract"
 import { QuizStateSnapshot, QuizStatus } from "../common/quiz/quiz.contract"
 import { DisplayStateSnapshot } from "./display.contract"
@@ -135,17 +136,22 @@ export class DisplayStateHandler {
     }
 
     async readRanking(): Promise<{ name: string, points: number, position: number}[]> {
-        const res = (await this.db.get(DisplayStateHandler.PERSONPATH)) as Record<string,{name:string, rank: {points: number, position: number}}>
+        const res = (await this.db.get<Record<string, PersonRecord>>(DisplayStateHandler.PERSONPATH)) ?? {};
         const ls : { name: string, points: number, position: number}[] = [];
         for (const value of Object.values(res)) {
-            ls.push({name: value.name, points: value.rank.points, position: value.rank.position})
+            ls.push({
+                name: value.name,
+                points: value.rank?.points ?? 0,
+                position: value.rank?.position ?? Number.MAX_SAFE_INTEGER,
+            })
         }
         ls.sort((a,b)=>a.points-b.points)
         return ls
     }
 
     displayedRankingUpTo(pos : number|null){
-        this.db.set("/state/display/rankingupto", pos)
+        const payload: DisplayStateSnapshot["rankingupto"] = pos;
+        this.db.set("/state/display/rankingupto", payload)
     }
 
     /**

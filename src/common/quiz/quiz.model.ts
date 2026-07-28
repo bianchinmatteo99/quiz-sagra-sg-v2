@@ -1,4 +1,4 @@
-import { BaseModel, BaseModelContext } from "../general.utils";
+import { BaseModel, BaseModelContext } from "../admin.utils";
 import { QuizDefinition } from "./quiz.definition";
 import { QuizStateSnapshot } from "./quiz.contract";
 import { GameStatus, QuizStatus } from "./quiz.contract";
@@ -13,7 +13,7 @@ interface QuizModelContext extends BaseModelContext {
 /**
  * Maintains the current quiz state and exposes serialization helpers.
  */
-class QuizModel extends BaseModel {
+class QuizModel extends BaseModel<QuizStateSnapshot> {
     readonly DBPATH = "/state/quiz";
     definition: QuizDefinition;
     status: QuizStatus;
@@ -48,7 +48,7 @@ class QuizModel extends BaseModel {
      * @param data Serialized quiz state data.
      * @returns True when parsing succeeds, false on error.
      */
-    parseFromJSON(data: Partial<QuizStateSnapshot> | null | undefined): boolean {
+    parseFromJSON(data: Partial<QuizStateSnapshot>): boolean {
         try {
             this.gamesStatuses = data?.gamesStatuses ?? [...Array(this.definition.games.length).fill(GameStatus.NotStarted)];
             this.status = data?.status ?? QuizStatus.Booting;

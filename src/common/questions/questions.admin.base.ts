@@ -21,10 +21,17 @@
  * - `QuestionViewContext`: used by the view to obtain joined answer/result rows and manual callbacks.
  */
 import { IDatabaseAdapter } from "../database/database.types";
-import { BaseModel, BaseModelContext, delay, toHtml } from "../general.utils";
+import { BaseModel, BaseModelContext } from "../admin.utils";
+import { delay, toHtml } from "../general.utils";
 import { Person } from "../people/people.model";
-import { QuestionAnswers, QuestionResult, QuestionState } from "./question.contract";
+import { QuestionAnswers, QuestionAnswersSnapshot, QuestionResult, QuestionResultSnapshot, QuestionState, QuestionStateSnapshot } from "./question.contract";
 import { Timer } from "./questions.admin.timer";
+
+interface QuestionModelSnapshot {
+    question?: QuestionStateSnapshot;
+    answers?: QuestionAnswersSnapshot;
+    results?: QuestionResultSnapshot;
+}
 
 
 /**
@@ -42,7 +49,7 @@ export interface QuestionModelContext extends BaseModelContext { }
  * and delegates persistence/binding to `BaseModel` using the configured
  * question-related database paths.
  */
-export abstract class QuestionModel extends BaseModel {
+export abstract class QuestionModel extends BaseModel<QuestionModelSnapshot> {
     /**
      * Database locations for question lifecycle and results.
      *
@@ -156,26 +163,26 @@ export abstract class QuestionModel extends BaseModel {
      * @param data Raw JSON object loaded from the database.
      * @returns True when at least one known property was parsed.
      */
-    parseFromJSON(data: any): boolean {
+    parseFromJSON(data: Partial<QuestionModelSnapshot>): boolean {
         try {
             var some = false;
-            if ("question" in data) {
+            if (data.question) {
                 some = true;
-                if (data.name != this.name) throw new Error("Question name conflict")
-                this.state = data.state;
-                this.deny = data.deny;
-                this.enableAnswers = Boolean(data.enableAnswers);
-                this.enableManualEvaluation = Boolean(data.enableManualEvaluation);
+                if (data.question.name != this.name) throw new Error("Question name conflict")
+                this.state = data.question.state;
+                this.deny = data.question.deny;
+                this.enableAnswers = data.question.enableAnswers;
+                this.enableManualEvaluation = data.question.enableManualEvaluation;
             }
-            if ("answers" in data) {
+            if (data.answers) {
                 some = true;
                 const a: QuestionAnswers = new Map()
-                for (const id in data.answers) {
-                    a.set(id, { time: new Date(data.answers[id].time), answer: data.answers[id].answer });
+                for (const [id, answer] of Object.entries(data.answers)) {
+                    a.set(id, { time: new Date(answer.time), answer: answer.answer });
                 }
                 this.answers = a;
             }
-            if ("results" in data) {
+            if (data.results) {
                 some = true;
                 this.results = new Map(Object.entries(data.results));
             }
@@ -192,7 +199,7 @@ export abstract class QuestionModel extends BaseModel {
      * The answers collection is intentionally excluded because participant
      * answer submission is handled by the users themselves.
      */
-    toJSON() {
+    toJSON(): QuestionModelSnapshot {
         return {
             question: {
                 name: this.name,

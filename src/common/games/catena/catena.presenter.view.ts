@@ -1,5 +1,5 @@
 import { GamePresenterStateView } from "../games.presenter.base";
-import { CatenaGameDefinitionData, decodeCatenaGameStateSnapshot } from "./catena.contracts";
+import { CatenaGameDefinitionData, CatenaGameStateSnapshot } from "./catena.contracts";
 
 /**
  * Presenter-side renderer for Catena game state.
@@ -7,32 +7,26 @@ import { CatenaGameDefinitionData, decodeCatenaGameStateSnapshot } from "./caten
  * Combines immutable game definition data with the live `/state/game` snapshot
  * to show current progression, settings, and the chain word list.
  */
-export class CatenaGamePresenterStateView extends GamePresenterStateView<CatenaGameDefinitionData> {
+export class CatenaGamePresenterStateView extends GamePresenterStateView<CatenaGameDefinitionData, CatenaGameStateSnapshot> {
     /**
      * Render the Catena presenter panel.
      *
-     * If the runtime snapshot cannot be decoded, a fallback message is shown
-     * instead of partial or unsafe data.
-     *
      * @param container Target element to fully replace with rendered content.
-     * @param gameState Raw runtime snapshot from `/state/game`.
+     * @param gameState Runtime snapshot from `/state/game`.
      * @param showSecrets Whether unrevealed word content can be shown in clear text.
      */
-    render(container: HTMLElement, gameState: unknown, showSecrets: boolean): void {
-        const stateData = decodeCatenaGameStateSnapshot(gameState);
-        if (!stateData) {
-            container.textContent = "Nessuno stato gioco disponibile.";
-            return;
-        }
+    render(container: HTMLElement, gameState: Partial<CatenaGameStateSnapshot> | null, showSecrets: boolean): void {
+        const currentWordIndex = gameState?.currentWordIndex ?? 0;
+        const currentWordLetters = gameState?.currentWordLetters ?? 0;
 
         const title = document.createElement("h3");
-        title.textContent = stateData.title ?? stateData.name;
+        title.textContent = gameState?.title ?? null;
 
         const settings = document.createElement("div");
         const settingsLines = [
-            `Punti per risposta corretta: ${stateData.pointsForCorrectAnswer}`,
-            `Tempo per risposta: ${stateData.timeForAnswer}s`,
-            `Tentativi sulla stessa parola: ${stateData.canRetryForSameWord ? "consentiti" : "non consentiti"}`,
+            `Punti per risposta corretta: ${gameState?.pointsForCorrectAnswer}`,
+            `Tempo per risposta: ${gameState?.timeForAnswer}s`,
+            `Tentativi sulla stessa parola: ${(gameState?.canRetryForSameWord) ? "consentiti" : "non consentiti"}`,
         ];
         settings.textContent = settingsLines.join(" | ");
 
@@ -45,7 +39,7 @@ export class CatenaGamePresenterStateView extends GamePresenterStateView<CatenaG
         };
 
         this.gameDefinition.words.forEach((word, index) => {
-            appendWord(this.formatWord(word, index, stateData.currentWordIndex, stateData.currentWordLetters, showSecrets));
+            appendWord(this.formatWord(word, index, currentWordIndex, currentWordLetters, showSecrets));
         });
 
         container.replaceChildren(title, settings, list);
