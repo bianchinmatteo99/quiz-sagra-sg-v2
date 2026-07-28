@@ -68,7 +68,6 @@ class QuizManager implements QuizControllerContext, GameManagerContext, PeopleCo
      */
     async startGame(game: AnyGameDefinition): Promise<void> {
         this.activeGameManager = instantiateGameManagerFor(game, this, !this.resumeCheckpoints.reachedCheckPoint("starting-game"));
-        await delay(20); // allow for game state db flush
         this.quiz.setStatus(QuizStatus.RunningGame);
         const shouldDisplayRanking = await this.activeGameManager.startGame();
         this.quiz.gameEnded();

@@ -49,6 +49,7 @@ export class CatenaGameManager extends GameManager {
     * idle-screen behavior (for example showing ranking).
      */
     async startGame(): Promise<boolean> {
+        await this.controller.model.restoreOrSave();
         if (this.resumeCheckpoints.reachedCheckPoint("start-phase")) {
             // Show the cover screen first and wait for admin to advance.
             this.controller.setState(CatenaState.DISPLAYCOVER);

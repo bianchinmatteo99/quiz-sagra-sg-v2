@@ -46,8 +46,6 @@ export class CatenaGameModel extends GameModel<CatenaGameStateSnapshot> {
         this.currentWordLetters = def.data.words[0].length;
         this.wordtransitiontime = -1;
         this.state = CatenaState.STARTING;
-
-        this.restoreOrSave();
     }
 
     /**
@@ -251,7 +249,6 @@ export class CatenaGameController extends GameController implements CatenaGameVi
         super(ctx);
         this.model = new CatenaGameModel(this, def);
         this.view = new CatenaGameView(this);
-        this.stateUpdated();
     }
 
     /**
