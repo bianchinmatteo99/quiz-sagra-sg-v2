@@ -46,7 +46,7 @@ export interface QuestionStateSnapshot {
     /** Current lifecycle state shared across clients. */
     state: QuestionState;
     /** Participant ids that are not allowed to submit an answer. */
-    deny: string[];
+    deny?: string[];
     /** Whether new participant answers are currently accepted. */
     enableAnswers: boolean;
     /** Whether manual answer validation is enabled in admin controls. */
