@@ -37,6 +37,7 @@ class QuizController implements QuizViewContext, QuizModelContext {
      */
     setStatus(status: QuizStatus): void {
         this.model.status = status;
+        this.view.setEnableStartTimeChange(status === QuizStatus.AwaitingStart);
         this.stateUpdated();
     }
 

@@ -3,7 +3,7 @@ import { MulticolPage, Page, Pager, StaticPage } from "../common/navigation/page
 import { QuestionState } from "../common/questions/question.contract";
 import { TimerHandler } from "./display.state";
 
-type PageColDef = [string, Page][]
+
 /**
  * Bridges the display pages to the shared container in the document.
  */
@@ -160,6 +160,7 @@ export class QuestionPage extends StaticPage {
  * Renders the waiting screen shown before the quiz starts.
  */
 export class WaitingStartPage extends StaticPage {
+    constructor(private readonly title : string, private readonly startTime : string){super();}
     /**
      * Renders the pre-start welcome layout into the shared page container.
      */
@@ -169,8 +170,8 @@ export class WaitingStartPage extends StaticPage {
             <span style="grid-column: span 6;display: flex;flex-direction: column;align-items: center;justify-content: center;gap: 30px;">
                 <img src="/favicon/favicon.svg" style="height: 25vh;">
                 <span style="color: var(--pico-secondary);">
-                    <h1 style="color: var(--pico-primary);">QUIZ</h1>
-                    Alle ore 21:15
+                    <h1 style="color: var(--pico-primary);">${this.title.toUpperCase()}</h1>
+                    ${!!this.startTime ? "Alle ore " + this.startTime : ""}
                 </span>
             </span>            
             

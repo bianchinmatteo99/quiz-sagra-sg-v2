@@ -26,9 +26,12 @@ export class DisplayRootPageChooser extends DecisionNode<DisplayStateHandler, Pa
      * @returns The page that should be rendered for the current quiz phase.
      */
     decide(state: DisplayStateHandler): Page {
-        if (!state.read || state.read.app.quiz.status == QuizStatus.Booting || state.read.app.quiz.status == QuizStatus.AwaitingStart) {
+        if (!state.read || state.read.app.quiz.status == QuizStatus.Booting) {
             this.clearSubTree();
-            return new WaitingStartPage();
+            return new EmptyPage();
+        } else if (state.read.app.quiz.status == QuizStatus.AwaitingStart) {
+            this.clearSubTree();
+            return new WaitingStartPage(state.read.app.quiz.title, state.read.app.quiz.startTime);
         } else if (state.read.app.quiz.status == QuizStatus.OnBoarding) {
             this.clearSubTree();
             return new OnBoardingPage();

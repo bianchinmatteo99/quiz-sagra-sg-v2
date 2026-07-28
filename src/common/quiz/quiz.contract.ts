@@ -30,12 +30,17 @@ export interface QuizDefinitionSnapshot {
     title: string;
     /** Serialized game definitions included in this quiz. */
     games: GameDefinitionData[];
+
+    startTime: string;
 }
 
 /**
  * Persisted quiz runtime state stored under /state/quiz.
  */
 export interface QuizStateSnapshot {
+    /** Quiz title shown in the UI and admin tools. */
+    title: string;
+    startTime: string;
     /** Current quiz lifecycle stage. */
     status: QuizStatus;
     /** Index of the currently active game, or null when none is active. */

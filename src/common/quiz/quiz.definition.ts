@@ -26,11 +26,13 @@ function removeUndefinedDeep<T>(value: T): T {
 export class QuizDefinition {
     static readonly DBPATH = "/definition";
     title: string;
+    startTime: string;
     games: AnyGameDefinition[];
 
-    constructor(title: string, games: AnyGameDefinition[]) {
+    constructor(title: string, games: AnyGameDefinition[], startTime: string, ) {
         this.title = title;
         this.games = games;
+        this.startTime = startTime;
     }
 
     /**
@@ -53,6 +55,7 @@ export class QuizDefinition {
         return removeUndefinedDeep({
             title: this.title,
             games: this.games.map(game => game.data),
+            startTime: this.startTime,
         }) as QuizDefinitionSnapshot;
     }
 
@@ -61,7 +64,7 @@ export class QuizDefinition {
      * @returns Placeholder quiz definition.
      */
     static placeholder(): QuizDefinition {
-        return new QuizDefinition("Empty Quiz", []);
+        return new QuizDefinition("Empty Quiz", [], "");
     }
 }
 
@@ -115,7 +118,7 @@ export class QuizDefinitionBuilder {
                 return new GameDefinition(id, gameTitle, gameData);
             });
 
-            return new QuizDefinition(quizStructure.title, games);
+            return new QuizDefinition(quizStructure.title, games, MDUtils.parseString(quizStructure.options, "start_time", ""));
         } catch (error) {
             console.error('Error parsing quiz from Markdown:', error);
             return null;
@@ -135,7 +138,7 @@ export class QuizDefinitionBuilder {
                 const parsedData = gamesDefBuilders[gameKind].parseFromJSON(gameData);
                 return new GameDefinition(id, gameKind, parsedData);
             });
-            return new QuizDefinition(title, games);
+            return new QuizDefinition(title, games, data.startTime ?? "");
         } catch (error) {
             console.error('Error parsing quiz from JSON:', error);
             return null;

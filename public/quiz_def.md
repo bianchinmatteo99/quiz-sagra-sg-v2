@@ -1,4 +1,5 @@
 # QUIZ DI PROVA
+start_time: 21:30
 
 ## Catena
 time_for_answer: 20

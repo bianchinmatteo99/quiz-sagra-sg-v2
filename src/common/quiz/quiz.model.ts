@@ -21,6 +21,7 @@ class QuizModel extends BaseModel<QuizStateSnapshot> {
     gamesStatuses: GameStatus[];
     finalrankstate: number|null = null;
     displayRankOnIdle: boolean = true;
+    startTime: string;
 
     context: QuizModelContext;
 
@@ -33,6 +34,7 @@ class QuizModel extends BaseModel<QuizStateSnapshot> {
     constructor(ctx: QuizModelContext, def: QuizDefinition) {
         super();
         this.definition = def;
+        this.startTime = def.startTime;
         this.gamesStatuses = [...Array(def.games.length).fill(GameStatus.NotStarted)];
         this.status = QuizStatus.Booting;
         this.currentGame = null;
@@ -69,6 +71,8 @@ class QuizModel extends BaseModel<QuizStateSnapshot> {
             currentGame: this.currentGame,
             finalrankstate: this.finalrankstate,
             displayRankOnIdle: this.displayRankOnIdle,
+            title: this.definition.title,
+            startTime: this.startTime,
         };
     }
 }

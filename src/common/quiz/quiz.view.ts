@@ -10,6 +10,7 @@ interface QuizViewContext {
     startGame(gameIndex: number): void;
     viewGame(gameIndex: number): void;
     endQuiz(): void;
+    stateUpdated(): void;
 }
 
 type QuizLoadChoice =
@@ -24,12 +25,20 @@ type QuizLoadChoice =
 class QuizView {
     readonly quizTimelineContainer = "quiz-timeline-container";
     readonly quizAdvanceButtonContainer = "quiz-advance-button-container";
+    readonly changeStartTimeButton = "change-quiz-start-time-button";
     readonly endQuizButton = "end-quiz-button"
     context: QuizViewContext;
 
     constructor(context: QuizViewContext) {
         this.context = context;
-        document.getElementById(this.endQuizButton)?.addEventListener("click", ()=>this.context.endQuiz())
+        document.getElementById(this.endQuizButton)?.addEventListener("click", ()=>this.context.endQuiz());
+        document.getElementById(this.changeStartTimeButton)?.addEventListener("click", ()=>{
+            const newTime = prompt("Scrivi il nuovo orario di inizio:")
+            if(!!newTime){
+                this.context.model.startTime = newTime;
+                this.context.stateUpdated();
+            }
+        });
     }
 
     /**
@@ -66,6 +75,12 @@ class QuizView {
         games.forEach((game, index) => {
             timeline.appendChild(this.buildQuizListItem(index, game.data.title ?? game.data.name, statuses[index]));
         });
+    }
+
+    setEnableStartTimeChange(enable : boolean){
+        const el = document.getElementById(this.changeStartTimeButton)
+        if(!el) return;
+        el.style.display = enable ? "block" : "none";
     }
 
     /**
