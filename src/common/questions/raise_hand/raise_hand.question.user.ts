@@ -24,7 +24,7 @@ class UserRaiseHandPage extends UserQuestionPage {
         if (!this.container) throw new Error("Render called before create");
         this.container.innerHTML = `
         <style>
-        #raiseHand {
+        button#raiseHand {
             padding: 16px;
             border-radius: 50%;
             font-size: 2rem;
@@ -33,34 +33,21 @@ class UserRaiseHandPage extends UserQuestionPage {
             justify-content: center;
             position: relative;
             filter: none;
-            transition: transform .5s;
+            box-shadow: 5px 10px 0 #003973;
+            transition: transform .1s, box-shadow .1s;
         }
 
-        #raiseHand img {
+        button#raiseHand img {
             padding: 8px 16px 8px 0;
             width: 200px;
         }
-        #raiseHand:active {
-                transform: translate(5px, 10px);
-        }
-
-        button#raiseHand::before {
-                content: "";
-                background-color: #003973;
-                position: absolute;
-                width: 100%;
-                height: 100%;
-                border-radius: 50%;
-                z-index: -10;
-                transform: translate(5px, 10px);
-                transition: transform .5s;
-        }
-        button#raiseHand:active::before {
-                transform: translate(0, 0);
+        button#raiseHand:active {
+            transform: translate(5px, 10px);
+            box-shadow: 0 0 0 #003973;
         }
         </style>
         <span>Pronto a rispondere?</span>
-        <button><img src="hand.png" alt="Alza la mano"></button>
+        <button id="raiseHand"><img src="/img/hand.png" alt="Alza la mano"></button>
         `;
     }
 }
