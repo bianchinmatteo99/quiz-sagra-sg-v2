@@ -14,7 +14,7 @@ words:
 
 ## Catena
 time_for_answer: 20
-can_retry_for_same_word: True
+points_for_correct_answer: 10
 words:
 - catena
 - di

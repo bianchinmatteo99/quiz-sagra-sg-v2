@@ -1,4 +1,3 @@
-import { QuestionAnswers } from "../question.contract";
 import { Ender, Evaluator, Question, QuestionContext, QuestionModel } from "../questions.admin.base";
 
 class RaiseHandQuestionModel extends QuestionModel{
@@ -8,12 +7,6 @@ class RaiseHandQuestionModel extends QuestionModel{
     readonly name = "Alzata di mano";
 
     readonly RAISEHANDANSWER = "&#x270B;";
-}
-
-export function numberOfSubmittedAnswersIs(n : number): ((a: QuestionAnswers) => boolean) {
-    return (a)=>{
-        return a.size >= n;
-    }
 }
 
 export class RaiseHandQuestion extends Question {

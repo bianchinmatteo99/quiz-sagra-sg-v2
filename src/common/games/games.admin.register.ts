@@ -2,6 +2,10 @@ import { CatenaGameRequiredData } from "./catena/catena.contracts";
 import { CatenaGameDefinition, CatenaGameDefinitionBuilder } from "./catena/catena.admin.definition";
 import { CatenaGameManager } from "./catena/catena.admin.manager";
 import { CatenaGameView } from "./catena/catena.admin.mvc";
+import { GuessSongGameRequiredData } from "./guess_song/guess_song.contracts";
+import { GuessSongGameDefinition, GuessSongGameDefinitionBuilder } from "./guess_song/guess_song.admin.definition";
+import { GuessSongGameManager } from "./guess_song/guess_song.admin.manager";
+import { GuessSongGameView } from "./guess_song/guess_song.admin.mvc";
 import { AnyGameDefinition, GameDefinitionBuilder, GameManager, GameManagerContext, GameView } from "./games.admin.base";
 import { AnyGameDefinitionData } from "./games.contracts";
 
@@ -17,6 +21,7 @@ import { AnyGameDefinitionData } from "./games.contracts";
  */
 export const gamesDefBuilders: { [key: string]: GameDefinitionBuilder<AnyGameDefinitionData>; } = {
     [CatenaGameRequiredData.kind]: new CatenaGameDefinitionBuilder(),
+    [GuessSongGameRequiredData.kind]: new GuessSongGameDefinitionBuilder(),
 };
 
 
@@ -37,6 +42,8 @@ export function instantiateGameManagerFor(def: AnyGameDefinition, ctx: GameManag
     switch(def.kind){
         case CatenaGameRequiredData.kind:
             return new CatenaGameManager(ctx, def as CatenaGameDefinition, restoreState);
+        case GuessSongGameRequiredData.kind:
+            return new GuessSongGameManager(ctx, def as GuessSongGameDefinition, restoreState);
         
         default:
             throw new Error("Game type " + def.kind + " not registered.")
@@ -58,6 +65,8 @@ export function instantiateGameViewerFor(def: AnyGameDefinition): GameView{
     switch(def.kind){
         case CatenaGameRequiredData.kind:
             return new CatenaGameView(null, def as CatenaGameDefinition);
+        case GuessSongGameRequiredData.kind:
+            return new GuessSongGameView(null, def as GuessSongGameDefinition);
         
         default:
             throw new Error("Game type " + def.kind + " not registered.")

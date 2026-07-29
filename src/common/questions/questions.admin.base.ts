@@ -406,6 +406,7 @@ export interface Ender {
     timer?: number;
     manual?: boolean;
     stopWhen?: (a: QuestionAnswers) => boolean;
+    stopWhenDelay?: number;
 }
 
 /**
@@ -487,7 +488,7 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
         }
         this.manualevaluate = evaluate.manual ?? false;
 
-        this.ender = stopAnswersCriteria;
+        this.ender = {...stopAnswersCriteria};
         this.view = new QuestionView(this);
     }
 
@@ -591,7 +592,7 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
      * Assigned when `ender.stopWhen` is configured and invoked on remote answer
      * updates inside `stateUpdated(true)`.
      */
-    autoStop: ((a: QuestionAnswers) => void) | null = null;
+    autoStop: ((a: QuestionAnswers) => Promise<void>) | null = null;
 
     /**
      * Callback used to end the ASKING phase from the manual STOP button.
@@ -618,10 +619,12 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
         }
         if (!!this.ender.stopWhen) {
             const shouldStop = this.ender.stopWhen;
+            const del = this.ender.stopWhenDelay ?? 0;
             conditions.push(new Promise((resolve, reject) => {
-                this.autoStop = (a: QuestionAnswers) => {
+                this.autoStop = async (a: QuestionAnswers) => {
                     if (shouldStop(a)) {
                         this.autoStop = null;
+                        if(del>0) await delay(del);
                         resolve();
                     }
                 };

@@ -46,7 +46,7 @@ export class CatenaGameDefinitionBuilder implements GameDefinitionBuilder<Catena
         const title = MDUtils.parseString(parsed, "title", CatenaGameRequiredData.name);
         const timeForAnswer = MDUtils.parseNumber(parsed, "time_for_answer", 0);
         const canRetryForSameWord = MDUtils.parseBoolean(parsed, "can_retry_for_same_word", true);
-        const pointsForCorrectAnswer = MDUtils.parseNumber(parsed, "points_for_correct_answer", 10);
+        const pointsForCorrectAnswer = MDUtils.parseNumber(parsed, "points_for_correct_answer");
         const words = MDUtils.parseStringList(parsed, "words");
 
         if (timeForAnswer < 0) {
