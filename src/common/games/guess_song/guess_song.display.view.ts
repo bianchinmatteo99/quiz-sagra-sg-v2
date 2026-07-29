@@ -43,16 +43,15 @@ class GuessSongPage extends StaticPage {
                     flex-direction: column;
                     justify-content: center;
                     align-items: center;
-                    gap: 12px;
-                    text-align: center;
-                }
-                #guess-song .title {
-                    font-size: 2rem;
-                    font-weight: bold;
-                    letter-spacing: 0.1em;
+                    gap: 50px;
+                    background: linear-gradient(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), url(/img/song.jpg);
+                    background-repeat: no-repeat;
+                    background-size: auto;
+                    background-position: center;
                 }
                 #guess-song .subtitle {
                     font-size: 1.5rem;
+                    color: var(--pico-secondary);
                 }
             </style>
             <div class="title">Indovina la canzone</div>

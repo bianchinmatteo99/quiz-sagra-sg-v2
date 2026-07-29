@@ -30,7 +30,7 @@ export class GuessSongGamePresenterStateView extends GamePresenterStateView<Gues
         const currentSongIndex = gameState?.currentSongIndex ?? 0;
         const currentSong = this.gameDefinition.correctAnswers[currentSongIndex] ?? null;
         currentSongLabel.textContent = currentSong
-            ? "TITOLO CANZONE IN CORSO: " + (showSecrets || gameState?.state===GuessSongState.SHOWINGANSWER ? currentSong.toUpperCase() : "***")
+            ? "TITOLO CANZONE: " + (showSecrets || gameState?.state===GuessSongState.SHOWINGANSWER ? currentSong.toUpperCase() : "***")
             : "Nessuna canzone corrente";
 
         container.replaceChildren(title, settings, currentSongLabel);
