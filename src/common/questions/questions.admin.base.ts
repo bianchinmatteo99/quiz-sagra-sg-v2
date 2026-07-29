@@ -235,7 +235,7 @@ export interface QuestionViewContext {
      * Returns answer/evaluation rows joined with participant metadata.
      * @param fillEmptyResults When true, missing results are initialized.
      */
-    getJoinedList(fillEmptyResults: boolean): JoinedQuestionRow[];
+    getJoinedList(fillEmptyResults?: boolean): JoinedQuestionRow[];
     /** Updates one participant evaluation result. */
     setResultOf(id: string, result: boolean): void;
     /** Manual callback to stop the ASKING phase. */
@@ -289,16 +289,24 @@ export class QuestionView {
         container.innerHTML = "";
 
         const ev = this.context.model.enableManualEvaluation;
-        const info = this.context.getJoinedList(ev);
+        const info = this.context.getJoinedList();
         for (const o of info) {
-            const check = ev ? `<input type='checkbox' ${o.result ? "checked" : ""} aria-invalid="${!o.result}">` : ""
+            // const check = ev ? `<input type='checkbox' ${o.result ? "checked" : ""} aria-invalid="${o.result===false}">` : ""
+            const cbrow = document.createElement("td");
+            if(ev){
+                const cb = document.createElement("input");
+                cb.type = "checkbox"; cb.checked = !!o.result; cb.ariaInvalid = `${o.result===false}`; cb.indeterminate = o.result===undefined;
+                cbrow.appendChild(cb);
+            }
+            
             const row = toHtml(`
                         <tr data-id="${o.id}">
                             <th scope="row">${o.name ?? "Errore nome sconosciuto"}</th>
                             <td>${o.answer ?? ""}</td>
-                            <td>${check}</td>
+                            
                         </tr>
                     `);
+            row.appendChild(cbrow);
             container.appendChild(row);
         }
 
