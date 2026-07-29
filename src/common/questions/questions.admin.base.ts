@@ -481,7 +481,7 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
         if (!evaluate.auto && evaluate.manual === false) throw new Error("How can I evaluate the answers?");
         if (typeof evaluate.auto === "string") {
             const c = evaluate.auto;
-            this.autoevaluate = (answer) => answer.trim().toLowerCase() == c.trim().toLowerCase();
+            this.autoevaluate = (answer) => this.sanifyAnswer(answer) == this.sanifyAnswer(c);
         } else {
             this.autoevaluate = evaluate.auto ?? null;
         }
@@ -490,6 +490,11 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
         this.ender = stopAnswersCriteria;
         this.view = new QuestionView(this);
     }
+
+    sanifyAnswer(a : string): string {
+        return a.trim().toLowerCase();
+    }
+
 
     /**
      * Callback used while the SHOWRESULTS phase is waiting for manual completion.

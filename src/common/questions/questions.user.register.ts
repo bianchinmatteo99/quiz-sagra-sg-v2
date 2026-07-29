@@ -1,5 +1,6 @@
 import { UserStateHandler } from "../../user/user.state";
 import { QuestionUserPageProvider } from "./questions.user.base";
+import { RaiseHandQuestionPageProvider } from "./raise_hand/raise_hand.question.user";
 import { TextInputQuestionPageProvider } from "./text_input/text_input.question.user";
 
 /**
@@ -21,6 +22,8 @@ export function instantiatePageProviderForQuestion(kind: string, state: UserStat
     switch(kind){
         case "text-input":
             return new TextInputQuestionPageProvider();
+        case "raise-hand":
+            return new RaiseHandQuestionPageProvider();
         default:
             throw new Error("Page provider for question kind " + kind + " not registered.")
     }

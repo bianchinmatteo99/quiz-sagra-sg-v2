@@ -64,7 +64,7 @@ export abstract class QuestionUserPageProvider {
         if (isCorrect) {
             return new IdleStatusPage("Risposta esatta, complimenti!", { icon: "/img/correct.gif", isGifIcon: true });
         } else if (isCorrect === null) {
-            return new IdleStatusPage("Nessuna risposta inviata", { icon: "sentiment_dissatisfied" });
+            return new IdleStatusPage("Non hai risposto a questa domanda", { icon: "sentiment_dissatisfied" });
         } else {
             return new IdleStatusPage("Risposta errata", { icon: "/img/wrong.gif", isGifIcon: true });
         }
