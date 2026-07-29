@@ -20,7 +20,7 @@ words:
 - di
 - prova
 
-# Guess_song
+## Guess_song
 limit_trials_per_song: 2
 stop_when_first_hand_raised: true
 points_for_correct_answer: 100

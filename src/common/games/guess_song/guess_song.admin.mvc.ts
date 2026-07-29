@@ -106,7 +106,9 @@ export class GuessSongGameView extends GameView {
         const stepCount = this.getSteps().length;
         switch (this.activeGameContext.model.state) {
             case GuessSongState.DISPLAYCOVER:
-                return 0;
+                if(this.activeGameContext.model.currentSongIndex<=0){
+                    return 0;
+                }
             case GuessSongState.ASKINGQUESTION:
             case GuessSongState.SHOWINGANSWER:
                 return 1 + this.activeGameContext.model.currentSongIndex;
