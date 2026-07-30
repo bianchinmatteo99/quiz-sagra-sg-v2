@@ -154,15 +154,15 @@ export class QuestionPage extends StaticPage {
                 break
             case QuestionState.EVALUATING:
                 html = `
-                    <span id="question-subtitle">Valutazione</span>
-                    <div class="spinner"></div>
+                <span id="question-subtitle">Valutazione</span>
+                <div class="spinner"></div>
                 `
                 break
         }
         if (!!html) {
             content.innerHTML = html
             this.container.style.opacity = "1"
-            this.templateColumnWidth = "1fr"
+            this.templateColumnWidth = "minmax(300px,1fr)"
         } else {
             content.innerHTML = ""
             this.container.style.opacity = "0"
