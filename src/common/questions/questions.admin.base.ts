@@ -417,6 +417,7 @@ export interface Ender {
  * the question transitions to ENDED.
  */
 export interface QuestionAskCallbacks {
+    onAnswerClosed?: (ans: QuestionAnswers) => void;
     /**
      * Called after evaluation completes and before the SHOWRESULTS phase.
      *
@@ -529,6 +530,7 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
      * @returns The final evaluation result map.
      */
     async ask(callbacks?: QuestionAskCallbacks): Promise<QuestionResult> {
+        const onAnswerClosed = callbacks?.onAnswerClosed ?? ((ans)=>{})
         const beforeShowResults = callbacks?.beforeShowResults ?? ((res) => Promise.resolve(5000));
         const beforeEnd = callbacks?.beforeEnd ?? (async (res) => await delay(50));
 
@@ -537,8 +539,9 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
         const stop = this.stopConditions();
         this.stateUpdated();
         await stop;
-
         this.model.allowNewAnswers(false);
+        onAnswerClosed(this.model.answers);
+
         this.model.state = QuestionState.EVALUATING;
         this.stateUpdated();
         this.model.results = await this.evaluate();

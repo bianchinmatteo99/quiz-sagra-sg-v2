@@ -390,6 +390,9 @@ export abstract class GameView {
 
     /** Cache for the currently-active footer prompt element. */
     private _activeFooter: HTMLElement & { safeRemove: (result: boolean | null) => void } | null = null;
+    removeFooterChoice(){
+        this._activeFooter?.safeRemove(null);
+    }
 
     /**
      * Render a footer with action buttons and invoke a callback when clicked.
