@@ -50,43 +50,38 @@ export class QuestionPage extends StaticPage {
         this.timerListenerHandle = timer.addListener((t) => {
             const el : HTMLDivElement|null|undefined = this.container?.querySelector("#timer")
             if (!!el) {
-                el.textContent = t >= 0 ? t.toString() : ""
-                // Restart CSS animation
-                el.classList.remove("flash");                
-                void el.offsetWidth;
-                el.classList.add("flash");
+                if(t >= 0){
+                    el.textContent = t.toString();
+                    el.classList.remove("flash", "spinner");                
+                    void el.offsetWidth;
+                    el.classList.add("flash");
+                } else {
+                    el.textContent = "";
+                    el.classList.remove("flash");
+                    el.classList.add("spinner");
+                }
             }
         })
     }
     render(): void {
         if (!this.container) throw new Error("Render called before create");
         this.container.innerHTML = `
-                <h4 style="font-size: 1rem;">DOMANDA<br/>IN CORSO</h4>
-                <div id="question-content" style="height:50%; width: 100%;display: flex;flex-direction: column;align-items: center;justify-content: space-evenly;"></div>
-        `;
-        Object.assign(this.container.style, {
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            flexDirection: "column",
-            overflow: "hidden",
-            transition: "opacity 1s ease"
-        })
-        this.update()
-    }
-    update(state?: QuestionState | null) {
-        if (state === this.lastKnownState) return;
-        if (state !== undefined) {
-            this.lastKnownState = state
-        }
-        if (!this.container) return;
-
-        const content = this.container.querySelector("#question-content")!
-        let html = ""
-        switch (this.lastKnownState) {
-            case QuestionState.ASKING:
-                html = `
                 <style>
+                    h4{
+                        font-size: 1rem;
+                    }
+                    #question-content{
+                        height:50%;
+                        width: 100%;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: space-evenly;
+                    }
+                    #question-subtitle{
+                        font-size:.8rem;
+                        color: var(--pico-secondary);
+                    }
                     #timer {
                         display: inline-block;
                         font-size: 100px;
@@ -114,12 +109,6 @@ export class QuestionPage extends StaticPage {
                             opacity: 1;
                         }
                     }
-                </style>
-                <div id="timer">${this.timer.curtime ?? ""}</div>`
-                break
-            case QuestionState.EVALUATING:
-                html = `
-                    <style>
                     .spinner {
                         width: 100px;
                         height: 100px;
@@ -134,8 +123,38 @@ export class QuestionPage extends StaticPage {
                             transform: rotate(360deg);
                         }
                     }
-                    </style>
-                    <span id="question-subtitle" style="font-size:.8rem">Valutazione</span>
+                </style>
+                <h4>DOMANDA<br/>IN CORSO</h4>
+                <div id="question-content"></div>
+        `;
+        Object.assign(this.container.style, {
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            flexDirection: "column",
+            overflow: "hidden",
+            transition: "opacity 1s ease"
+        })
+        this.update()
+    }
+    update(state?: QuestionState | null) {
+        if (state === this.lastKnownState) return;
+        if (state !== undefined) {
+            this.lastKnownState = state
+        }
+        if (!this.container) return;
+
+        const content = this.container.querySelector("#question-content")!
+        let html = ""
+        switch (this.lastKnownState) {
+            case QuestionState.ASKING:
+                html = `
+                <span id="question-subtitle">Raccogliendo<br/>le risposte...</span>
+                <div id="timer" class="spinner">${this.timer.curtime ?? ""}</div>`
+                break
+            case QuestionState.EVALUATING:
+                html = `
+                    <span id="question-subtitle">Valutazione</span>
                     <div class="spinner"></div>
                 `
                 break

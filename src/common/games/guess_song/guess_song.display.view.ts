@@ -14,7 +14,7 @@ export class GuessSongGamePageChooser extends GamePageChooser<GuessSongGameState
         if(state.state === GuessSongState.SHOWINGANSWER){
             answer = state.displayCorrectAnswer
         }
-        return new GuessSongPage(answer);
+        return new GuessSongPage(state.title, answer);
     }
 }
 
@@ -25,11 +25,13 @@ export class GuessSongGamePageChooser extends GamePageChooser<GuessSongGameState
  * subtitle when a value is passed in.
  */
 class GuessSongPage extends StaticPage {
-    templateColumnWidth = "2fr";
+    templateColumnWidth = "75%";
+    private readonly title: string
     private readonly subtitle: string | null;
 
-    constructor(subtitle: string | null = null) {
+    constructor(title: string, subtitle: string | null = null) {
         super();
+        this.title = title;
         this.subtitle = subtitle;
     }
 
@@ -44,7 +46,7 @@ class GuessSongPage extends StaticPage {
                     justify-content: center;
                     align-items: center;
                     gap: 50px;
-                    background: linear-gradient(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), url(/img/song.jpg);
+                    background: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)), url(/img/song.jpg);
                     background-repeat: no-repeat;
                     background-size: auto;
                     background-position: center;
@@ -54,12 +56,12 @@ class GuessSongPage extends StaticPage {
                     color: var(--pico-secondary);
                 }
             </style>
-            <div class="title">Indovina la canzone</div>
+            <h2>${this.title}</h2>
             ${this.subtitle ? `<div class="subtitle">${this.subtitle.toUpperCase()}</div>` : ""}
         `;
     }
 
     isEqualTo(other: Page): boolean {
-        return other instanceof GuessSongPage && this.subtitle === other.subtitle;
+        return other instanceof GuessSongPage && this.title === other.title && this.subtitle === other.subtitle;
     }
 }

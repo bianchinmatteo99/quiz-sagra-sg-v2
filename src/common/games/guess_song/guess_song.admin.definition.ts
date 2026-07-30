@@ -35,6 +35,7 @@ export class GuessSongGameDefinitionBuilder implements GameDefinitionBuilder<Gue
     parseFromMD(md: string): GuessSongGameDefinitionData {
         const parsed = MDUtils.parseSectionContent(md);
         MDUtils.ensureOnlyAllowedKeys(parsed, [
+            "title",
             "limit_trials_per_song",
             "stop_when_first_hand_raised",
             "correct_answers",
