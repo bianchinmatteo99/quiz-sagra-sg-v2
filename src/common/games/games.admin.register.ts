@@ -6,6 +6,10 @@ import { GuessSongGameRequiredData } from "./guess_song/guess_song.contracts";
 import { GuessSongGameDefinition, GuessSongGameDefinitionBuilder } from "./guess_song/guess_song.admin.definition";
 import { GuessSongGameManager } from "./guess_song/guess_song.admin.manager";
 import { GuessSongGameView } from "./guess_song/guess_song.admin.mvc";
+import { ZipGameRequiredData } from "./zip/zip.contracts";
+import { ZipGameDefinition, ZipGameDefinitionBuilder } from "./zip/zip.admin.definition";
+import { ZipGameManager } from "./zip/zip.admin.manager";
+import { ZipGameView } from "./zip/zip.admin.mvc";
 import { AnyGameDefinition, GameDefinitionBuilder, GameManager, GameManagerContext, GameView } from "./games.admin.base";
 import { AnyGameDefinitionData } from "./games.contracts";
 
@@ -22,6 +26,7 @@ import { AnyGameDefinitionData } from "./games.contracts";
 export const gamesDefBuilders: { [key: string]: GameDefinitionBuilder<AnyGameDefinitionData>; } = {
     [CatenaGameRequiredData.kind]: new CatenaGameDefinitionBuilder(),
     [GuessSongGameRequiredData.kind]: new GuessSongGameDefinitionBuilder(),
+    [ZipGameRequiredData.kind]: new ZipGameDefinitionBuilder(),
 };
 
 
@@ -44,6 +49,8 @@ export function instantiateGameManagerFor(def: AnyGameDefinition, ctx: GameManag
             return new CatenaGameManager(ctx, def as CatenaGameDefinition, restoreState);
         case GuessSongGameRequiredData.kind:
             return new GuessSongGameManager(ctx, def as GuessSongGameDefinition, restoreState);
+        case ZipGameRequiredData.kind:
+            return new ZipGameManager(ctx, def as ZipGameDefinition, restoreState);
         
         default:
             throw new Error("Game type " + def.kind + " not registered.")
@@ -67,6 +74,8 @@ export function instantiateGameViewerFor(def: AnyGameDefinition): GameView{
             return new CatenaGameView(null, def as CatenaGameDefinition);
         case GuessSongGameRequiredData.kind:
             return new GuessSongGameView(null, def as GuessSongGameDefinition);
+        case ZipGameRequiredData.kind:
+            return new ZipGameView(null, def as ZipGameDefinition);
         
         default:
             throw new Error("Game type " + def.kind + " not registered.")

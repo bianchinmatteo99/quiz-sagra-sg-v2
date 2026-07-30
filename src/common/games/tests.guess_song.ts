@@ -21,13 +21,52 @@ export const GuessSongGameRequiredData = {
 } as const satisfies GameRequiredData;
 
 const fields = defineFields({
-    limitTrialsPerSong: definition({ mdkey: "limit_trials_per_song", parser: Parsers.number, default: Number.MAX_SAFE_INTEGER, validation: (value) => value > 0 ? true : new ValidationError("limit_trials_per_song must be > 0"), runtime: true, publish: true }),
-    stopWhenFirstHandIsRaised: definition({ mdkey: "stop_when_first_hand_raised", parser: Parsers.boolean, default: false, runtime: true, publish: true }),
-    correctAnswers: definition({ mdkey: "correct_answers", parser: Parsers.stringList, runtime: false, publish: false }),
-    pointsForCorrectAnswer: definition({ mdkey: "points_for_correct_answer", parser: Parsers.number, validation: (value) => value >= 0 ? true : new ValidationError("points_for_correct_answer must be >= 0"), runtime: true, publish: true }),
-    state: runtime({ default: GuessSongState.STARTING, publish: true }),
-    currentSongIndex: runtime({ default: GuessSongState.STARTING, publish: true }),
-    displayCorrectAnswer: runtime({ default: "", publish: true }),
+    limitTrialsPerSong: definition({
+        mdkey: "limit_trials_per_song",
+        parser: Parsers.number,
+        default: Number.MAX_SAFE_INTEGER,
+        validation: (value) => value > 0 ? true : new ValidationError("limit_trials_per_song must be > 0"),
+        runtime: true,
+        publish: true 
+    }),
+
+    stopWhenFirstHandIsRaised: definition({
+        mdkey: "stop_when_first_hand_raised",
+        parser: Parsers.boolean,
+        default: false,
+        runtime: true,
+        publish: true
+    }),
+
+    correctAnswers: definition({
+        mdkey: "correct_answers",
+        parser: Parsers.stringList,
+        runtime: false,
+        publish: false
+    }),
+
+    pointsForCorrectAnswer: definition({
+        mdkey: "points_for_correct_answer",
+        parser: Parsers.number,
+        validation: (value) => value >= 0 ? true : new ValidationError("points_for_correct_answer must be >= 0"),
+        runtime: true,
+        publish: true
+    }),
+
+    state: runtime({
+        default: GuessSongState.STARTING,
+        publish: true
+    }),
+
+    currentSongIndex: runtime({
+        default: GuessSongState.STARTING,
+        publish: true
+    }),
+    
+    displayCorrectAnswer: runtime({
+        default: "",
+        publish: true
+    }),
 });
 
 export type GuessSongGameDefinitionData = GameDefinitionDataFromFields<

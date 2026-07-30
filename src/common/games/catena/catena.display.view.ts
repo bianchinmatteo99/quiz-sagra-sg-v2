@@ -63,7 +63,7 @@ class CoverPage extends StaticPage{
  * The page receives masked/unmasked word strings from snapshots and updates only
  * changed letters to keep transitions smooth on the display surface.
  */
-class CatenaPage extends StaticPage{
+export class CatenaPage extends StaticPage{
     /** Preferred fixed content width for the chain column. */
     templateColumnWidth = "600px"
     /** Last rendered snapshot words used for incremental diff updates. */

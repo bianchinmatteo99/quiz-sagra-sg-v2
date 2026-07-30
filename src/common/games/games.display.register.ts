@@ -3,6 +3,8 @@ import { CatenaGamePageChooser } from "./catena/catena.display.view";
 import { GuessSongGameRequiredData } from "./guess_song/guess_song.contracts";
 import { GuessSongGamePageChooser } from "./guess_song/guess_song.display.view";
 import { GamePageChooser } from "./games.display.base";
+import { ZipGameRequiredData } from "./zip/zip.contracts";
+import { ZipGamePageChooser } from "./zip/zip.display.view";
 
 /**
  * Create the display-side page chooser registered for a game kind.
@@ -20,6 +22,8 @@ export function instantiatePageChooserForGame(kind: string): GamePageChooser<any
             return new CatenaGamePageChooser();
         case GuessSongGameRequiredData.kind:
             return new GuessSongGamePageChooser();
+        case ZipGameRequiredData.kind:
+            return new ZipGamePageChooser();
         default:
             throw new Error("Page provider for game " + kind + " not registered.")
     }

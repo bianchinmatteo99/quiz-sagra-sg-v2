@@ -4,6 +4,8 @@ import { GamePresenterStateView } from "./games.presenter.base";
 import { AnyGameDefinitionData } from "./games.contracts";
 import { GuessSongGameDefinitionData, GuessSongGameRequiredData } from "./guess_song/guess_song.contracts";
 import { GuessSongGamePresenterStateView } from "./guess_song/guess_song.presenter.view";
+import { ZipGameDefinitionData, ZipGameRequiredData } from "./zip/zip.contracts";
+import { ZipGamePresenterStateView } from "./zip/zip.presenter.view";
 
 export function instantiatePresenterStateViewForGame(definition: AnyGameDefinitionData): GamePresenterStateView {
     switch (definition.kind) {
@@ -11,6 +13,8 @@ export function instantiatePresenterStateViewForGame(definition: AnyGameDefiniti
             return new CatenaGamePresenterStateView(definition as CatenaGameDefinitionData);
         case GuessSongGameRequiredData.kind:
             return new GuessSongGamePresenterStateView(definition as GuessSongGameDefinitionData);
+        case ZipGameRequiredData.kind:
+            return new ZipGamePresenterStateView(definition as ZipGameDefinitionData);
         default:
             throw new Error("Presenter state view for game " + definition.kind + " not registered.");
     }
