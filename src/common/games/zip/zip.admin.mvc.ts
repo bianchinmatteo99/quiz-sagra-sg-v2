@@ -38,9 +38,9 @@ export class ZipGameModel extends GameModel<ZipGameStateSnapshot> {
         if(!z) return null;
         return new Secret(z, (clearValue)=> {
             return [
-                clearValue[0],
+                clearValue.at(0) ?? "",
                 ... clearValue.slice(1,-1).map((w)=>w.slice(0, this.currentZipLetters) + (this.currentZipLetters>=w.length ? "" : "***")),
-                clearValue[-1]
+                clearValue.at(-1) ?? ""
             ]
         });
     }

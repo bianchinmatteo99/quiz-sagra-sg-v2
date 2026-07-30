@@ -29,3 +29,12 @@ correct_answers:
 - Per Elisa
 - Inno di Mameli
 - Perfect
+
+## Zip
+title: Zip di prova
+time_for_answer: 20
+can_retry_for_same_zip: true
+points_for_correct_answer: 30
+zips:
+- notte,stella,polare,freddo
+- mare,onda,cresta,gallo
