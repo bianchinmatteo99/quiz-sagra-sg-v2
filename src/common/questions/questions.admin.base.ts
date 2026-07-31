@@ -513,7 +513,7 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
     }
 
     sanifyAnswer(a: string): string {
-        return a.trim().toLowerCase().replace(/\s+/g, " ");
+        return a.toUpperCase().normalize("NFD").replace(/[^A-Z0-9]/g, " ").replace(/\s+/g, " ").trim();
     }
 
 
