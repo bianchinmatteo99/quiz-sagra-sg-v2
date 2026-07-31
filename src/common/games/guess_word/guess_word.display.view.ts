@@ -127,6 +127,9 @@ class GuessWordWordPage extends StaticPage {
                 #guess-word .gap {
                     display: inline-flex;
                 }
+                #guess-word .word-break-symbol{
+                    transform: translate(-.3em, .7em);
+                }
             </style>
             
             <div class="word"></div>
@@ -200,6 +203,9 @@ class GuessWordWordPage extends StaticPage {
             .map((letter) => {
                 if (letter === "*") {
                     return `<span class="letter masked">_</span>`;
+                }
+                if(letter === GuessWordWordPage.RETURN_MARKER){
+                    return `<span class="letter word-break-symbol">${letter}</span>`;
                 }
                 if (letter === " ") {
                     return `<span class="gap">&nbsp;</span>`;

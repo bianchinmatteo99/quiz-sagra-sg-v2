@@ -1,5 +1,5 @@
 import { UserQuestionPage } from "../../../user/user.views";
-import { EventPage } from "../../navigation/pages";
+import { EventPage, Page } from "../../navigation/pages";
 import { UserStateHandler } from "../../../user/user.state";
 import { CancelHandle } from "../../general.utils";
 import { QuestionUserPageProvider } from "../questions.user.base";
@@ -49,6 +49,10 @@ class UserRaiseHandPage extends UserQuestionPage {
         <span>Pronto a rispondere?</span>
         <button id="raiseHand"><img src="/img/hand.png" alt="Alza la mano"></button>
         `;
+    }
+
+    isEqualTo(other: Page): boolean {
+        return other instanceof UserRaiseHandPage;
     }
 }
 

@@ -63,21 +63,21 @@ class HoleText extends Secret<string> {
     }
 
     private updateMissingLetters() {
-        const letters : string[] = [];
+        const letters = new Set<string>();
 
         this.exploded.forEach((letter) => {
             const plainLetter = this.toPlainUppercaseLetter(letter);
             if (this.isPlainAlphabeticLetter(plainLetter)) {
-                letters.push(plainLetter);
+                letters.add(plainLetter);
             }
         });
 
-        this.missingLetters = letters;
+        this.missingLetters = [...letters];
     }
 
     displayRandomLetter(displaySameLetterPolicy: "separate"|"together"|"default"): boolean{
         if(displaySameLetterPolicy==="together"||(displaySameLetterPolicy==="default" && this.ismultiword)){
-            const l = popRandom(this.missingLetters)
+            const l = popRandom(this.missingLetters);
             if(l){
                 this.exploded.forEach((letter, index) => {
                     if (this.toPlainUppercaseLetter(letter) === l) {
@@ -89,7 +89,7 @@ class HoleText extends Secret<string> {
                 return false;
             }
         } else {
-            const i = popRandom(this.mask.map((m, i)=>m ? -1 : i).filter((v)=>v >= 0))
+            const i = popRandom(this.mask.map((m, i)=>m ? -1 : i).filter((v)=>v >= 0));
             if(i!==undefined){
                 this.mask[i] = true;
                 this.updateMissingLetters();
