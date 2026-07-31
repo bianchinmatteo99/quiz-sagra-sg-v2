@@ -109,7 +109,6 @@ export class GuessWordGameManager extends GameManager {
             await this.currentQ.ask({
                 onAnswerClosed: handle,
                 beforeShowResults: async (result) => {
-                    await this.controller.adminInteraction({ advanceBtn: "Mostra la risposta" });
                     const correct = result.entries().filter(([_, ok]) => ok).map(([id]) => id).toArray();
                     this.controller.completeWord();
                     this.controller.stateUpdated();

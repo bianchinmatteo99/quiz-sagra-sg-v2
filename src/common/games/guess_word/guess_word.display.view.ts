@@ -99,6 +99,7 @@ class GuessWordWordPage extends StaticPage {
                     flex-wrap: nowrap;
                     justify-content: center;
                     align-items: center;
+                    gap: .1em;
                     font-family: "Courier New", monospace;
                     font-weight: 700;
                     font-size: 1.6rem;
