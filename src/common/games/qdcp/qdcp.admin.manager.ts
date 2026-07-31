@@ -35,12 +35,13 @@ export class QDCPGameManager extends GameManager {
                     : {}),
             };
 
-            
+            let hasCorrect = false;
             while (this.controller.nextHintSection()) {
                 const { result } = await startRepeatedRaiseHandFlow(this, this.controller.model.limitTrialsPerSection, ender);
                 const correct = [...result.values()].some((value) => value);
 
                 if (correct) {
+                    hasCorrect = true;
                     await this.controller.displayCorrectWord();
                     this.context.updateRanking(new Map([...result.entries()]
                         .filter(([, ok]) => ok)
@@ -48,8 +49,12 @@ export class QDCPGameManager extends GameManager {
                     break;
                 }
             }
+            if(!hasCorrect){
+                await this.controller.displayCorrectWord();
+            }
 
             
+            await this.controller.adminInteraction({ advanceBtn: "Concludi domanda"})
             this.controller.setState(QDCPState.DISPLAYCOVER);
             
         }

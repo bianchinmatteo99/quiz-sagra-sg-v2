@@ -2,6 +2,8 @@ import { Page, StaticPage } from "../../navigation/pages";
 import { GamePageChooser } from "../games.display.base";
 import { QDCPGameStateSnapshot, QDCPState } from "./qdcp.contracts";
 
+const QDCP_PALETTE = ["#6f92ca", "#6ca7a1", "#9a7fbe", "#c18586"] as const;
+
 export class QDCPGamePageChooser extends GamePageChooser<QDCPGameStateSnapshot> {
     private mainPage = new QDCPMainPage();
 
@@ -12,7 +14,7 @@ export class QDCPGamePageChooser extends GamePageChooser<QDCPGameStateSnapshot> 
         }
 
         this.clear();
-        return new QDCPCoverPage(state.title);
+        return new QDCPCoverPage();
     }
 
     clear(): void {
@@ -22,24 +24,38 @@ export class QDCPGamePageChooser extends GamePageChooser<QDCPGameStateSnapshot> 
 
 class QDCPCoverPage extends StaticPage {
     templateColumnWidth = "1fr";
-    private readonly title: string;
-
-    constructor(title: string) {
-        super();
-        this.title = title;
-    }
 
     render(): void {
         if (!this.container) throw new Error("Render called before create");
+        const words = ["QUANDO", "DOVE", "COME", "PERCHÉ"] as const;
         this.container.innerHTML = `
-            <h2>${this.title.toUpperCase()}</h2>
-            <img src="/img/decision-making.gif" style="height:50%;"/>
+            <style>
+                #qdcp-cover {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: flex-start;
+                    gap: 0.55rem;
+                    width: min(760px, 90%);
+                    margin: 0 auto;
+                }
+                #qdcp-cover h2 {
+                    margin: 0;
+                    line-height: 1;
+                    letter-spacing: 0.08em;
+                    font-size: clamp(1.8rem, 5vw, 4.2rem);
+                }
+                #qdcp-cover .step-0 { margin-left: 0; }
+                #qdcp-cover .step-1 { margin-left: 1.3ch; }
+                #qdcp-cover .step-2 { margin-left: 2.6ch; }
+                #qdcp-cover .step-3 { margin-left: 3.9ch; }
+            </style>
+            <div id="qdcp-cover">
+                ${words.map((word, i) => `<h2 class="step-${i}" style="color: ${QDCP_PALETTE[i]};">${word}</h2>`).join("")}
+            </div>
         `;
         Object.assign(this.container.style, {
-            display: "flex",
-            justifyContent: "flex-end",
-            alignItems: "center",
-            flexDirection: "column",
+            display: "block",
         });
     }
 }
@@ -72,35 +88,30 @@ class QDCPMainPage extends StaticPage {
                 #qdcp-main .rows {
                     display: flex;
                     flex-direction: column;
-                    gap: 14px;
-                    width: min(760px, 92%);
-                    height: min(82vh, 760px);
+                    gap: 5px;
+                    width: 100%;
+                    height: 95%;
                 }
                 #qdcp-main .row {
                     flex: 1 1 0;
-                    min-height: 0;
+                    min-height: auto;
                     border-radius: 14px;
                     background: #ffffff;
-                    color: var(--pico-primary);
+                    color: #ffffff;
                     border: 2px solid rgba(0, 0, 0, 0.08);
                     display: flex;
                     justify-content: center;
                     align-items: center;
-                    padding: 0.75rem 1.1rem;
+                    padding: 20px;
                     text-align: center;
-                    font-size: clamp(1.1rem, 2.1vw, 2rem);
                     line-height: 1.2;
-                    transition: background-color 700ms ease, color 700ms ease, border-color 700ms ease;
+                    transition: background-color 1.5s ease .5s, color 1.5s ease .5s, border-color 1.5s ease .5s;
                 }
                 #qdcp-main .row.active {
-                    color: #ffffff;
                     border-color: transparent;
                 }
-                #qdcp-main .row.row-0.active { background-color: #6f92ca; }
-                #qdcp-main .row.row-1.active { background-color: #6ca7a1; }
-                #qdcp-main .row.row-2.active { background-color: #9a7fbe; }
-                #qdcp-main .row.row-3.active { background-color: #c18586; }
-                #qdcp-main .row.answer {
+                ${QDCP_PALETTE.map((color, i) => `#qdcp-main .row.row-${i}.active { background-color: ${color}; }`).join("\n")}
+                #qdcp-main .row.row-4.active {
                     background: #ffffff;
                     color: var(--pico-primary);
                     font-weight: 800;
@@ -123,19 +134,14 @@ class QDCPMainPage extends StaticPage {
             const textEl = row.querySelector("span");
             const text = this.displayContents[i] ?? "";
             const hasText = text.trim().length > 0;
-            const isAnswerRow = i === 4;
 
             if (!textEl) continue;
 
             if (hasText) {
                 textEl.textContent = text;
-                if (isAnswerRow) {
-                    row.classList.add("answer");
-                } else {
-                    row.classList.add("active");
-                }
+                row.classList.add("active");
             } else {
-                row.classList.remove("active", "answer");
+                row.classList.remove("active");
                 textEl.textContent = "";
             }
         }
