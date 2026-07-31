@@ -34,7 +34,7 @@ class QDCPCoverPage extends StaticPage {
                     display: flex;
                     flex-direction: column;
                     justify-content: center;
-                    align-items: flex-start;
+                    align-items: center;
                     gap: 0.55rem;
                     width: min(760px, 90%);
                     margin: 0 auto;
@@ -45,10 +45,6 @@ class QDCPCoverPage extends StaticPage {
                     letter-spacing: 0.08em;
                     font-size: clamp(1.8rem, 5vw, 4.2rem);
                 }
-                #qdcp-cover .step-0 { margin-left: 0; }
-                #qdcp-cover .step-1 { margin-left: 1.3ch; }
-                #qdcp-cover .step-2 { margin-left: 2.6ch; }
-                #qdcp-cover .step-3 { margin-left: 3.9ch; }
             </style>
             <div id="qdcp-cover">
                 ${words.map((word, i) => `<h2 class="step-${i}" style="color: ${QDCP_PALETTE[i]};">${word}</h2>`).join("")}
