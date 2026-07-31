@@ -29,8 +29,8 @@ stop_when_first_hand_raised: true
 points_for_correct_answer: 60
 questions_and_answers:
 - Qual e la capitale d'Italia? = Roma
-- In che anno e iniziata la Seconda Guerra Mondiale? = 1939
-- Quale pianeta e conosciuto come Pianeta Rosso? = Marte
+- In che anno è iniziata la Seconda Guerra Mondiale? = 1939
+- Quale pianeta è conosciuto come Pianeta Rosso? = Marte
 
 ## Zip
 title: Zip di prova

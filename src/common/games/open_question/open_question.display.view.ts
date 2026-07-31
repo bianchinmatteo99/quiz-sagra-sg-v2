@@ -43,10 +43,10 @@ class OpenQuestionPage extends StaticPage {
                     align-items: center;
                     gap: 50px;
                     text-align: center;
+                    margin: 0 20px;
                 }
                 #open-question .subtitle {
-                    margin: 0;
-                    font-size: 1.5em;
+                    font-size: 1.5rem;
                     color: var(--pico-secondary);
                 }
             </style>
