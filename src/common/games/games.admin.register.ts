@@ -10,6 +10,10 @@ import { GuessWordGameRequiredData } from "./guess_word/guess_word.contract";
 import { GuessWordGameDefinition, GuessWordGameDefinitionBuilder } from "./guess_word/guess_word.admin.definition";
 import { GuessWordGameManager } from "./guess_word/guess_word.admin.manager";
 import { GuessWordGameView } from "./guess_word/guess_word.admin.mvc";
+import { QDCPGameRequiredData } from "./qdcp/qdcp.contracts";
+import { QDCPGameDefinition, QDCPGameDefinitionBuilder } from "./qdcp/qdcp.admin.definition";
+import { QDCPGameManager } from "./qdcp/qdcp.admin.manager";
+import { QDCPGameView } from "./qdcp/qdcp.admin.mvc";
 import { ZipGameRequiredData } from "./zip/zip.contracts";
 import { ZipGameDefinition, ZipGameDefinitionBuilder } from "./zip/zip.admin.definition";
 import { ZipGameManager } from "./zip/zip.admin.manager";
@@ -31,6 +35,7 @@ export const gamesDefBuilders: { [key: string]: GameDefinitionBuilder<AnyGameDef
     [CatenaGameRequiredData.kind]: new CatenaGameDefinitionBuilder(),
     [GuessSongGameRequiredData.kind]: new GuessSongGameDefinitionBuilder(),
     [GuessWordGameRequiredData.kind]: new GuessWordGameDefinitionBuilder(),
+    [QDCPGameRequiredData.kind]: new QDCPGameDefinitionBuilder(),
     [ZipGameRequiredData.kind]: new ZipGameDefinitionBuilder(),
 };
 
@@ -56,6 +61,8 @@ export function instantiateGameManagerFor(def: AnyGameDefinition, ctx: GameManag
             return new GuessSongGameManager(ctx, def as GuessSongGameDefinition, restoreState);
         case GuessWordGameRequiredData.kind:
             return new GuessWordGameManager(ctx, def as GuessWordGameDefinition, restoreState);
+        case QDCPGameRequiredData.kind:
+            return new QDCPGameManager(ctx, def as QDCPGameDefinition, restoreState);
         case ZipGameRequiredData.kind:
             return new ZipGameManager(ctx, def as ZipGameDefinition, restoreState);
         
@@ -83,6 +90,8 @@ export function instantiateGameViewerFor(def: AnyGameDefinition): GameView{
             return new GuessSongGameView(null, def as GuessSongGameDefinition);
         case GuessWordGameRequiredData.kind:
             return new GuessWordGameView(null, def as GuessWordGameDefinition);
+        case QDCPGameRequiredData.kind:
+            return new QDCPGameView(null, def as QDCPGameDefinition);
         case ZipGameRequiredData.kind:
             return new ZipGameView(null, def as ZipGameDefinition);
         

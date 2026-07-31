@@ -5,6 +5,8 @@ import { GuessSongGamePageChooser } from "./guess_song/guess_song.display.view";
 import { GuessWordGameRequiredData } from "./guess_word/guess_word.contract";
 import { GuessWordGamePageChooser } from "./guess_word/guess_word.display.view";
 import { GamePageChooser } from "./games.display.base";
+import { QDCPGameRequiredData } from "./qdcp/qdcp.contracts";
+import { QDCPGamePageChooser } from "./qdcp/qdcp.display.view";
 import { ZipGameRequiredData } from "./zip/zip.contracts";
 import { ZipGamePageChooser } from "./zip/zip.display.view";
 
@@ -26,6 +28,8 @@ export function instantiatePageChooserForGame(kind: string): GamePageChooser<any
             return new GuessSongGamePageChooser();
         case GuessWordGameRequiredData.kind:
             return new GuessWordGamePageChooser();
+        case QDCPGameRequiredData.kind:
+            return new QDCPGamePageChooser();
         case ZipGameRequiredData.kind:
             return new ZipGamePageChooser();
         default:

@@ -12,14 +12,6 @@ words:
 - debito
 - promessa
 
-## Catena
-time_for_answer: 20
-points_for_correct_answer: 10
-words:
-- catena
-- di
-- prova
-
 ## Guess_song
 title: Indovina la canzone (rewind)
 limit_trials_per_song: 2
@@ -44,10 +36,19 @@ title: Indovina la parola
 stop_at_first_correct_answer: true
 points_for_correct_answer: 50
 delay_between_letter_display: 10
-same_letters_policy: together
+same_letters_policy: default
 correct_answers:
 - È meglio essere ottimisti ed avere torto piuttosto che pessimisti ed avere ragione.
-- Testando Contemporaneità precipitevolissimevolmente
+- Precipitevolissimevolmente
 - Alta tensione
 - Caffe corretto
 - Luna park
+
+## QDCP
+title: Quando Dove Come Perché
+limit_trials_per_section: 2
+stop_when_first_hand_raised: true
+points_for_correct_answer: 40
+hints_and_answers:
+- Quando il tuo vicino sbadiglia | In aereo | Facendo facce strane | Perché vuole stapparle dopo ore di volo = Orecchie
+- Quando fa la matta | Sul tavolo | In crisi d'identità | Perché a "7 e mezzo" può avere qualunque valore = Re di Denari
