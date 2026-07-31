@@ -136,10 +136,11 @@ class QuizManager implements QuizControllerContext, GameManagerContext, PeopleCo
                     this.endQuiz();
                 }
                 if(s==QuizStatus.RunningGame){
-                    if(this.quiz.model.currentGame !== null){
+                    if(this.quiz.model.currentGame !== null && confirm("Provare a riavviare il gioco in corso?")){
                         this.quiz.startGame(this.quiz.model.currentGame)
                     } else {
-                        this.quiz.model.gamesStatuses = this.quiz.model.gamesStatuses.map((st)=>(st===GameStatus.Completed?GameStatus.Completed:GameStatus.NotStarted))
+                        this.quiz.model.gamesStatuses = this.quiz.model.gamesStatuses.map((st)=>(st===GameStatus.Completed?GameStatus.Completed:GameStatus.NotStarted));
+                        db.remove("/state/game");
                         this.quiz.setStatus(QuizStatus.Idle);
                     }
                 }
