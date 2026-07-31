@@ -415,7 +415,7 @@ export class StopWhenBuildersCollection {
         };
     }
     static HasAnswerEqualTo(expected: string, sanitize?: (unsafe: string) => string): ((a: QuestionAnswers) => boolean){
-        sanitize = sanitize ?? ((a) => a.trim().toLowerCase().replace(/\s+/g, " "))
+        sanitize = sanitize ?? Question.sanifyAnswer
         expected = sanitize(expected)
         return (a) => {
             for (const { answer } of a.values()) {
@@ -502,7 +502,7 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
         if (!evaluate.auto && evaluate.manual === false) throw new Error("How can I evaluate the answers?");
         if (typeof evaluate.auto === "string") {
             const c = evaluate.auto;
-            this.autoevaluate = (answer) => this.sanifyAnswer(answer) == this.sanifyAnswer(c);
+            this.autoevaluate = (answer) => Question.sanifyAnswer(answer) == Question.sanifyAnswer(c);
         } else {
             this.autoevaluate = evaluate.auto ?? null;
         }
@@ -512,7 +512,7 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
         this.view = new QuestionView(this);
     }
 
-    sanifyAnswer(a: string): string {
+    static sanifyAnswer(a: string): string {
         return a.toUpperCase().normalize("NFD").replace(/[^A-Z0-9]/g, " ").replace(/\s+/g, " ").trim();
     }
 
