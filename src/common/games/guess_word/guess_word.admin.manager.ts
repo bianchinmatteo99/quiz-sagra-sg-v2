@@ -71,7 +71,7 @@ export class GuessWordGameManager extends GameManager {
             }
         }
         this.controller.adminInteraction(adminOptionsBuilder()).then(adminAction, ()=>adminAction(null))
-
+        this.controller.nextRandomLetter()
         return cancel;
     }
 

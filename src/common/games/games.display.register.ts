@@ -2,6 +2,8 @@ import { CatenaGameRequiredData } from "./catena/catena.contracts";
 import { CatenaGamePageChooser } from "./catena/catena.display.view";
 import { GuessSongGameRequiredData } from "./guess_song/guess_song.contracts";
 import { GuessSongGamePageChooser } from "./guess_song/guess_song.display.view";
+import { OpenQuestionGameRequiredData } from "./open_question/open_question.contracts";
+import { OpenQuestionGamePageChooser } from "./open_question/open_question.display.view";
 import { GuessWordGameRequiredData } from "./guess_word/guess_word.contract";
 import { GuessWordGamePageChooser } from "./guess_word/guess_word.display.view";
 import { GamePageChooser } from "./games.display.base";
@@ -26,6 +28,8 @@ export function instantiatePageChooserForGame(kind: string): GamePageChooser<any
             return new CatenaGamePageChooser();
         case GuessSongGameRequiredData.kind:
             return new GuessSongGamePageChooser();
+        case OpenQuestionGameRequiredData.kind:
+            return new OpenQuestionGamePageChooser();
         case GuessWordGameRequiredData.kind:
             return new GuessWordGamePageChooser();
         case QDCPGameRequiredData.kind:

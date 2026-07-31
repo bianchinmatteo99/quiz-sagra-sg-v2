@@ -6,6 +6,10 @@ import { GuessSongGameRequiredData } from "./guess_song/guess_song.contracts";
 import { GuessSongGameDefinition, GuessSongGameDefinitionBuilder } from "./guess_song/guess_song.admin.definition";
 import { GuessSongGameManager } from "./guess_song/guess_song.admin.manager";
 import { GuessSongGameView } from "./guess_song/guess_song.admin.mvc";
+import { OpenQuestionGameRequiredData } from "./open_question/open_question.contracts";
+import { OpenQuestionGameDefinition, OpenQuestionGameDefinitionBuilder } from "./open_question/open_question.admin.definition";
+import { OpenQuestionGameManager } from "./open_question/open_question.admin.manager";
+import { OpenQuestionGameView } from "./open_question/open_question.admin.mvc";
 import { GuessWordGameRequiredData } from "./guess_word/guess_word.contract";
 import { GuessWordGameDefinition, GuessWordGameDefinitionBuilder } from "./guess_word/guess_word.admin.definition";
 import { GuessWordGameManager } from "./guess_word/guess_word.admin.manager";
@@ -34,6 +38,7 @@ import { AnyGameDefinitionData } from "./games.contracts";
 export const gamesDefBuilders: { [key: string]: GameDefinitionBuilder<AnyGameDefinitionData>; } = {
     [CatenaGameRequiredData.kind]: new CatenaGameDefinitionBuilder(),
     [GuessSongGameRequiredData.kind]: new GuessSongGameDefinitionBuilder(),
+    [OpenQuestionGameRequiredData.kind]: new OpenQuestionGameDefinitionBuilder(),
     [GuessWordGameRequiredData.kind]: new GuessWordGameDefinitionBuilder(),
     [QDCPGameRequiredData.kind]: new QDCPGameDefinitionBuilder(),
     [ZipGameRequiredData.kind]: new ZipGameDefinitionBuilder(),
@@ -59,6 +64,8 @@ export function instantiateGameManagerFor(def: AnyGameDefinition, ctx: GameManag
             return new CatenaGameManager(ctx, def as CatenaGameDefinition, restoreState);
         case GuessSongGameRequiredData.kind:
             return new GuessSongGameManager(ctx, def as GuessSongGameDefinition, restoreState);
+        case OpenQuestionGameRequiredData.kind:
+            return new OpenQuestionGameManager(ctx, def as OpenQuestionGameDefinition, restoreState);
         case GuessWordGameRequiredData.kind:
             return new GuessWordGameManager(ctx, def as GuessWordGameDefinition, restoreState);
         case QDCPGameRequiredData.kind:
@@ -88,6 +95,8 @@ export function instantiateGameViewerFor(def: AnyGameDefinition): GameView{
             return new CatenaGameView(null, def as CatenaGameDefinition);
         case GuessSongGameRequiredData.kind:
             return new GuessSongGameView(null, def as GuessSongGameDefinition);
+        case OpenQuestionGameRequiredData.kind:
+            return new OpenQuestionGameView(null, def as OpenQuestionGameDefinition);
         case GuessWordGameRequiredData.kind:
             return new GuessWordGameView(null, def as GuessWordGameDefinition);
         case QDCPGameRequiredData.kind:
