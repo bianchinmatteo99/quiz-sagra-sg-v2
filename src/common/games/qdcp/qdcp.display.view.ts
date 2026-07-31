@@ -28,6 +28,7 @@ class QDCPCoverPage extends StaticPage {
     render(): void {
         if (!this.container) throw new Error("Render called before create");
         const words = ["QUANDO", "DOVE", "COME", "PERCHÉ"] as const;
+        this.container.id = "qdcp-cover"
         this.container.innerHTML = `
             <style>
                 #qdcp-cover {
@@ -36,8 +37,6 @@ class QDCPCoverPage extends StaticPage {
                     justify-content: center;
                     align-items: center;
                     gap: 0.55rem;
-                    width: min(760px, 90%);
-                    margin: 0 auto;
                 }
                 #qdcp-cover h2 {
                     margin: 0;
@@ -46,13 +45,10 @@ class QDCPCoverPage extends StaticPage {
                     font-size: clamp(1.8rem, 5vw, 4.2rem);
                 }
             </style>
-            <div id="qdcp-cover">
-                ${words.map((word, i) => `<h2 class="step-${i}" style="color: ${QDCP_PALETTE[i]};">${word}</h2>`).join("")}
-            </div>
+            
+            ${words.map((word, i) => `<h2 class="step-${i}" style="color: ${QDCP_PALETTE[i]};">${word}</h2>`).join("")}
+            
         `;
-        Object.assign(this.container.style, {
-            display: "block",
-        });
     }
 }
 
