@@ -231,7 +231,7 @@ export class GuessWordGameView extends GameView {
             Risposta corretta: ${currentWord}<br/>
             Stop alla prima risposta corretta: ${this.activeGameContext.model.stopAtFirstCorrectAnswer ? "Sì" : "No"}<br/>
             Punti per risposta: ${this.activeGameContext.model.pointsForCorrectAnswer}<br/>
-            Delay lettere: ${this.activeGameContext.model.delayBetweenLetterDisplay === false ? "false" : this.activeGameContext.model.delayBetweenLetterDisplay}<br/>
+            Delay lettere: ${this.activeGameContext.model.delayBetweenLetterDisplay === false ? "manuale" : `${this.activeGameContext.model.delayBetweenLetterDisplay}s`}<br/>
             Regola lettere uguali: ${this.activeGameContext.model.sameLettersPolicy}
         `;
     }

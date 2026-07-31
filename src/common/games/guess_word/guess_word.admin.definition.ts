@@ -6,9 +6,36 @@ import { GuessWordGameDefinitionData, GuessWordGameRequiredData } from "./guess_
 export type GuessWordGameDefinition = GameDefinition<GuessWordGameDefinitionData>;
 
 /**
- * Parser and normalizer for `guess_word` game definitions.
+ * Parses and normalizes Guess Word game configuration data.
+ *
+ * This builder is registered under the `guess_word` key in the game-definition
+ * registry and is used by quiz loading flows for both Markdown and persisted
+ * JSON sources.
  */
 export class GuessWordGameDefinitionBuilder implements GameDefinitionBuilder<GuessWordGameDefinitionData> {
+    /**
+     * Parse a Guess Word game definition from one Markdown game section.
+     *
+     * Recognised keys (snake_case as they appear in markdown):
+     * - `title` *(optional)* — display title; defaults to `"Indovina la parola"`.
+     * - `stop_at_first_correct_answer` *(optional)* — whether answer collection
+     *   stops automatically after the first correct answer; defaults to `true`.
+     * - `correct_answers` *(required)* — ordered list of accepted answers, one
+     *   per round; must contain at least one entry.
+     * - `points_for_correct_answer` *(required)* — points awarded for a correct
+     *   answer; must be `>= 0`.
+    * - `delay_between_letter_display` *(optional)* — seconds between
+     *   automatic letter reveals, or `false` to disable automatic progression.
+     * - `same_letters_policy` *(optional)* — reveal behavior for repeated
+     *   letters; allowed values are `separate`, `together`, and `default`.
+     *
+     * Unknown keys are reported by {@link MDUtils.ensureOnlyAllowedKeys}.
+     *
+     * @param md Raw markdown section content for this game block.
+     * @returns A fully populated {@link GuessWordGameDefinitionData} object.
+     * @throws {Error} If a required key is missing, a value fails validation,
+     * or a constrained option contains an unsupported value.
+     */
     parseFromMD(md: string): GuessWordGameDefinitionData {
         const parsed = MDUtils.parseSectionContent(md);
         MDUtils.ensureOnlyAllowedKeys(parsed, [
@@ -45,6 +72,22 @@ export class GuessWordGameDefinitionBuilder implements GameDefinitionBuilder<Gue
         };
     }
 
+    /**
+     * Deserialises a {@link GuessWordGameDefinitionData} from a plain object,
+     * typically read from `/definition` in the Firebase Realtime Database.
+     *
+     * Missing fields are replaced with safe defaults so older stored
+     * definitions can still be loaded:
+     * - `title` → `"Indovina la parola"`
+     * - `stopAtFirstCorrectAnswer` → `false`
+     * - `correctAnswers` → `[]`
+     * - `pointsForCorrectAnswer` → `10`
+     * - `delayBetweenLetterDisplay` → `false`
+     * - `sameLettersPolicy` → validated through the same normalization path
+     *
+     * @param data Partial JSON object to deserialise.
+     * @returns A fully populated {@link GuessWordGameDefinitionData} object.
+     */
     parseFromJSON(data: Partial<GuessWordGameDefinitionData>): GuessWordGameDefinitionData {
         return {
             ...GuessWordGameRequiredData,
@@ -57,6 +100,16 @@ export class GuessWordGameDefinitionBuilder implements GameDefinitionBuilder<Gue
         };
     }
 
+    /**
+    * Parse the optional automatic letter-reveal delay.
+     *
+     * The markdown value may be omitted, set to the literal string `false`, or
+    * provided as a non-negative number of seconds.
+     *
+     * @param section Parsed markdown section content.
+    * @returns A numeric delay in seconds, or `false` when auto-reveal is disabled.
+     * @throws {Error} If the value is a list, not numeric, or negative.
+     */
     private parseDelayBetweenLetterDisplay(section: ParsedSectionContent): number | false {
         const rawValue = section["delay_between_letter_display"];
         if (rawValue === undefined) {
@@ -71,17 +124,26 @@ export class GuessWordGameDefinitionBuilder implements GameDefinitionBuilder<Gue
             return false;
         }
 
-        const parsedDelay = Number(rawValue);
-        if (!Number.isFinite(parsedDelay)) {
+        const parsedDelaySeconds = Number(rawValue);
+        if (!Number.isFinite(parsedDelaySeconds)) {
             throw new Error(`Guess word key \"delay_between_letter_display\" must be a valid number or \"false\", received \"${rawValue}\"`);
         }
-        if (parsedDelay < 0) {
-            throw new Error(`Guess word key \"delay_between_letter_display\" must be >= 0, received ${parsedDelay}`);
+        if (parsedDelaySeconds < 0) {
+            throw new Error(`Guess word key \"delay_between_letter_display\" must be >= 0, received ${parsedDelaySeconds}`);
         }
 
-        return parsedDelay;
+        return parsedDelaySeconds;
     }
 
+    /**
+     * Parse the repeated-letter reveal policy from markdown.
+     *
+     * When omitted, the default runtime policy is used.
+     *
+     * @param section Parsed markdown section content.
+     * @returns One of the supported repeated-letter policies.
+     * @throws {Error} If the value is provided as a list or is unsupported.
+     */
     private parseSameLettersPolicy(section: ParsedSectionContent): GuessWordGameDefinitionData["sameLettersPolicy"] {
         const rawValue = section["same_letters_policy"];
         if (rawValue === undefined) {
@@ -94,6 +156,13 @@ export class GuessWordGameDefinitionBuilder implements GameDefinitionBuilder<Gue
         return this.normalizeSameLettersPolicy(rawValue.trim().toLowerCase());
     }
 
+    /**
+     * Validate and normalize the repeated-letter reveal policy.
+     *
+     * @param value Candidate policy value from markdown or persisted JSON.
+     * @returns A validated policy string accepted by the Guess Word runtime.
+     * @throws {Error} If the provided value is not one of the supported options.
+     */
     private normalizeSameLettersPolicy(value: unknown): GuessWordGameDefinitionData["sameLettersPolicy"] {
         if (value === "separate" || value === "together" || value === "default") {
             return value;

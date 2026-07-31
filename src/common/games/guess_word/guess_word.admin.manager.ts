@@ -17,9 +17,15 @@ export class GuessWordGameManager extends GameManager {
         this.controller = new GuessWordGameController(this, def);
     }
 
+    private getLetterDisplayDelayMs(): number | false {
+        const delaySeconds = this.controller.model.delayBetweenLetterDisplay;
+        return delaySeconds === false ? false : delaySeconds * 1000;
+    }
+
     private showRandomLetterLoop(): CancelHandle{
         let isCanceled = false;
         let interval : number|undefined = undefined;
+        const delayMs = this.getLetterDisplayDelayMs();
         
         const cancel = ()=>{
             if(isCanceled) return;
@@ -31,14 +37,17 @@ export class GuessWordGameManager extends GameManager {
             this.controller.view.removeFooterChoice();
         }
 
-        if(this.controller.model.delayBetweenLetterDisplay){
+        const maybeStartInterval = ()=>{
+            if(isCanceled || delayMs === false) return;
+            clearInterval(interval);
             interval = setInterval(()=>{
                 if(isCanceled) throw new Error("Running interval with isCanceled true is unexpected.");
                 if(!this.controller.nextRandomLetter()){
                     cancel();
                 }
-            }, this.controller.model.delayBetweenLetterDisplay)
+            }, delayMs)
         }
+        maybeStartInterval();
 
         const adminOptionsBuilder = () => {
             return {advanceBtn: "Aggiungi una lettera", ...(interval ? {otherBtn: "Cancella timer automatico"} : {})}
@@ -49,9 +58,11 @@ export class GuessWordGameManager extends GameManager {
                 cancel();
                 return;
             }
-            if(result===false && interval){
-                clearInterval(interval);
-                interval = undefined;
+
+            clearInterval(interval);
+            interval = undefined;
+            if(result===true){
+                maybeStartInterval();
             }
             
             if(!isCanceled){

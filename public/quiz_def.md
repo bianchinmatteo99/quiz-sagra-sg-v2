@@ -38,3 +38,14 @@ points_for_correct_answer: 30
 zips:
 - notte,stella,polare,freddo
 - mare,onda,cresta,gallo
+
+## Guess_word
+title: Indovina la parola
+stop_at_first_correct_answer: true
+points_for_correct_answer: 50
+delay_between_letter_display: 10
+same_letters_policy: together
+correct_answers:
+- Alta tensione
+- Caffe corretto
+- Luna park

@@ -4,6 +4,8 @@ import { GamePresenterStateView } from "./games.presenter.base";
 import { AnyGameDefinitionData } from "./games.contracts";
 import { GuessSongGameDefinitionData, GuessSongGameRequiredData } from "./guess_song/guess_song.contracts";
 import { GuessSongGamePresenterStateView } from "./guess_song/guess_song.presenter.view";
+import { GuessWordGameDefinitionData, GuessWordGameRequiredData } from "./guess_word/guess_word.contract";
+import { GuessWordGamePresenterStateView } from "./guess_word/guess_word.presenter.view";
 import { ZipGameDefinitionData, ZipGameRequiredData } from "./zip/zip.contracts";
 import { ZipGamePresenterStateView } from "./zip/zip.presenter.view";
 
@@ -13,6 +15,8 @@ export function instantiatePresenterStateViewForGame(definition: AnyGameDefiniti
             return new CatenaGamePresenterStateView(definition as CatenaGameDefinitionData);
         case GuessSongGameRequiredData.kind:
             return new GuessSongGamePresenterStateView(definition as GuessSongGameDefinitionData);
+        case GuessWordGameRequiredData.kind:
+            return new GuessWordGamePresenterStateView(definition as GuessWordGameDefinitionData);
         case ZipGameRequiredData.kind:
             return new ZipGamePresenterStateView(definition as ZipGameDefinitionData);
         default:
