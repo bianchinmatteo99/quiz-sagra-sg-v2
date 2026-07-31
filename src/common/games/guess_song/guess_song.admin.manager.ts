@@ -1,12 +1,10 @@
-import { Question } from "../../questions/questions.admin.base";
-import { TextInputQuestion } from "../../questions/text_input/text_input.question.admin";
+import { StopWhenBuildersCollection } from "../../questions/questions.admin.base";
 import { ResumeCheckpoints } from "../../admin.utils";
 import { GameManager, GameManagerContext } from "../games.admin.base";
 import { GuessSongGameDefinition } from "./guess_song.admin.definition";
 import { GuessSongGameController } from "./guess_song.admin.mvc";
 import { GuessSongState } from "./guess_song.contracts";
-import { numberOfSubmittedAnswersIs, startRepeatedRaiseHandFlow } from "../games.admin.utils";
-import { delay } from "../../general.utils";
+import { startRepeatedRaiseHandFlow } from "../games.admin.utils";
 
 /**
  * Runtime orchestrator for a Guess Song game session.
@@ -47,7 +45,7 @@ export class GuessSongGameManager extends GameManager {
 
             this.controller.setState(GuessSongState.ASKINGQUESTION);
 
-            const ender = {manual: true, ...(this.controller.model.stopWhenFirstHandIsRaised ? {stopWhen: numberOfSubmittedAnswersIs(1)} : {})}
+            const ender = {manual: true, ...(this.controller.model.stopWhenFirstHandIsRaised ? {stopWhen: StopWhenBuildersCollection.NumberOfSubmittedAnswersIs(1)} : {})}
             const {result, trials} = await startRepeatedRaiseHandFlow(this, this.controller.model.limitTrialsPerSong, ender)
 
             await this.controller.adminInteraction({advanceBtn: "Mostra risposta"})

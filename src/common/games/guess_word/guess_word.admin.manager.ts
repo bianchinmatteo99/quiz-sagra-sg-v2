@@ -1,6 +1,6 @@
 import { CancelHandle, delay } from "../../general.utils";
 import { ResumeCheckpoints } from "../../admin.utils";
-import { Question } from "../../questions/questions.admin.base";
+import { Question, StopWhenBuildersCollection } from "../../questions/questions.admin.base";
 import { TextInputQuestion } from "../../questions/text_input/text_input.question.admin";
 import { GameManager, GameManagerContext } from "../games.admin.base";
 import { GuessWordGameDefinition } from "./guess_word.admin.definition";
@@ -15,23 +15,6 @@ export class GuessWordGameManager extends GameManager {
     constructor(ctx: GameManagerContext, def: GuessWordGameDefinition, restoreState: boolean = false) {
         super(ctx, restoreState);
         this.controller = new GuessWordGameController(this, def);
-    }
-
-    private sanitizeAnswer(value: string): string {
-        return value.trim().toLowerCase().replace(/\s+/g, " ");
-    }
-
-    private currentExpectedAnswer(): string {
-        return this.sanitizeAnswer(this.controller.model.getCurrentWord() ?? "");
-    }
-
-    private hasCorrectAnswerForExpectedAnswer(expectedAnswer: string, answers: QuestionAnswers): boolean {
-        for (const { answer } of answers.values()) {
-            if (this.sanitizeAnswer(answer) === expectedAnswer) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private showRandomLetterLoop(): CancelHandle{
@@ -94,18 +77,17 @@ export class GuessWordGameManager extends GameManager {
 
             this.controller.setState(GuessWordState.ASKINGQUESTION);
 
-            const expectedAnswer = this.currentExpectedAnswer();
             const ender = {
                 manual: true,
                 ...(this.controller.model.stopAtFirstCorrectAnswer
-                    ? { stopWhen: (answers: QuestionAnswers) => this.hasCorrectAnswerForExpectedAnswer(expectedAnswer, answers) }
+                    ? { stopWhen: StopWhenBuildersCollection.HasAnswerEqualTo(this.controller.model.getCurrentWord()!) }
                     : {}),
             };
 
             this.currentQ = new TextInputQuestion(
                 this,
                 {
-                    auto: (answer) => this.sanitizeAnswer(answer) === expectedAnswer,
+                    auto: this.controller.model.getCurrentWord()!,
                     manual: true,
                 },
                 ender,

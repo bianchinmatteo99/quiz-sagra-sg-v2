@@ -23,13 +23,6 @@ export class ZipGameManager extends GameManager {
         this.controller = new ZipGameController(this, def);
     }
 
-    private sanitizeZipAnswer(value: string): string {
-        return value
-            .trim()
-            .toLowerCase()
-            .replace(/\s+/g, " ");
-    }
-
     private currentZipExpectedAnswer(): string {
         const currentZip = this.controller.model.getCurrentZip() ?? [];
         const innerWords = currentZip.slice(1, -1);
@@ -54,11 +47,10 @@ export class ZipGameManager extends GameManager {
             const denyList: string[] = [];
             this.controller.setState(ZipState.ASKINGQUESTION);
             while (await this.controller.nextLetter(1000)) {
-                const expectedAnswer = this.sanitizeZipAnswer(this.currentZipExpectedAnswer());
                 this.currentQ = new TextInputQuestion(
                     this,
                     {
-                        auto: (answer) => this.sanitizeZipAnswer(answer) === expectedAnswer,
+                        auto: this.currentZipExpectedAnswer(),
                         manual: true,
                     },
                     { timer: this.controller.model.timeForAnswer },

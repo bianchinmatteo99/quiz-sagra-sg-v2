@@ -293,12 +293,12 @@ export class QuestionView {
         for (const o of info) {
             // const check = ev ? `<input type='checkbox' ${o.result ? "checked" : ""} aria-invalid="${o.result===false}">` : ""
             const cbrow = document.createElement("td");
-            if(ev){
+            if (ev) {
                 const cb = document.createElement("input");
-                cb.type = "checkbox"; cb.checked = !!o.result; cb.ariaInvalid = `${o.result===false}`; cb.indeterminate = o.result===undefined;
+                cb.type = "checkbox"; cb.checked = !!o.result; cb.ariaInvalid = `${o.result === false}`; cb.indeterminate = o.result === undefined;
                 cbrow.appendChild(cb);
             }
-            
+
             const row = toHtml(`
                         <tr data-id="${o.id}">
                             <th scope="row">${o.name ?? "Errore nome sconosciuto"}</th>
@@ -408,6 +408,25 @@ export interface Ender {
     stopWhen?: (a: QuestionAnswers) => boolean;
     stopWhenDelay?: number;
 }
+export class StopWhenBuildersCollection {
+    static NumberOfSubmittedAnswersIs(n: number): ((a: QuestionAnswers) => boolean){
+        return (a) => {
+            return a.size >= n;
+        };
+    }
+    static HasAnswerEqualTo(expected: string, sanitize?: (unsafe: string) => string): ((a: QuestionAnswers) => boolean){
+        sanitize = sanitize ?? ((a) => a.trim().toLowerCase().replace(/\s+/g, " "))
+        expected = sanitize(expected)
+        return (a) => {
+            for (const { answer } of a.values()) {
+                if (sanitize(answer) === expected) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+}
 
 /**
  * Optional lifecycle hooks used by `Question.ask()`.
@@ -489,12 +508,12 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
         }
         this.manualevaluate = evaluate.manual ?? false;
 
-        this.ender = {...stopAnswersCriteria};
+        this.ender = { ...stopAnswersCriteria };
         this.view = new QuestionView(this);
     }
 
-    sanifyAnswer(a : string): string {
-        return a.trim().toLowerCase();
+    sanifyAnswer(a: string): string {
+        return a.trim().toLowerCase().replace(/\s+/g, " ");
     }
 
 
@@ -530,7 +549,7 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
      * @returns The final evaluation result map.
      */
     async ask(callbacks?: QuestionAskCallbacks): Promise<QuestionResult> {
-        const onAnswerClosed = callbacks?.onAnswerClosed ?? ((ans)=>{})
+        const onAnswerClosed = callbacks?.onAnswerClosed ?? ((ans) => { })
         const beforeShowResults = callbacks?.beforeShowResults ?? ((res) => Promise.resolve(5000));
         const beforeEnd = callbacks?.beforeEnd ?? (async (res) => await delay(50));
 
@@ -550,10 +569,10 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
         this.stateUpdated();
         const showResults = await beforeShowResults(this.model.results);
 
-        if(!!showResults){
+        if (!!showResults) {
             this.model.state = QuestionState.SHOWRESULTS;
             this.stateUpdated();
-            if(typeof showResults == "number") {
+            if (typeof showResults == "number") {
                 await delay(showResults);
             } else {
                 this.model.enableManualStopShowResults = true;
@@ -627,7 +646,7 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
                 this.autoStop = async (a: QuestionAnswers) => {
                     if (shouldStop(a)) {
                         this.autoStop = null;
-                        if(del>0) await delay(del);
+                        if (del > 0) await delay(del);
                         resolve();
                     }
                 };

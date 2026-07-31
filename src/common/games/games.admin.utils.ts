@@ -41,9 +41,3 @@ export async function startRepeatedRaiseHandFlow(context: GameManager,limitTrial
 
     return {result: cumulatedResults, trials};
 }
-
-export function numberOfSubmittedAnswersIs(n: number): ((a: QuestionAnswers) => boolean) {
-    return (a) => {
-        return a.size >= n;
-    };
-}
