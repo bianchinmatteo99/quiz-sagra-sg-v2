@@ -46,6 +46,8 @@ points_for_correct_answer: 50
 delay_between_letter_display: 10
 same_letters_policy: together
 correct_answers:
+- È meglio essere ottimisti ed avere torto piuttosto che pessimisti ed avere ragione.
+- Testando Contemporaneità precipitevolissimevolmente
 - Alta tensione
 - Caffe corretto
 - Luna park

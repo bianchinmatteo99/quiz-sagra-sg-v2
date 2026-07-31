@@ -58,11 +58,12 @@ export class GuessWordGameManager extends GameManager {
                 cancel();
                 return;
             }
-
-            clearInterval(interval);
-            interval = undefined;
-            if(result===true){
-                maybeStartInterval();
+            if(interval){
+                clearInterval(interval);
+                interval = undefined;
+                if(result===true){
+                    maybeStartInterval();
+                }
             }
             
             if(!isCanceled){
@@ -120,6 +121,8 @@ export class GuessWordGameManager extends GameManager {
             });
 
             await this.controller.adminInteraction({ advanceBtn: "Concludi parola" });
+            this.currentQ.clear();
+            this.currentQ = null;
             this.controller.setState(GuessWordState.DISPLAYCOVER);
         }
 

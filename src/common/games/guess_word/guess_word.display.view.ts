@@ -65,6 +65,9 @@ class GuessWordCoverPage extends StaticPage {
  * be updated repeatedly while the asking phase stays active.
  */
 class GuessWordWordPage extends StaticPage {
+    private static readonly MAX_LINE_LENGTH = 15;
+    private static readonly RETURN_MARKER = "↵";
+
     templateColumnWidth = "70%";
     private displayWord: string = "";
     private wordContainer: HTMLElement | null = null;
@@ -92,17 +95,23 @@ class GuessWordWordPage extends StaticPage {
                 }
                 #guess-word .word {
                     display: flex;
-                    flex-wrap: wrap;
+                    flex-direction: column;
+                    flex-wrap: nowrap;
                     justify-content: center;
-                    align-items: flex-end;
-                    gap: 0.05em;
+                    align-items: center;
                     font-family: "Courier New", monospace;
                     font-weight: 700;
-                    font-size: clamp(2rem, 6vw, 5rem);
-                    letter-spacing: 0.18em;
+                    font-size: 1.6rem;
+                    letter-spacing: 0.05em;
                     line-height: 1.1;
                     text-transform: uppercase;
                     white-space: pre;
+                }
+                #guess-word .line {
+                    display: flex;
+                    flex-wrap: nowrap;
+                    justify-content: center;
+                    align-items: center;
                 }
                 #guess-word .letter {
                     display: inline-flex;
@@ -111,12 +120,12 @@ class GuessWordWordPage extends StaticPage {
                     min-width: 1ch;
                 }
                 #guess-word .letter.masked {
-                    border-bottom: 0.12em solid currentColor;
                     padding-bottom: 0.08em;
+                    letter-spacing: 15px;
+                    font-size: .9em;
                 }
                 #guess-word .gap {
                     display: inline-flex;
-                    width: 0.8em;
                 }
             </style>
             
@@ -133,8 +142,60 @@ class GuessWordWordPage extends StaticPage {
             return;
         }
 
-        this.wordContainer.innerHTML = this.displayWord
-            .toUpperCase()
+        const maxLineLength = GuessWordWordPage.MAX_LINE_LENGTH;
+        const words = this.displayWord.toUpperCase().trim().split(/\s+/).filter((word) => word.length > 0);
+
+        const lines: string[] = [];
+        let currentLine = "";
+        let index = 0;
+
+        while (index < words.length) {
+            let word = words[index];
+
+            if (word.length > maxLineLength) {
+                const maxChunk = maxLineLength - 1;
+                const minTailLength = 2;
+                const maxByTail = Math.max(1, word.length - minTailLength);
+                const chunkLength = Math.min(maxChunk, maxByTail);
+                const chunk = word.slice(0, chunkLength) + GuessWordWordPage.RETURN_MARKER;
+
+                if (currentLine.length > 0) {
+                    lines.push(currentLine);
+                    currentLine = "";
+                }
+
+                lines.push(chunk);
+                words[index] = word.slice(chunkLength);
+                continue;
+            }
+
+            if (currentLine.length === 0) {
+                currentLine = word;
+                index++;
+                continue;
+            }
+
+            const candidate = `${currentLine} ${word}`;
+            if (candidate.length <= maxLineLength) {
+                currentLine = candidate;
+                index++;
+            } else {
+                lines.push(currentLine);
+                currentLine = "";
+            }
+        }
+
+        if (currentLine.length > 0) {
+            lines.push(currentLine);
+        }
+
+        this.wordContainer.innerHTML = lines
+            .map((line) => `<span class="line">${this.lettersToSpan(line)}</span>`)
+            .join("");
+    }
+
+    private lettersToSpan(letters: string): string {
+        return letters
             .split("")
             .map((letter) => {
                 if (letter === "*") {
