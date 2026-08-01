@@ -28,6 +28,7 @@
                 MOSTRA SEGRETI
             </label>
             <button id="change-quiz-start-time-button" style="display: none;">CAMBIA ORA DI INIZIO</button>
+            <button id="start-manual-question-button" style="display: none;">AVVIA DOMANDA MANUALE</button>
             <button id="end-quiz-button" class="delete">FINE QUIZ</button>
         </div>
     </header>
@@ -98,6 +99,37 @@
                 <button id="quiz-load-example-file" type="button">Load Example File</button>
                 <button id="quiz-load-db-continue" type="button">Load from Database (Continue)</button>
                 <button id="quiz-load-db-restart" type="button">Load from Database (Restart)</button>
+            </footer>
+        </article>
+    </dialog>
+
+    <dialog id="manual-question-setup-dialog">
+        <article>
+            <header>
+                <h2>Inizia manualmente una domanda</h2>
+                <i style="color: darkred;">ATT: Questo sovrascrive lo stato di eventuali altre domande attive e può portare a side-effects inattesi se ci sono giochi in corso; usare con cautela!</i>
+            </header>
+            <label for="manual-question-kind">Tipo domanda</label>
+            <select id="manual-question-kind" name="manual-question-kind">
+                <option value="text-input">Risposta testuale</option>
+                <option value="raise-hand">Alzata di mano</option>
+            </select>
+
+            <label for="manual-question-auto-correct-answer">Risposta corretta automatica (opzionale)</label>
+            <input id="manual-question-auto-correct-answer" name="manual-question-auto-correct-answer" type="text" placeholder="Usata per auto-valutazione" />
+
+            <label for="manual-question-timer">Timer (secondi, opzionale)</label>
+            <input id="manual-question-timer" name="manual-question-timer" type="number" min="1" step="1" />
+
+            <label for="manual-question-display-results-time">Tempo visualizzazione risultati (secondi, opzionale)</label>
+            <input id="manual-question-display-results-time" name="manual-question-display-results-time" type="number" min="0" step="1" />
+
+            <label for="manual-question-points">Punti per risposta corretta (opzionale)</label>
+            <input id="manual-question-points" name="manual-question-points" type="number" min="0" step="1" />
+
+            <footer role="group">
+                <button id="question-dialog-cancel" class="secondary">Annulla</button>
+                <button id="question-dialog-start">AVVIA</button>
             </footer>
         </article>
     </dialog>

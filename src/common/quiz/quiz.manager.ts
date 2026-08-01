@@ -7,6 +7,10 @@ import { QuizController, QuizControllerContext } from "./quiz.controller";
 import { GameStatus, QuizStatus } from "./quiz.contract";
 import { ResumeCheckpoints } from "../admin.utils";
 import { delay } from "../general.utils";
+import { TextInputQuestion } from "../questions/text_input/text_input.question.admin";
+import { RaiseHandQuestion } from "../questions/raise_hand/raise_hand.question.admin";
+import { Ender } from "../questions/questions.admin.base";
+import type { ManualQuestionOptions } from "./quiz.view";
 
 /**
  * Coordinates quiz lifecycle, game execution, and player management.
@@ -16,6 +20,7 @@ class QuizManager implements QuizControllerContext, GameManagerContext, PeopleCo
     activeGameManager: GameManager | null = null;
     people: PeopleController | null = null;
     db: IDatabaseAdapter;
+    private manualQuestionRunning = false;
 
     constructor(db: IDatabaseAdapter) {
         this.db = db;
@@ -98,6 +103,57 @@ class QuizManager implements QuizControllerContext, GameManagerContext, PeopleCo
 
     getDatabase(): IDatabaseAdapter {
         return this.db;
+    }
+
+    async startManualQuestion(options: ManualQuestionOptions): Promise<void> {
+        if (this.manualQuestionRunning) {
+            throw new Error("A manual question is already running.");
+        }
+
+        this.manualQuestionRunning = true;
+        document.getElementById("question-container")?.classList.add("severe");
+        const ender: Ender = {
+            manual: true,
+            ...(options.timer !== undefined ? { timer: options.timer } : {}),
+        };
+
+        const question = options.kind === "raise-hand"
+            ? new RaiseHandQuestion(this, ender)
+            : new TextInputQuestion(this, {
+                ...(options.autoCorrectAnswer !== undefined ? { auto: options.autoCorrectAnswer } : {}),
+                manual: true,
+            }, ender);
+
+        try {
+            await question.ask({
+                beforeShowResults: async () => {
+                    if (options.displayResultsTime === undefined) {
+                        return true;
+                    }
+                    return options.displayResultsTime;
+                },
+                beforeEnd: async (res) => {
+                    const points = options.pointsForCorrectAnswer ?? 0;
+                    if (points === 0) {
+                        return;
+                    }
+
+                    const diff: RankingDiff = new Map(
+                        [...res.entries()]
+                            .filter(([, isCorrect]) => isCorrect)
+                            .map(([id]) => [id, points]),
+                    );
+
+                    if (diff.size > 0) {
+                        this.updateRanking(diff);
+                    }
+                },
+            });
+        } finally {
+            question.clear();
+            document.getElementById("question-container")?.classList.remove("severe");
+            this.manualQuestionRunning = false;
+        }
     }
 
 

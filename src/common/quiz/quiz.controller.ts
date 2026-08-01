@@ -1,7 +1,7 @@
 import { QuizModel, QuizModelContext } from "./quiz.model";
 import { GameStatus, QuizStatus } from "./quiz.contract";
 import { QuizDefinition, QuizDefinitionBuilder } from "./quiz.definition";
-import { QuizView, QuizViewContext } from "./quiz.view";
+import { QuizView, QuizViewContext, type ManualQuestionOptions } from "./quiz.view";
 import { IDatabaseAdapter } from "../database/database.types";
 import { AnyGameDefinition, GameView } from "../games/games.admin.base";
 import { instantiateGameViewerFor } from "../games/games.admin.register";
@@ -12,6 +12,7 @@ import { instantiateGameViewerFor } from "../games/games.admin.register";
 export interface QuizControllerContext {
     getDatabase(): IDatabaseAdapter;
     startGame(game: AnyGameDefinition): Promise<void>;
+    startManualQuestion(options: ManualQuestionOptions): Promise<void>;
     setGameTimelineDisplaysCurrent(isCurrent: boolean): void;
     endQuiz(): void;
 }
@@ -38,6 +39,7 @@ class QuizController implements QuizViewContext, QuizModelContext {
     setStatus(status: QuizStatus): void {
         this.model.status = status;
         this.view.setEnableStartTimeChange(status === QuizStatus.AwaitingStart);
+        this.view.setManualStartQuestion(status === QuizStatus.Idle || status === QuizStatus.RunningGame);
         this.stateUpdated();
     }
 
@@ -180,6 +182,10 @@ class QuizController implements QuizViewContext, QuizModelContext {
 
     getDatabase(): IDatabaseAdapter {
         return this.context.getDatabase();
+    }
+
+    async startManualQuestion(options: ManualQuestionOptions): Promise<void> {
+        await this.context.startManualQuestion(options);
     }
 
     /**

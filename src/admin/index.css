@@ -53,6 +53,9 @@ h1 {
 article.active {
   border: var(--active-color) 1px solid;
 }
+article.active.severe {
+  border: orangered 1px solid;
+}
 
 button.active {
   background-color: var(--active-color);

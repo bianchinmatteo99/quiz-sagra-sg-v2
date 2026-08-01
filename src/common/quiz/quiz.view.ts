@@ -9,8 +9,19 @@ interface QuizViewContext {
     model: QuizModel;
     startGame(gameIndex: number): void;
     viewGame(gameIndex: number): void;
+    startManualQuestion(options: ManualQuestionOptions): Promise<void>;
     endQuiz(): void;
     stateUpdated(): void;
+}
+
+type ManualQuestionKind = 'text-input' | 'raise-hand';
+
+interface ManualQuestionOptions {
+    kind: ManualQuestionKind;
+    autoCorrectAnswer?: string;
+    timer?: number;
+    displayResultsTime?: number;
+    pointsForCorrectAnswer?: number;
 }
 
 type QuizLoadChoice =
@@ -26,6 +37,7 @@ class QuizView {
     readonly quizTimelineContainer = "quiz-timeline-container";
     readonly quizAdvanceButtonContainer = "quiz-advance-button-container";
     readonly changeStartTimeButton = "change-quiz-start-time-button";
+    readonly quizManualStartQuestionButton = "start-manual-question-button";
     readonly endQuizButton = "end-quiz-button"
     context: QuizViewContext;
 
@@ -38,6 +50,9 @@ class QuizView {
                 this.context.model.startTime = newTime;
                 this.context.stateUpdated();
             }
+        });
+        document.getElementById(this.quizManualStartQuestionButton)?.addEventListener("click", ()=>{
+            this.showManualQuestionDialog();
         });
     }
 
@@ -79,6 +94,11 @@ class QuizView {
 
     setEnableStartTimeChange(enable : boolean){
         const el = document.getElementById(this.changeStartTimeButton)
+        if(!el) return;
+        el.style.display = enable ? "block" : "none";
+    }
+    setManualStartQuestion(enable : boolean){
+        const el = document.getElementById(this.quizManualStartQuestionButton)
         if(!el) return;
         el.style.display = enable ? "block" : "none";
     }
@@ -202,7 +222,128 @@ class QuizView {
             dialog.showModal();
         });
     }
+
+    async showManualQuestionDialog(): Promise<void> {
+        return new Promise((resolve) => {
+            const dialog = document.querySelector<HTMLDialogElement>('#manual-question-setup-dialog');
+            if (!dialog) {
+                console.error('Manual question dialog not found in DOM');
+                resolve();
+                return;
+            }
+
+            const kindSelect = document.querySelector<HTMLSelectElement>('#manual-question-kind');
+            const autoCorrectAnswerInput = document.querySelector<HTMLInputElement>('#manual-question-auto-correct-answer');
+            const timerInput = document.querySelector<HTMLInputElement>('#manual-question-timer');
+            const displayResultsTimeInput = document.querySelector<HTMLInputElement>('#manual-question-display-results-time');
+            const pointsInput = document.querySelector<HTMLInputElement>('#manual-question-points');
+            const cancelButton = document.querySelector<HTMLButtonElement>('#question-dialog-cancel');
+            const startButton = document.querySelector<HTMLButtonElement>('#question-dialog-start');
+
+            if (!kindSelect || !autoCorrectAnswerInput || !timerInput || !displayResultsTimeInput || !pointsInput || !cancelButton || !startButton) {
+                console.error('Manual question dialog controls not found in DOM');
+                resolve();
+                return;
+            }
+
+            const newKindSelect = kindSelect.cloneNode(true) as HTMLSelectElement;
+            const newCancelButton = cancelButton.cloneNode(true) as HTMLButtonElement;
+            const newStartButton = startButton.cloneNode(true) as HTMLButtonElement;
+            kindSelect.replaceWith(newKindSelect);
+            cancelButton.replaceWith(newCancelButton);
+            startButton.replaceWith(newStartButton);
+
+            const syncAutoAnswerState = () => {
+                const needsAutoAnswer = newKindSelect.value === 'text-input';
+                autoCorrectAnswerInput.disabled = !needsAutoAnswer;
+                if (!needsAutoAnswer) {
+                    autoCorrectAnswerInput.value = '';
+                }
+            };
+            syncAutoAnswerState();
+            newKindSelect.addEventListener('change', syncAutoAnswerState);
+
+            const parseOptionalInt = (raw: string, min: number): number | undefined | null => {
+                const normalized = raw.trim();
+                if (normalized === '') {
+                    return undefined;
+                }
+
+                const parsed = Number(normalized);
+                if (!Number.isInteger(parsed) || parsed < min) {
+                    return null;
+                }
+
+                return parsed;
+            };
+
+            let settled = false;
+            const finish = (): void => {
+                if (settled) {
+                    return;
+                }
+                settled = true;
+                if (dialog.open) {
+                    dialog.close();
+                }
+                resolve();
+            };
+
+            newCancelButton.addEventListener('click', () => {
+                finish();
+            });
+
+            newStartButton.addEventListener('click', async () => {
+                const parsedTimer = parseOptionalInt(timerInput.value, 1);
+                if (parsedTimer === null) {
+                    alert('Timer non valido. Inserire un intero >= 1.');
+                    return;
+                }
+
+                const parsedDisplayResultsTime = parseOptionalInt(displayResultsTimeInput.value, 0);
+                if (parsedDisplayResultsTime === null) {
+                    alert('Tempo visualizzazione risultati non valido. Inserire un intero >= 0.');
+                    return;
+                }
+
+                const parsedPoints = parseOptionalInt(pointsInput.value, 0);
+                if (parsedPoints === null) {
+                    alert('Punti non validi. Inserire un intero >= 0.');
+                    return;
+                }
+
+                const kind = newKindSelect.value === 'raise-hand' ? 'raise-hand' : 'text-input';
+                const autoAnswer = autoCorrectAnswerInput.value.trim();
+
+                const options: ManualQuestionOptions = {
+                    kind,
+                    ...(autoAnswer !== '' && kind === 'text-input' ? { autoCorrectAnswer: autoAnswer } : {}),
+                    ...(parsedTimer !== undefined ? { timer: parsedTimer } : {}),
+                    ...(parsedDisplayResultsTime !== undefined ? { displayResultsTime: parsedDisplayResultsTime*1000 } : {}),
+                    ...(parsedPoints !== undefined ? { pointsForCorrectAnswer: parsedPoints } : {}),
+                };
+
+                newStartButton.disabled = true;
+                try {
+                    this.context.startManualQuestion(options);
+                    finish();
+                } catch (error) {
+                    console.error('Failed to start manual question', error);
+                    dialog.showModal();
+                    alert('Errore durante avvio domanda manuale. Controllare la console.');
+                } finally {
+                    newStartButton.disabled = false;
+                }
+            });
+
+            dialog.addEventListener('close', () => {
+                finish();
+            }, { once: true });
+
+            dialog.showModal();
+        });
+    }
 }
 
 export { QuizView };
-export type { QuizViewContext };
+export type { QuizViewContext, ManualQuestionOptions };
