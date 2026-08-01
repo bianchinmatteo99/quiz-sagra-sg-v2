@@ -88,6 +88,9 @@ export abstract class QuestionModel extends BaseModel<QuestionModelSnapshot> {
     enableManualStopAnswer: boolean = false;
     /** Enables/disables manual stop control during the SHOWRESULTS phase. */
     enableManualStopShowResults: boolean = false;
+
+    retryManager = new RetryManager({});
+
     private timer: Timer | null = null;
 
     /** Context providing database access and state update callbacks. */
@@ -208,11 +211,126 @@ export abstract class QuestionModel extends BaseModel<QuestionModelSnapshot> {
                 deny: this.deny,
                 enableAnswers: this.enableAnswers,
                 enableManualEvaluation: this.enableManualEvaluation,
+                ...this.retryManager.getDbObject()
             },
             results: Object.fromEntries(this.results),
         }
     }
 
+}
+
+class RetryManager {
+    policy : Required<RetryPolicy>
+    cachedLastAnswerTime : Map<string, Date> = new Map();
+    trialsUsed : Map<string, number> = new Map()
+    activeDelays : Map<string, number> = new Map()
+    activeDelaysReverse : Map<number, string[]> = new Map();
+    canRetry : Map<string, Date> = new Map()
+    constructor(policy:RetryPolicy){
+        this.policy = {
+            allowedTrials: policy.allowedTrials ?? 1,
+            intervalBetweenTrials: policy.intervalBetweenTrials ?? 0,
+            allowOnlyWhenAdminDeletesAnswer: policy.allowOnlyWhenAdminDeletesAnswer ?? false,
+            allowUserChooseIfRetry: policy.allowUserChooseIfRetry ?? false,
+        }
+    }
+
+    private computeDiff(ans: QuestionAnswers): Map<string, Date|null>{
+        const diff : Map<string, Date|null> = new Map()
+        const oldIds = new Set(this.cachedLastAnswerTime.keys())
+        const ansIds = new Set(ans.keys())
+        for (let k in oldIds.difference(ansIds)){
+            diff.set(k, null)
+        }
+        for (let k in ansIds){
+            const t = ans.get(k)?.time!
+            if(this.cachedLastAnswerTime.get(k)?.getTime() !== t.getTime()){
+                diff.set(k, t)
+            }
+        }
+        return diff;
+    }
+
+    private setCanRetry(ids: string[], allow: boolean = true){
+        ids.forEach(id => {
+            if(allow){
+                this.canRetry.set(id, new Date(Date.now()));
+            } else {
+                this.canRetry.delete(id);
+            }
+        })
+    }
+
+    private clearDelaysFor(id: string){
+        const present = this.activeDelays.get(id);
+        if(present){
+            this.activeDelays.delete(id);
+            const others = this.activeDelaysReverse.get(present)?.filter(item => item !== id) ?? []
+            if(others.length < 1){
+                clearTimeout(present);
+                this.activeDelaysReverse.delete(present)
+            } else {
+                this.activeDelaysReverse.set(present, others)
+            }
+        }
+    }
+
+    private startDelay(ids: string[]){
+        this.setCanRetry(ids, false);
+        const n = setTimeout(()=>{
+            const uids = this.activeDelaysReverse.get(n);
+            if(uids){
+                uids.forEach(id => this.activeDelays.delete(id))
+                this.activeDelaysReverse.delete(n);
+                this.setCanRetry(uids);
+            }
+        }, this.policy.intervalBetweenTrials);
+        ids.forEach(id => this.activeDelays.set(id, n))
+        this.activeDelaysReverse.set(n, ids)
+    }
+
+    updateWith(ans: QuestionAnswers){
+        const diff = this.computeDiff(ans);
+        if(diff.size === 0) return;
+        const toAllow : string[] = [];
+        
+        diff.forEach((d,k)=>{
+            this.clearDelaysFor(k);
+
+            const last = this.trialsUsed.get(k);
+            const used = (last ?? 0) + (d!==null ? 1 : 0)
+            this.trialsUsed.set(k, used);
+            
+            if(used < this.policy.allowedTrials && (!this.policy.allowOnlyWhenAdminDeletesAnswer || d===null)){
+                toAllow.push(k);
+            } else {
+                this.canRetry.delete(k);
+            }
+        });
+        if(this.policy.intervalBetweenTrials>0){
+            this.startDelay(toAllow);
+        } else {
+            this.setCanRetry(toAllow);
+        }
+
+        return this.getDbObject();
+    }
+
+    getDbObject() : ({allowUserChooseIfRetry: boolean, canRetry: Record<string, string>}){
+        return {
+            allowUserChooseIfRetry: this.policy.allowUserChooseIfRetry,
+            canRetry: Object.fromEntries(this.canRetry.entries().map(([k, v]) => [k, v.toISOString()]))
+        }
+    }
+
+    clear() {
+        this.activeDelaysReverse.keys().forEach(clearTimeout)
+        this.activeDelaysReverse.clear()
+        this.activeDelays.clear()
+        this.cachedLastAnswerTime.clear()
+        this.trialsUsed.clear()
+        this.canRetry.clear()
+    }
 }
 
 /**
@@ -460,6 +578,14 @@ export interface QuestionAskCallbacks {
     beforeEnd?: (res: QuestionResult) => Promise<void>;
 }
 
+
+export interface RetryPolicy {
+    allowedTrials?: number;
+    intervalBetweenTrials?: number;
+    allowUserChooseIfRetry?: boolean;
+    allowOnlyWhenAdminDeletesAnswer?: boolean;
+}
+
 /**
  * Base class that coordinates question lifecycle, evaluation, persistence,
  * and view rendering.
@@ -540,12 +666,7 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
      * 3. Disable answers and transition to EVALUATING.
      * 4. Apply auto-evaluation and/or wait for manual evaluation.
      * 5. Optionally enter SHOWRESULTS and either wait a fixed delay or manual finish.
-    * 6. Call `beforeEnd`, mark the question ENDED, and return the final results.
-    *
-    * `ask()` intentionally does not call `clear()` before resolving. Several
-    * host flows perform additional admin interactions, state transitions, or
-    * result bookkeeping after the question lifecycle finishes, and they own the
-    * decision of when the shared question state should be removed.
+     * 6. Call `beforeEnd`, mark the question ENDED, and return the final results.
      *
      * Callback details:
      * - `beforeShowResults(res)`:
@@ -613,9 +734,7 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
      *
      * This is typically called after question completion or when the current
      * question needs to be reset entirely. It removes any rendered UI and
-     * deletes the shared question state, answers, and evaluation results from
-     * the database. Cleanup is intentionally explicit so each caller can decide
-     * whether post-`ask()` control flow should run before the snapshot disappears.
+     * deletes the shared question state from the database.
      */
     clear() {
         this.view.clear();
