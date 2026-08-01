@@ -27,8 +27,6 @@ export class CatenaGameModel extends GameModel<CatenaGameStateSnapshot> {
     currentWordLetters: number;
     /** Visual transition delay used by the controller while revealing letters. */
     wordtransitiontime: number;
-    /** Players excluded from retrying the current word when retries are disabled. */
-    currentDenyList: string[] = [];
     /** Current game screen state. */
     state: CatenaState;
 
@@ -220,7 +218,7 @@ export class CatenaGameView extends GameView {
             Parola in corso: ${this.activeGameContext.model.currentWordIndex + 1} di ${this.gameDef.data.words.length}<br/>
             Lettere ${this.activeGameContext.model.currentWordLetters} di ${displayedWordLength}<br/>
             Parola corretta: ${displayedCurrentWord}
-            ${this.gameDef.data.canRetryForSameWord ? "" : ("<br/>Persone escluse: " + this.activeGameContext.model.currentDenyList.length)}<br/>
+            <br/>
             Punti per risposta: ${this.gameDef.data.pointsForCorrectAnswer}<br/>
             Tempo per risposta: ${this.gameDef.data.timeForAnswer}
         `;

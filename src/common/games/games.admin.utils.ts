@@ -52,7 +52,7 @@ export class PenaltyHandler {
                 console.warn("There was an unexpected answer: user with the following id was penalized but a new answer was received. ID: " + id);
                 this.clearTemporaryUser(id);
             }
-            this.totalTrialsUsed[id] += trialsUsed?.[id] ?? 1;
+            this.totalTrialsUsed[id] = (this.totalTrialsUsed[id] ?? 0) + (trialsUsed?.[id] ?? 1);
             if(this.policy.limitWrongTrials){
                 const was = this.availableTrials[id] ?? this.policy.limitWrongTrials;
                 const wrongTrialsUsed = (trialsUsed?.[id] ?? 1) - (correctAnswer ? 1 : 0)
@@ -66,7 +66,7 @@ export class PenaltyHandler {
             if(this.policy.awaitTime || this.policy.awaitTurns){
                 const future = {} as {runningTimeout?: number, blockTurns?: number}
                 if(this.policy.awaitTime){
-                    future.runningTimeout = setTimeout(()=>this.timeoutEnded(id));
+                    future.runningTimeout = setTimeout(()=>this.timeoutEnded(id), this.policy.awaitTime);
                 }
                 if(this.policy.awaitTurns){
                     future.blockTurns = this.policy.awaitTurns;
@@ -114,7 +114,7 @@ export class PenaltyHandler {
 
     private clearTemporaryUser(id : string){
         if(this.temporaryDenyList.has(id)){
-            clearInterval(this.temporaryDenyList.get(id)?.runningTimeout)
+            clearTimeout(this.temporaryDenyList.get(id)?.runningTimeout)
             this.temporaryDenyList.delete(id)
         }
     }

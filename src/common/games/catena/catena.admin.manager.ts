@@ -5,6 +5,7 @@ import { CatenaState } from "./catena.contracts";
 import { CatenaGameDefinition } from "./catena.admin.definition";
 import { CatenaGameController } from "./catena.admin.mvc";
 import { ResumeCheckpoints } from "../../admin.utils";
+import { PenaltyHandler } from "../games.admin.utils";
 
 /**
  * Runtime orchestrator for a Catena game session.
@@ -63,14 +64,15 @@ export class CatenaGameManager extends GameManager {
         // For each word in the chain: reset per-word state and reveal letters one by one.
         while (this.controller.nextWord()) {
             const w = this.controller.model.getCurrentWord();
-            // Track players who are denied for the current word (cannot retry).
-            this.controller.model.currentDenyList = [];
+            const penaltyHandler = new PenaltyHandler({
+                limitWrongTrials: this.controller.model.definition.data.canRetryForSameWord ? undefined : 1,
+            });
 
             // Reveal letters progressively; for each revealed letter prompt players.
             while (await this.controller.nextLetter(1000)) {
                 // Move UI to asking-question state and create a text-input question.
                 this.controller.setState(CatenaState.ASKINGQUESTION);
-                this.currentQ = new TextInputQuestion(this, { auto: w!, manual: true }, { timer: this.controller.model.definition.data.timeForAnswer }, this.controller.model.currentDenyList);
+                this.currentQ = new TextInputQuestion(this, { auto: w!, manual: true }, { timer: this.controller.model.definition.data.timeForAnswer }, penaltyHandler.getCurrentDenyList());
 
                 // Ask the question and run post-evaluation logic before results are shown.
                 const res = await this.currentQ.ask({
@@ -102,14 +104,7 @@ export class CatenaGameManager extends GameManager {
                     await this.controller.adminInteraction({ advanceBtn: "Concludi la domanda" })
                 }
 
-                // If retries are not allowed, add players who failed to the deny list.
-                if (!this.controller.model.definition.data.canRetryForSameWord) {
-                    for (const [id, r] of res) {
-                        if (!r && !this.controller.model.currentDenyList.includes(id)) {
-                            this.controller.model.currentDenyList.push(id)
-                        }
-                    }
-                }
+                penaltyHandler.updateWith(res);
 
                 // Always clear question resources before moving to the next cycle.
                 this.currentQ.clear();
@@ -137,7 +132,6 @@ export class CatenaGameManager extends GameManager {
                 if (this.controller.model.state == CatenaState.DISPLAYCHAIN || this.controller.model.state == CatenaState.ASKINGQUESTION){
                     this.controller.model.currentWordIndex -= 1;
                     this.controller.model.currentWordLetters = this.controller.model.getCurrentWord()?.length ?? 0;
-                    this.controller.model.currentDenyList = [];
                     this.controller.setState(CatenaState.DISPLAYCHAIN);
                     endResume();
                 }

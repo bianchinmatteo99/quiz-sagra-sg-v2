@@ -2,6 +2,7 @@ import { ResumeCheckpoints } from "../../admin.utils";
 import { Question } from "../../questions/questions.admin.base";
 import { TextInputQuestion } from "../../questions/text_input/text_input.question.admin";
 import { GameManager, GameManagerContext } from "../games.admin.base";
+import { PenaltyHandler } from "../games.admin.utils";
 import { ZipGameDefinition } from "./zip.admin.definition";
 import { ZipGameController } from "./zip.admin.mvc";
 import { ZipState } from "./zip.contracts";
@@ -44,7 +45,9 @@ export class ZipGameManager extends GameManager {
                 continue;
             }
 
-            const denyList: string[] = [];
+            const penaltyHandler = new PenaltyHandler({
+                limitWrongTrials: this.controller.model.canRetryForSameZip ? undefined : 1,
+            });
             this.controller.setState(ZipState.ASKINGQUESTION);
             while (await this.controller.nextLetter(1000)) {
                 this.currentQ = new TextInputQuestion(
@@ -54,7 +57,7 @@ export class ZipGameManager extends GameManager {
                         manual: true,
                     },
                     { timer: this.controller.model.timeForAnswer },
-                    denyList,
+                    penaltyHandler.getCurrentDenyList(),
                 );
 
                 const res = await this.currentQ.ask({
@@ -81,13 +84,7 @@ export class ZipGameManager extends GameManager {
                     await this.controller.adminInteraction({ advanceBtn: "Concludi la domanda" });
                 }
 
-                if (!this.controller.model.canRetryForSameZip) {
-                    for (const [id, ok] of res) {
-                        if (!ok && !denyList.includes(id)) {
-                            denyList.push(id);
-                        }
-                    }
-                }
+                penaltyHandler.updateWith(res);
 
                 this.currentQ.clear();
                 this.currentQ = null;
