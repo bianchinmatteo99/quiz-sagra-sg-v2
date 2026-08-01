@@ -7,7 +7,7 @@
       ".read": true,
       
       "display": {
-        ".read": "auth != null && auth.uid === 'f8jR4V96qIPgu5JOvDBs9TnHVmB2'"
+        ".write": "auth != null && auth.uid === 'f8jR4V96qIPgu5JOvDBs9TnHVmB2'"
       }
     },
 

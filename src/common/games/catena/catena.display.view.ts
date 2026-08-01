@@ -154,7 +154,7 @@ export class CatenaPage extends StaticPage{
         }
         this.pastwords = words
         if(mode>0){
-            this.startAnimation(mode>1 ? 5000 : 1000)
+            this.startAnimation(mode>1 ? 3000 : 1000)
         }
     }
 

@@ -82,7 +82,7 @@ export class CatenaGameManager extends GameManager {
 
                         if (correct.length > 0) {
                             // If somebody got it right, complete the word, and award points.
-                            await this.controller.completeWord(5000);
+                            await this.controller.completeWord(3000);
                             // Defer ranking update slightly so UI can show winners.
                             setTimeout(() => {
                                 this.context.updateRanking(new Map(correct.map((id) => [id, this.controller.model.definition.data.pointsForCorrectAnswer])));
@@ -90,7 +90,7 @@ export class CatenaGameManager extends GameManager {
                         }
 
                         // Keep the results screen visible for a fixed duration.
-                        return 5000;
+                        return 4000;
                     }
                 });
 
@@ -98,7 +98,7 @@ export class CatenaGameManager extends GameManager {
                 if (correctN == 0) {
                     // If nobody answered correctly and admin chose to complete, finish the word.
                     if (! await this.controller.adminInteraction({ advanceBtn: "Passa alla prossima lettera", otherBtn: "Completa la parola e vai alla prossima" })) {
-                        await this.controller.completeWord(1000);
+                        await this.controller.completeWord(3000);
                     }
                 } else {
                     await this.controller.adminInteraction({ advanceBtn: "Concludi la domanda" })

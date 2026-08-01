@@ -65,20 +65,20 @@ export class ZipGameManager extends GameManager {
                         const correct = res.entries().filter(([id, v]) => v).map(([id, v]) => id).toArray();
 
                         if (correct.length > 0) {
-                            await this.controller.completeZip(5000);
+                            await this.controller.completeZip(3000);
                             setTimeout(() => {
                                 this.context.updateRanking(new Map(correct.map((id) => [id, this.controller.model.pointsForCorrectAnswer])));
                             }, 1000);
                         }
 
-                        return 5000;
+                        return 4000;
                     }
                 });
 
                 const correctN = res.entries().filter(([id, v]) => v).map(([id, v]) => id).toArray().length;
                 if (correctN === 0) {
                     if (! await this.controller.adminInteraction({ advanceBtn: "Passa alla prossima lettera", otherBtn: "Completa lo zip e vai al prossimo" })) {
-                        await this.controller.completeZip(1000);
+                        await this.controller.completeZip(6000);
                     }
                 } else {
                     await this.controller.adminInteraction({ advanceBtn: "Concludi la domanda" });

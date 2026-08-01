@@ -244,7 +244,7 @@ class QuestionStatusAnswersEvaluationView {
             }
             const cells = row.cells;
             cells[0].textContent = rowData.personName;
-            cells[1].textContent = rowData.answer;
+            cells[1].innerHTML = rowData.answer; // UNSAFE PATTERN
             const evaluationIcon = document.createElement("span");
             evaluationIcon.className = `material-symbols-outlined evaluation-icon evaluation-${rowData.evaluationState}`;
             evaluationIcon.textContent = rowData.evaluationState === "correct"
