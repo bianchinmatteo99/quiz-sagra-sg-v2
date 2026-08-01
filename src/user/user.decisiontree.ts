@@ -35,10 +35,10 @@ export class UserRootPageChooser extends DecisionNode<UserStateHandler, Page> {
         } else if ((state.read.app.quiz.status == QuizStatus.Idle && state.read.app.quiz.displayRankOnIdle && (state.read.person?.rank?.position??-1)>0) || state.read.app.quiz.status == QuizStatus.FinalRanking) {
             this.clearSubTree();
             return new RankingUserPage(state.read.person?.rank?.position ?? null, state.read.app.display?.rankingupto ?? null, state.read.app.quiz.status == QuizStatus.FinalRanking)
-        } else if (state.read.app.quiz.status == QuizStatus.Idle || state.read.app.question?.state == undefined) {
+        } else if (state.read.app.question?.state == undefined) {
             this.clearSubTree();
             return new IdleStatusPage("In attesa della prossima domanda...", { bottom_image: IdleStatusPage.DEFAULT_IMAGES.waiting_for_start });
-        } else if (state.read.app.quiz.status == QuizStatus.RunningGame && state.read.app.question?.state != undefined) {
+        } else if (state.read.app.question?.state != undefined) {
             return this.delegateDecision("question", state);
         } else {
             throw new Error("Unexpected state");
