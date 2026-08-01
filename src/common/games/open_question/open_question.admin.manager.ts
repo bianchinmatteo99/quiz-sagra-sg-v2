@@ -29,7 +29,7 @@ export class OpenQuestionGameManager extends GameManager {
             this.controller.setState(OpenQuestionState.ASKINGQUESTION);
 
             const ender = {manual: true, ...(this.controller.model.stopWhenFirstHandIsRaised ? {stopWhen: StopWhenBuildersCollection.NumberOfSubmittedAnswersIs(1)} : {})};
-            const {result} = await startRepeatedRaiseHandFlow(this, this.controller.model.limitTrialsPerQuestion, ender);
+            const {result} = await startRepeatedRaiseHandFlow(this, ender, {limitWrongTrials: this.controller.model.limitTrialsPerQuestion});
 
             await this.controller.adminInteraction({advanceBtn: "Mostra risposta"});
             this.controller.setState(OpenQuestionState.SHOWINGANSWER);

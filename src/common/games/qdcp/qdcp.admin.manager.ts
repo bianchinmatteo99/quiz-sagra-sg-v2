@@ -37,7 +37,7 @@ export class QDCPGameManager extends GameManager {
 
             let hasCorrect = false;
             while (this.controller.nextHintSection()) {
-                const { result } = await startRepeatedRaiseHandFlow(this, this.controller.model.limitTrialsPerSection, ender);
+                const { result } = await startRepeatedRaiseHandFlow(this, ender, {limitWrongTrials: this.controller.model.limitTrialsPerSection});
                 const correct = [...result.values()].some((value) => value);
 
                 if (correct) {

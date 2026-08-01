@@ -46,7 +46,7 @@ export class GuessSongGameManager extends GameManager {
             this.controller.setState(GuessSongState.ASKINGQUESTION);
 
             const ender = {manual: true, ...(this.controller.model.stopWhenFirstHandIsRaised ? {stopWhen: StopWhenBuildersCollection.NumberOfSubmittedAnswersIs(1)} : {})}
-            const {result, trials} = await startRepeatedRaiseHandFlow(this, this.controller.model.limitTrialsPerSong, ender)
+            const {result, trials} = await startRepeatedRaiseHandFlow(this, ender, {limitWrongTrials: this.controller.model.limitTrialsPerSong})
 
             await this.controller.adminInteraction({advanceBtn: "Mostra risposta"})
             this.controller.setState(GuessSongState.SHOWINGANSWER);
