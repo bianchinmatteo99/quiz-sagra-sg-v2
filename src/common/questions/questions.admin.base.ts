@@ -450,6 +450,12 @@ export interface QuestionAskCallbacks {
     /**
      * Called after the SHOWRESULTS phase completes or is skipped, before the
      * question is marked ENDED.
+     *
+     * This hook runs while question state, answers, and results are still
+     * persisted. Use it for result finalization that still depends on the
+     * active question snapshot. It is not a replacement for caller-owned
+     * teardown such as `clear()`, because callers may still need to perform
+     * follow-up control flow after `ask()` resolves.
      */
     beforeEnd?: (res: QuestionResult) => Promise<void>;
 }
@@ -534,7 +540,12 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
      * 3. Disable answers and transition to EVALUATING.
      * 4. Apply auto-evaluation and/or wait for manual evaluation.
      * 5. Optionally enter SHOWRESULTS and either wait a fixed delay or manual finish.
-     * 6. Call `beforeEnd`, mark the question ENDED, and return the final results.
+    * 6. Call `beforeEnd`, mark the question ENDED, and return the final results.
+    *
+    * `ask()` intentionally does not call `clear()` before resolving. Several
+    * host flows perform additional admin interactions, state transitions, or
+    * result bookkeeping after the question lifecycle finishes, and they own the
+    * decision of when the shared question state should be removed.
      *
      * Callback details:
      * - `beforeShowResults(res)`:
@@ -543,7 +554,8 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
      *   - return `false`, `0`, or a falsy value to skip the SHOWRESULTS phase entirely
      * - `beforeEnd(res)`:
      *   - invoked after the SHOWRESULTS phase completes or after it is skipped
-     *   - useful for cleanup, delayed side effects, or result finalization
+    *   - useful for finalization steps that should happen before the question
+    *     reaches `ENDED` while its persisted snapshot is still available
      *
      * @param callbacks Optional hooks to customize result display and finalization.
      * @returns The final evaluation result map.
@@ -601,7 +613,9 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
      *
      * This is typically called after question completion or when the current
      * question needs to be reset entirely. It removes any rendered UI and
-     * deletes the shared question state from the database.
+     * deletes the shared question state, answers, and evaluation results from
+     * the database. Cleanup is intentionally explicit so each caller can decide
+     * whether post-`ask()` control flow should run before the snapshot disappears.
      */
     clear() {
         this.view.clear();
