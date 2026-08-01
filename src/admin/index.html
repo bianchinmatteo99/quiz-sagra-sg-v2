@@ -105,10 +105,10 @@
 
     <dialog id="manual-question-setup-dialog">
         <article>
-            <header>
-                <h2>Inizia manualmente una domanda</h2>
-                <i style="color: darkred;">ATT: Questo sovrascrive lo stato di eventuali altre domande attive e può portare a side-effects inattesi se ci sono giochi in corso; usare con cautela!</i>
-            </header>
+            
+            <h2>Inizia manualmente una domanda</h2>
+            <i style="color: darkred;">ATT: Questo sovrascrive lo stato di eventuali altre domande attive e può portare a side-effects inattesi se ci sono giochi in corso; usare con cautela!</i>
+            
             <label for="manual-question-kind">Tipo domanda</label>
             <select id="manual-question-kind" name="manual-question-kind">
                 <option value="text-input">Risposta testuale</option>
@@ -126,6 +126,13 @@
 
             <label for="manual-question-points">Punti per risposta corretta (opzionale)</label>
             <input id="manual-question-points" name="manual-question-points" type="number" min="0" step="1" />
+
+            <label for="manual-question-show-ranking-on-idle">
+                <input id="manual-question-show-ranking-on-idle" name="manual-question-show-ranking-on-idle" type="checkbox" role="switch" />
+                Mostra classifica a fine domanda
+            </label>
+
+            
 
             <footer role="group">
                 <button id="question-dialog-cancel" class="secondary">Annulla</button>

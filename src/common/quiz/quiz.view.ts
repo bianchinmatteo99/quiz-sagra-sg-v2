@@ -22,6 +22,7 @@ interface ManualQuestionOptions {
     timer?: number;
     displayResultsTime?: number;
     pointsForCorrectAnswer?: number;
+    showRankingOnIdle: boolean;
 }
 
 type QuizLoadChoice =
@@ -237,10 +238,11 @@ class QuizView {
             const timerInput = document.querySelector<HTMLInputElement>('#manual-question-timer');
             const displayResultsTimeInput = document.querySelector<HTMLInputElement>('#manual-question-display-results-time');
             const pointsInput = document.querySelector<HTMLInputElement>('#manual-question-points');
+            const showRankingOnIdleInput = document.querySelector<HTMLInputElement>('#manual-question-show-ranking-on-idle');
             const cancelButton = document.querySelector<HTMLButtonElement>('#question-dialog-cancel');
             const startButton = document.querySelector<HTMLButtonElement>('#question-dialog-start');
 
-            if (!kindSelect || !autoCorrectAnswerInput || !timerInput || !displayResultsTimeInput || !pointsInput || !cancelButton || !startButton) {
+            if (!kindSelect || !autoCorrectAnswerInput || !timerInput || !displayResultsTimeInput || !pointsInput || !showRankingOnIdleInput || !cancelButton || !startButton) {
                 console.error('Manual question dialog controls not found in DOM');
                 resolve();
                 return;
@@ -260,6 +262,11 @@ class QuizView {
                     autoCorrectAnswerInput.value = '';
                 }
             };
+
+            const isIdleQuiz = this.context.model.status === QuizStatus.Idle;
+            showRankingOnIdleInput.disabled = !isIdleQuiz;
+            showRankingOnIdleInput.checked = false;
+
             syncAutoAnswerState();
             newKindSelect.addEventListener('change', syncAutoAnswerState);
 
@@ -317,6 +324,7 @@ class QuizView {
 
                 const options: ManualQuestionOptions = {
                     kind,
+                    showRankingOnIdle: isIdleQuiz && showRankingOnIdleInput.checked,
                     ...(autoAnswer !== '' && kind === 'text-input' ? { autoCorrectAnswer: autoAnswer } : {}),
                     ...(parsedTimer !== undefined ? { timer: parsedTimer } : {}),
                     ...(parsedDisplayResultsTime !== undefined ? { displayResultsTime: parsedDisplayResultsTime*1000 } : {}),
@@ -329,7 +337,6 @@ class QuizView {
                     finish();
                 } catch (error) {
                     console.error('Failed to start manual question', error);
-                    dialog.showModal();
                     alert('Errore durante avvio domanda manuale. Controllare la console.');
                 } finally {
                     newStartButton.disabled = false;

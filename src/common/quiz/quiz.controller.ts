@@ -185,7 +185,14 @@ class QuizController implements QuizViewContext, QuizModelContext {
     }
 
     async startManualQuestion(options: ManualQuestionOptions): Promise<void> {
-        await this.context.startManualQuestion(options);
+        this.model.displayRankOnIdle = false;
+        this.stateUpdated();
+        try {
+            await this.context.startManualQuestion(options);
+        } finally {
+            this.model.displayRankOnIdle = options.showRankingOnIdle;
+            this.stateUpdated();
+        }
     }
 
     /**
