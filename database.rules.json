@@ -12,7 +12,7 @@
     },
 
     "people": {
-      "onboarding": {
+      "allowOnboarding": {
         ".read": true
       },
       "list": {

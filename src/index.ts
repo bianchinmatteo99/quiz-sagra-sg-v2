@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     const pageChooser = new UserRootPageChooser();
     const pager = new UserPager();
     const state = new UserStateHandler(new FirebaseDatabaseAdapter(), auth);
-
+    console.log(pageChooser, pager, state);
     // Initialize realtime state listeners and wait for auth readiness.
     await state.setup();
 
