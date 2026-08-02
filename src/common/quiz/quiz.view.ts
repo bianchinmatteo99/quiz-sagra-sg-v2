@@ -40,6 +40,7 @@ class QuizView {
     readonly changeStartTimeButton = "change-quiz-start-time-button";
     readonly quizManualStartQuestionButton = "start-manual-question-button";
     readonly endQuizButton = "end-quiz-button"
+    readonly reopenUserRegistrationButton = "enable-user-registration-button"
     context: QuizViewContext;
 
     constructor(context: QuizViewContext) {
@@ -102,6 +103,11 @@ class QuizView {
         const el = document.getElementById(this.quizManualStartQuestionButton)
         if(!el) return;
         el.style.display = enable ? "block" : "none";
+    }
+    setReopenUserRegistrationVisibility(visible : boolean){
+        const el = document.getElementById(this.reopenUserRegistrationButton)
+        if(!el) return;
+        el.style.display = visible ? "block" : "none";
     }
 
     /**

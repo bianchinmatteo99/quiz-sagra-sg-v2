@@ -31,6 +31,7 @@ export class PeopleView {
     readonly peopleListContainer = "people-list-container";
     readonly dialog = "person-actions-dialog";
     readonly enableDisableAllUsers = "enable-disable-all-users";
+    readonly reopenUserRegistrationButton = "enable-user-registration-button";
     context: PeopleViewContext;
 
     constructor(context: PeopleViewContext) {
@@ -120,6 +121,13 @@ export class PeopleView {
                 if (pr.person.enabledAnswers === nextEnabled) continue;
                 this.context.updatePersonEnabledAnswers(pr.person.id, nextEnabled);
             }
+        });
+
+        const reopenUserRegistration = document.getElementById(this.reopenUserRegistrationButton)
+        reopenUserRegistration?.addEventListener('click', ()=>{
+            const goto = !this.context.model.allowOnboarding;
+            this.context.model.allowNewUsers(goto);
+            reopenUserRegistration.textContent = goto ? "DISABILITA REGISTRAZIONE UTENTI" : "RIABILITA REGISTRAZIONE UTENTI"
         });
 
         const dialog = document.getElementById('person-actions-dialog') as HTMLDialogElement;

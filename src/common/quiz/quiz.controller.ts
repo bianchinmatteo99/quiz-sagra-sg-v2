@@ -40,6 +40,7 @@ class QuizController implements QuizViewContext, QuizModelContext {
         this.model.status = status;
         this.view.setEnableStartTimeChange(status === QuizStatus.AwaitingStart);
         this.view.setManualStartQuestion(status === QuizStatus.Idle || status === QuizStatus.RunningGame);
+        this.view.setReopenUserRegistrationVisibility(status === QuizStatus.Idle || status === QuizStatus.RunningGame);
         this.stateUpdated();
     }
 
