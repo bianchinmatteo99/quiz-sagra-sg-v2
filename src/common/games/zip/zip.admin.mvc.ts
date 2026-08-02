@@ -112,7 +112,7 @@ export class ZipGameView extends GameView {
             Stato: ${this.activeGameContext.model.state}<br/>
             Zip corrente: ${this.activeGameContext.model.currentZip + 1} di ${this.gameDef.data.zips.length}<br/>
             Lettere zip: ${this.activeGameContext.model.currentZipLetters}<br/>
-            Parole visualizzate: ${(showSecrets ? this.gameDef.data.zips[this.activeGameContext.model.currentZip] : this.activeGameContext.model.getCurrentZipAsSecret()?.read()??[]).join(", ")}<br/>
+            Parole visualizzate: ${((showSecrets ? this.gameDef.data.zips[this.activeGameContext.model.currentZip] : this.activeGameContext.model.getCurrentZipAsSecret()?.read())??[]).join(", ")}<br/>
             Punti per risposta: ${this.gameDef.data.pointsForCorrectAnswer}<br/>
             Tempo per risposta: ${this.gameDef.data.timeForAnswer}<br/>
             Riprova stesso zip: ${this.gameDef.data.canRetryForSameZip ? "Sì" : "No"}
