@@ -41,9 +41,7 @@ export class Secret<T> {
     toJSON(): any { return this.clearContent }
 }
 
-
-export function sanifyUserAnswer(untrusted: string){
-    const textarea = document.createElement("textarea");
-    textarea.innerHTML = untrusted;
-    return textarea.value;
+import DOMPurify from "dompurify";
+export function sanifyUserAnswer(untrusted: string): string{
+    return DOMPurify.sanitize(untrusted)
 }
