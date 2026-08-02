@@ -1,4 +1,4 @@
-import { toHtml } from "../general.utils";
+import { sanifyUserAnswer, toHtml } from "../general.utils";
 import { RankingDiff } from "./people.controller";
 import { PeopleModel, PersonRankList } from "./people.model";
 
@@ -44,7 +44,7 @@ export class PeopleView {
         for (const pr of this.context.getPeopleAndRank()) {
             const row = toHtml(`
                 <tr data-id="${pr.person.id}">
-                    <th scope="row">${pr.person.name}</th>
+                    <th scope="row">${sanifyUserAnswer(pr.person.name)}</th>
                     <td>${pr.rank.points}</td>
                     <td style="text-align: center;"><input type="checkbox" ${pr.person.enabledAnswers ? "checked" : ""}/></td>
                     <td><button class="secondary">Mostra azioni</button></td>

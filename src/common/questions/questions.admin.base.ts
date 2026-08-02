@@ -22,7 +22,7 @@
  */
 import { IDatabaseAdapter } from "../database/database.types";
 import { BaseModel, BaseModelContext } from "../admin.utils";
-import { delay, toHtml } from "../general.utils";
+import { delay, sanifyUserAnswer, toHtml } from "../general.utils";
 import { Person } from "../people/people.model";
 import { QuestionAnswers, QuestionAnswersSnapshot, QuestionResult, QuestionResultSnapshot, QuestionState, QuestionStateSnapshot } from "./question.contract";
 import { Timer } from "./questions.admin.timer";
@@ -419,8 +419,8 @@ export class QuestionView {
 
             const row = toHtml(`
                         <tr data-id="${o.id}">
-                            <th scope="row">${o.name ?? "Errore nome sconosciuto"}</th>
-                            <td>${o.answer ?? ""}</td>
+                            <th scope="row">${sanifyUserAnswer(o.name ?? "Errore nome sconosciuto")}</th>
+                            <td>${sanifyUserAnswer(o.answer ?? "")}</td>
                             
                         </tr>
                     `);

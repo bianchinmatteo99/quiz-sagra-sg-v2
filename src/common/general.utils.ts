@@ -40,3 +40,10 @@ export class Secret<T> {
      */
     toJSON(): any { return this.clearContent }
 }
+
+
+export function sanifyUserAnswer(untrusted: string){
+    const textarea = document.createElement("textarea");
+    textarea.innerHTML = untrusted;
+    return textarea.value;
+}

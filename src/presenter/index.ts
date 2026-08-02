@@ -7,6 +7,7 @@ import { PersonRecord } from "../common/people/people.contract";
 import { QuestionState } from "../common/questions/question.contract";
 import { QuestionAnswersSnapshot, QuestionResultSnapshot } from "../common/questions/question.contract";
 import { QuizStatus } from "../common/quiz/quiz.contract";
+import { sanifyUserAnswer } from "../common/general.utils";
 
 class TimerView {
     private static readonly HEADER_ACTIONS_ID = "header-actions";
@@ -211,8 +212,8 @@ class QuestionStatusAnswersEvaluationView {
         const rows = Array.from(allIds).map((id) => {
             const answerEntry = answers[id];
             const evalEntry = evaluation[id];
-            const personName = people[id]?.name ?? id;
-            const answer = answerEntry?.answer ?? "";
+            const personName = sanifyUserAnswer(people[id]?.name ?? id);
+            const answer = sanifyUserAnswer(answerEntry?.answer ?? "");
             const time = answerEntry?.time ?? "";
             const evaluationState = typeof evalEntry === "boolean"
                 ? (evalEntry ? "correct" : "wrong")
@@ -244,7 +245,7 @@ class QuestionStatusAnswersEvaluationView {
             }
             const cells = row.cells;
             cells[0].textContent = rowData.personName;
-            cells[1].innerHTML = rowData.answer; // UNSAFE PATTERN
+            cells[1].innerHTML = rowData.answer;
             const evaluationIcon = document.createElement("span");
             evaluationIcon.className = `material-symbols-outlined evaluation-icon evaluation-${rowData.evaluationState}`;
             evaluationIcon.textContent = rowData.evaluationState === "correct"
@@ -293,7 +294,7 @@ class RankingView {
             const rank = person.rank;
             return {
                 id,
-                name: person.name,
+                name: sanifyUserAnswer(person.name),
                 enabledAnswers: person.enabledAnswers && !root.state.question?.deny?.includes(id),
                 position: rank?.position ?? -1,
                 points: rank?.points ?? 0,
