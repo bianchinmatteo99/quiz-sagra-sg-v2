@@ -26,7 +26,18 @@ document.addEventListener('DOMContentLoaded', async function () {
     state.addObserver((s)=>pager.updateFooter(s.person?.name || "???", s.person?.rank?.points ?? 0));
 
     // PRELOAD IMAGES
-    const preloadImagesUrls = ["/img/correct.gif", "/img/good-luck.gif", "/img/wrong.gif"];
+    const preloadImagesUrls = [
+        "/favicon/favicon-96x96.png",
+        "/img/correct.gif",
+        "/img/good-luck.gif",
+        "/img/wrong.gif",
+        "/img/waiting_for_start.png",
+        "/img/ranking.jpg",
+        "/img/hand.png",
+        "/img/icons8-gold-medal-100.png",
+        "/img/icons8-silver-medal-100.png",
+        "/img/icons8-bronze-medal-100.png",
+    ];
     const preloadImages = [];
     for (const url of preloadImagesUrls) {
         const img = new Image();

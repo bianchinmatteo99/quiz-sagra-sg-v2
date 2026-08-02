@@ -14,7 +14,19 @@ document.addEventListener('DOMContentLoaded', async function () {
     state.addObserver((s)=>pager.showPage(pageChooser.decide(state)));
 
     // PRELOAD IMAGES
-    const preloadImagesUrls : string[] = [];
+    const preloadImagesUrls : string[] = [
+        "/favicon/favicon.svg",
+        "/img/waiting_for_start.png",
+        "/img/qr-code.png",
+        "/img/phone.png",
+        "/img/icons8-gold-medal-100.png",
+        "/img/icons8-silver-medal-100.png",
+        "/img/icons8-bronze-medal-100.png",
+        "/img/domino.jpg",
+        "/img/song.jpg",
+        "/img/guess_word.png",
+        "/img/zip.png",
+    ];
     const preloadImages = [];
     for (const url of preloadImagesUrls) {
         const img = new Image();
