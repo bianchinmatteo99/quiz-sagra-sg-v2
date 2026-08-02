@@ -31,6 +31,14 @@ export class TimerHandler {
             this.listeners.delete(listener)
         }
     }
+    stopTimer(){
+        if(this.curtime!==null){
+            this.curtime = null
+            this.listeners.forEach((f)=>f(-1))
+        }
+        clearInterval(this.interval)
+        this.interval = undefined
+    }
     maybeStartInterval(){
         if(this.endtime-Date.now()>=0){
             this.interval = this.interval ?? setInterval(()=>{
@@ -42,22 +50,18 @@ export class TimerHandler {
                         this.listeners.forEach((f)=>f(remainingSeconds))
                     }
                 } else {
-                    if(this.curtime!==null){
-                        this.curtime = null
-                        this.listeners.forEach((f)=>f(-1))
-                    }
-                    clearInterval(this.interval)
-                    this.interval = undefined
+                    this.stopTimer();
                 }
             }, 50)
-        } else if(this.interval!=undefined){
-            clearInterval(this.interval)
-            this.interval = undefined
+        } else {
+            this.stopTimer();
         }
     }
     setEndTime(t?:number|null){
-        this.endtime = t ?? -1
-        this.maybeStartInterval()
+        if(t!==this.endtime){
+            this.endtime = t ?? -1
+            this.maybeStartInterval()
+        }
     }
 }
 

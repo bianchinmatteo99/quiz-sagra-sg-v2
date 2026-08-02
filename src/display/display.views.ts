@@ -150,7 +150,7 @@ export class QuestionPage extends StaticPage {
             case QuestionState.ASKING:
                 html = `
                 <span id="question-subtitle">Raccogliendo<br/>le risposte...</span>
-                <div id="timer" class="spinner">${this.timer.curtime ?? ""}</div>`
+                <div id="timer" class="${(this.timer.curtime??-1) > 0 ? "" : "spinner"}">${this.timer.curtime ?? ""}</div>`
                 break
             case QuestionState.EVALUATING:
                 html = `
