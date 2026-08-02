@@ -29,7 +29,7 @@ export interface UserState {
  */
 export class UserStateHandler {
     static readonly APPSTATEPATH = "/state"
-    static readonly ONBOARDING = "/state/allowOnboarding"
+    static readonly ONBOARDING = "/people/allowOnboarding"
     static readonly PERSONPATH = "/people/list"
     static readonly RESULTSPATH = "/results/evaluation"
     static readonly ANSWERSPATH = "/results/answers"
