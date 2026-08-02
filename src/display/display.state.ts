@@ -154,6 +154,9 @@ export class DisplayStateHandler {
     }
 
     displayedRankingUpTo(pos : number|null){
+        const isPresenterPreview = typeof window !== "undefined" && window.location.href.endsWith("?presenterpreview");
+        if (isPresenterPreview) return;
+
         const payload: DisplayStateSnapshot["rankingupto"] = pos;
         this.db.set("/state/display/rankingupto", payload)
     }
