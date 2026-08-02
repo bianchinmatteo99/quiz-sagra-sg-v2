@@ -12,6 +12,9 @@
     },
 
     "people": {
+      "onboarding": {
+        ".read": true
+      },
       "list": {
         "$uid": {
           ".read": "auth != null && auth.uid === $uid",

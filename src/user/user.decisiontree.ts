@@ -28,7 +28,11 @@ export class UserRootPageChooser extends DecisionNode<UserStateHandler, Page> {
         } else if (state.read.app.quiz.status == QuizStatus.OnBoarding) {
             return this.delegateDecision("onboard", state);
         } else if (!state.isLoggedIn() || !state.isRegisteredToQuiz()) {
-            return new IdleStatusPage("Il quiz è iniziato; non sono ammessi altri partecipanti", { icon: "person_off" }, { footer: false });
+            if(state.read.allowOnboarding){
+                return this.delegateDecision("onboard", state);
+            } else {
+                return new IdleStatusPage("Il quiz è iniziato; non sono ammessi altri partecipanti", { icon: "person_off" }, { footer: false });
+            }
         } else if (state.read.app.quiz.status == QuizStatus.Ended) {
             this.clearSubTree();
             return new IdleStatusPage("Il quiz è terminato! Grazie per aver partecipato!", { icon: "celebration" }, { footer: false });

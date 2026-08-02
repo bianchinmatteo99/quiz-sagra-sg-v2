@@ -17,6 +17,7 @@ type PersonState = null | PersonRecord
 export interface UserState {
     app: AppState;
     person: PersonState;
+    allowOnboarding: boolean;
     questionresult: boolean | null;
     currentDecisionLeaf: string;
 }
@@ -28,6 +29,7 @@ export interface UserState {
  */
 export class UserStateHandler {
     static readonly APPSTATEPATH = "/state"
+    static readonly ONBOARDING = "/state/allowOnboarding"
     static readonly PERSONPATH = "/people/list"
     static readonly RESULTSPATH = "/results/evaluation"
     static readonly ANSWERSPATH = "/results/answers"
@@ -90,10 +92,16 @@ export class UserStateHandler {
      */
     async setup() {
         if (!!this.state) throw new Error("Setup already run!");
-        this.state = { app: createMockState().state!, person: null, questionresult: null, currentDecisionLeaf: "" };
+        this.state = { app: createMockState().state!, person: null, allowOnboarding: false, questionresult: null, currentDecisionLeaf: "" };
         this._bindingCancel.push(this.db.onValue<AppState>(UserStateHandler.APPSTATEPATH, (data) => {
             if (data !== null && data !== undefined) {
                 this.state!.app = data;
+                this.scheduleUpdate();
+            }
+        }));
+        this._bindingCancel.push(this.db.onValue<boolean>(UserStateHandler.ONBOARDING, (data) => {
+            if (data !== null && data !== undefined) {
+                this.state!.allowOnboarding = data;
                 this.scheduleUpdate();
             }
         }));
