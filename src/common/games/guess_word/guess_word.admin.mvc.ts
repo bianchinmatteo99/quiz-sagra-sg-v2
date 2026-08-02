@@ -101,7 +101,7 @@ class HoleText extends Secret<string> {
     }
 }
 
-export class GuessWordGameModel extends GameModel<GuessWordGameStateSnapshot> {
+export class GuessWordGameModel extends GameModel<GuessWordGameDefinition, GuessWordGameStateSnapshot> {
     definition: GuessWordGameDefinition;
     state: GuessWordState;
     private _currentWordIndex: number = -1;
@@ -175,7 +175,7 @@ export class GuessWordGameModel extends GameModel<GuessWordGameStateSnapshot> {
     }
 }
 
-export interface GuessWordGameViewContext extends GameViewContext {
+export interface GuessWordGameViewContext extends GameViewContext<GuessWordGameDefinition> {
     model: GuessWordGameModel;
 }
 
@@ -186,13 +186,7 @@ export class GuessWordGameView extends GameView {
     constructor(ctx: GuessWordGameViewContext | null = null, gameDef: GuessWordGameDefinition | null = null) {
         super();
         this.activeGameContext = ctx;
-        if (!!ctx) {
-            this.gameDef = ctx.model.definition;
-        } else if (!!gameDef) {
-            this.gameDef = gameDef;
-        } else {
-            throw new Error("Unable to instantiate the game if no gameDef is provided, neither directly or in context");
-        }
+        this.gameDef = this.readDefinition(ctx, gameDef)
     }
 
     getSteps(): (string | ((s: boolean) => string))[] {

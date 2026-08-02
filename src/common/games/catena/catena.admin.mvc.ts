@@ -16,7 +16,7 @@ import {
  * Persists state under the shared game state path inherited from GameModel and
  * exposes helpers to read words in clear or secret-aware form for rendering.
  */
-export class CatenaGameModel extends GameModel<CatenaGameStateSnapshot> {
+export class CatenaGameModel extends GameModel<CatenaGameDefinition, CatenaGameStateSnapshot> {
 
     /** Immutable definition payload used to configure this session. */
     definition: CatenaGameDefinition;
@@ -128,7 +128,7 @@ export class CatenaGameModel extends GameModel<CatenaGameStateSnapshot> {
  *
  * Extends the generic view context with access to the Catena model.
  */
-export interface CatenaGameViewContext extends GameViewContext {
+export interface CatenaGameViewContext extends GameViewContext<CatenaGameDefinition> {
     /** Live Catena model used by the active view. */
     model: CatenaGameModel;
 }
@@ -156,13 +156,7 @@ export class CatenaGameView extends GameView {
     constructor(ctx: CatenaGameViewContext | null = null, gameDef: CatenaGameDefinition | null = null) {
         super();
         this.activeGameContext = ctx;
-        if (!!ctx) {
-            this.gameDef = ctx.model.definition;
-        } else if (!!gameDef) {
-            this.gameDef = gameDef;
-        } else {
-            throw new Error("Unable to instantiate the game if no gameDef is provided, neither directly or in context")
-        }
+        this.gameDef = this.readDefinition(ctx, gameDef);
     }
 
     /**

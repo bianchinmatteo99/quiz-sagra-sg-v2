@@ -3,7 +3,7 @@ import { GameController, GameControllerContext, GameModel, GameModelContext, Gam
 import { ZipGameDefinition } from "./zip.admin.definition";
 import { CatenaGameStateSnapshot as ZipGameStateSnapshot, ZipGameRequiredData, ZipState } from "./zip.contracts";
 
-export class ZipGameModel extends GameModel<ZipGameStateSnapshot> {
+export class ZipGameModel extends GameModel<ZipGameDefinition, ZipGameStateSnapshot> {
     definition: ZipGameDefinition;
     state: ZipState;
     currentZip: number;
@@ -70,7 +70,7 @@ export class ZipGameModel extends GameModel<ZipGameStateSnapshot> {
     }
 }
 
-export interface ZipGameViewContext extends GameViewContext {
+export interface ZipGameViewContext extends GameViewContext<ZipGameDefinition> {
     model: ZipGameModel;
 }
 
@@ -81,13 +81,7 @@ export class ZipGameView extends GameView {
     constructor(ctx: ZipGameViewContext | null = null, gameDef: ZipGameDefinition | null = null) {
         super();
         this.activeGameContext = ctx;
-        if (!!ctx) {
-            this.gameDef = ctx.model.definition;
-        } else if (!!gameDef) {
-            this.gameDef = gameDef;
-        } else {
-            throw new Error("Unable to instantiate the game if no gameDef is provided, neither directly or in context");
-        }
+        this.gameDef = this.readDefinition(ctx, gameDef);
     }
 
     getSteps(): (string | ((s: boolean) => string))[] {

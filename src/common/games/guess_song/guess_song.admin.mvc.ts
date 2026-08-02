@@ -6,7 +6,7 @@ import { GuessSongGameRequiredData, GuessSongGameStateSnapshot, GuessSongState }
 /**
  * Runtime state container for a Guess Song game session.
  */
-export class GuessSongGameModel extends GameModel<GuessSongGameStateSnapshot> {
+export class GuessSongGameModel extends GameModel<GuessSongGameDefinition, GuessSongGameStateSnapshot> {
     definition: GuessSongGameDefinition;
     state: GuessSongState;
     currentSongIndex: number;
@@ -70,7 +70,7 @@ export class GuessSongGameModel extends GameModel<GuessSongGameStateSnapshot> {
 /**
  * View context for the Guess Song game.
  */
-export interface GuessSongGameViewContext extends GameViewContext {
+export interface GuessSongGameViewContext extends GameViewContext<GuessSongGameDefinition> {
     model: GuessSongGameModel;
 }
 
@@ -84,13 +84,7 @@ export class GuessSongGameView extends GameView {
     constructor(ctx: GuessSongGameViewContext | null = null, gameDef: GuessSongGameDefinition | null = null) {
         super();
         this.activeGameContext = ctx;
-        if (!!ctx) {
-            this.gameDef = ctx.model.definition;
-        } else if (!!gameDef) {
-            this.gameDef = gameDef;
-        } else {
-            throw new Error("Unable to instantiate the game if no gameDef is provided, neither directly or in context");
-        }
+        this.gameDef = this.readDefinition(ctx, gameDef);
     }
 
     getSteps(): (string | ((s: boolean) => string))[] {

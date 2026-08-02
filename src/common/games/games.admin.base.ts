@@ -167,12 +167,12 @@ export interface GameModelContext extends BaseModelContext {
  * `stateUpdated()`.
  *
  */
-export abstract class GameModel<TSnapshot extends AnyGameStateSnapshotBase = AnyGameStateSnapshotBase> extends BaseModel<TSnapshot> {
+export abstract class GameModel<D extends AnyGameDefinition = AnyGameDefinition, TSnapshot extends AnyGameStateSnapshotBase = AnyGameStateSnapshotBase> extends BaseModel<TSnapshot> {
     /** Database path where game state is persisted. */
     readonly DBPATH = "/state/game";
 
     /** The immutable game definition containing rules and configuration. */
-    abstract definition: AnyGameDefinition;
+    abstract definition: D;
 
     /** Context used for persistence and state-update notifications. */
     context: GameModelContext;
@@ -194,8 +194,8 @@ export abstract class GameModel<TSnapshot extends AnyGameStateSnapshotBase = Any
  * Example: `CatenaGameViewContext extends GameViewContext { model: CatenaGameModel }`
  * allows the view to access Catena-specific model methods and fields.
  */
-export interface GameViewContext {
-
+export interface GameViewContext<D extends AnyGameDefinition = AnyGameDefinition> {
+    model: GameModel<D>
 }
 
 /**
@@ -269,6 +269,16 @@ export abstract class GameView {
     constructor() {
         /* Re-render when secret visibility changes. */
         (document.getElementById("mostra-segreti") as HTMLInputElement).addEventListener("change", (e) => this.render(), { signal: this.listenerController.signal })
+    }
+
+    protected readDefinition<T extends AnyGameDefinition>(activeGameContext: GameViewContext<T> | null, staticGameDef: T | null): T{
+        if (!!activeGameContext) {
+            return activeGameContext.model.definition;
+        } else if (!!staticGameDef) {
+            return staticGameDef;
+        } else {
+            throw new Error("Unable to instantiate the game if no gameDef is provided, neither directly or in context");
+        }
     }
 
     /**

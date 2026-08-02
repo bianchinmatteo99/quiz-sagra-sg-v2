@@ -3,7 +3,7 @@ import { GameController, GameControllerContext, GameModel, GameModelContext, Gam
 import { OpenQuestionGameDefinition } from "./open_question.admin.definition";
 import { OpenQuestionGameRequiredData, OpenQuestionGameStateSnapshot, OpenQuestionState } from "./open_question.contracts";
 
-export class OpenQuestionGameModel extends GameModel<OpenQuestionGameStateSnapshot> {
+export class OpenQuestionGameModel extends GameModel<OpenQuestionGameDefinition, OpenQuestionGameStateSnapshot> {
     definition: OpenQuestionGameDefinition;
     state: OpenQuestionState;
     currentQuestionIndex: number;
@@ -85,7 +85,7 @@ export class OpenQuestionGameModel extends GameModel<OpenQuestionGameStateSnapsh
     }
 }
 
-export interface OpenQuestionGameViewContext extends GameViewContext {
+export interface OpenQuestionGameViewContext extends GameViewContext<OpenQuestionGameDefinition> {
     model: OpenQuestionGameModel;
 }
 
@@ -96,13 +96,7 @@ export class OpenQuestionGameView extends GameView {
     constructor(ctx: OpenQuestionGameViewContext | null = null, gameDef: OpenQuestionGameDefinition | null = null) {
         super();
         this.activeGameContext = ctx;
-        if (!!ctx) {
-            this.gameDef = ctx.model.definition;
-        } else if (!!gameDef) {
-            this.gameDef = gameDef;
-        } else {
-            throw new Error("Unable to instantiate the game if no gameDef is provided, neither directly or in context");
-        }
+        this.gameDef = this.readDefinition(ctx, gameDef);
     }
 
     getSteps(): (string | ((s: boolean) => string))[] {

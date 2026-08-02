@@ -3,7 +3,7 @@ import { GameController, GameControllerContext, GameModel, GameModelContext, Gam
 import { QDCPGameDefinition } from "./qdcp.admin.definition";
 import { QDCPGameRequiredData, QDCPGameStateSnapshot, QDCPState } from "./qdcp.contracts";
 
-export class QDCPGameModel extends GameModel<QDCPGameStateSnapshot> {
+export class QDCPGameModel extends GameModel<QDCPGameDefinition, QDCPGameStateSnapshot> {
     definition: QDCPGameDefinition;
     state: QDCPState;
     currentIndex: number;
@@ -76,7 +76,7 @@ export class QDCPGameModel extends GameModel<QDCPGameStateSnapshot> {
     }
 }
 
-export interface QDCPGameViewContext extends GameViewContext {
+export interface QDCPGameViewContext extends GameViewContext<QDCPGameDefinition> {
     model: QDCPGameModel;
 }
 
@@ -87,13 +87,7 @@ export class QDCPGameView extends GameView {
     constructor(ctx: QDCPGameViewContext | null = null, gameDef: QDCPGameDefinition | null = null) {
         super();
         this.activeGameContext = ctx;
-        if (!!ctx) {
-            this.gameDef = ctx.model.definition;
-        } else if (!!gameDef) {
-            this.gameDef = gameDef;
-        } else {
-            throw new Error("Unable to instantiate the game if no gameDef is provided, neither directly or in context");
-        }
+        this.gameDef = this.readDefinition(ctx, gameDef);
     }
 
     getSteps(): (string | ((s: boolean) => string))[] {
