@@ -199,14 +199,11 @@ export class GuessWordGameView extends GameView {
 
     getCurrentStep(): number | null {
         if (!this.activeGameContext) return null;
-        if (this.activeGameContext.model.state === GuessWordState.STARTING || this.activeGameContext.model.state === GuessWordState.DISPLAYCOVER) {
+        if (this.activeGameContext.model.state === GuessWordState.STARTING || this.activeGameContext.model.currentWordIndex < 0) {
             return 0;
         }
         if (this.activeGameContext.model.state === GuessWordState.ENDING) {
             return this.getSteps().length - 1;
-        }
-        if (this.activeGameContext.model.currentWordIndex < 0) {
-            return 0;
         }
         return this.activeGameContext.model.currentWordIndex + 1;
     }

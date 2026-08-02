@@ -112,7 +112,7 @@ export class OpenQuestionGameView extends GameView {
         const stepCount = this.getSteps().length;
         switch (this.activeGameContext.model.state) {
             case OpenQuestionState.DISPLAYCOVER:
-                if (this.activeGameContext.model.currentQuestionIndex <= 0) {
+                if (this.activeGameContext.model.currentQuestionIndex < 0) {
                     return 0;
                 }
             case OpenQuestionState.ASKINGQUESTION:

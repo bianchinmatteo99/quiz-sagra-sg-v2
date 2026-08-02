@@ -106,7 +106,7 @@ export class QDCPGameView extends GameView {
 
         switch (this.activeGameContext.model.state) {
             case QDCPState.DISPLAYCOVER:
-                if (this.activeGameContext.model.currentIndex <= 0) {
+                if (this.activeGameContext.model.currentIndex < 0) {
                     return 0;
                 }
             case QDCPState.ASKINGQUESTION:

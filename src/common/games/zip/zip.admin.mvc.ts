@@ -94,7 +94,7 @@ export class ZipGameView extends GameView {
 
     getCurrentStep(): number | null {
         if (!this.activeGameContext) return null;
-        if (this.activeGameContext.model.state == ZipState.STARTING || this.activeGameContext.model.state == ZipState.DISPLAYCOVER) {
+        if (this.activeGameContext.model.state == ZipState.STARTING || this.activeGameContext.model.currentZip < 0) {
             return 0;
         }
         if (this.activeGameContext.model.state == ZipState.ENDING) {
