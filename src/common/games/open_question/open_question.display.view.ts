@@ -13,6 +13,7 @@ export class OpenQuestionGamePageChooser extends GamePageChooser<OpenQuestionGam
         }
 
         if (state.state === OpenQuestionState.SHOWINGANSWER) {
+            title = state.displayQuestion || state.title;
             answer = state.displayCorrectAnswer;
         }
 
