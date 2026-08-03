@@ -12,24 +12,31 @@ export async function startRepeatedRaiseHandFlow(context: GameManager, enderPerT
     
     const penaltyHandler = new PenaltyHandler(penalties ?? {});
 
-    while(true){
-        const Q = new RaiseHandQuestion(context, ender, penaltyHandler.getCurrentDenyList())
-        const res = await Q.ask({beforeShowResults: async () => false})
+    let currentQ : RaiseHandQuestion | null = null;
 
-        penaltyHandler.updateWith(res);
+    try{
+        while(true){
+            currentQ = new RaiseHandQuestion(context, ender, penaltyHandler.getCurrentDenyList())
+            const res = await currentQ.ask({beforeShowResults: async () => false})
 
-        let correct = false;
-        for(const [id, r] of res){
-            cumulatedResults.set(id, r);
-            correct = correct || r;
+            penaltyHandler.updateWith(res);
+
+            let correct = false;
+            for(const [id, r] of res){
+                cumulatedResults.set(id, r);
+                correct = correct || r;
+            }
+
+            currentQ.clear();
+            currentQ = null;
+
+            if(correct || ! await context.controller.adminInteraction({advanceBtn: "Riavvia domanda", otherBtn: "Concludi"})){
+                break;
+            }
+
         }
-
-        Q.clear();
-
-        if(correct || ! await context.controller.adminInteraction({advanceBtn: "Riavvia domanda", otherBtn: "Concludi"})){
-            break;
-        }
-
+    } finally {
+        currentQ?.clear()
     }
 
     return {result: cumulatedResults, trials: penaltyHandler.getTotalTrialsUsed()};

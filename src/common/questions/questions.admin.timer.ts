@@ -23,6 +23,8 @@ export class Timer {
     seconds: number;
     /** Last emitted remaining seconds, or null when timer is inactive. */
     private current: number | null;
+    /** Cancellation flag used to interrupt an active countdown loop. */
+    private canceled: boolean;
     /** Local subscribers notified on each visible second transition. */
     private listeners: ((t?: number) => void)[];
 
@@ -33,6 +35,7 @@ export class Timer {
     constructor(seconds: number, db: IDatabaseAdapter) {
         this.seconds = seconds;
         this.current = null;
+        this.canceled = false;
         this.db = db;
         this.listeners = [];
     }
@@ -58,11 +61,12 @@ export class Timer {
      * are dispatched.
      */
     async start() {
+        this.canceled = false;
         const end = Date.now() + this.seconds * 1000 + 50; // added 50 ms for ui delay
         this.pushToDB(end)
         let remaining = end - Date.now();
         let last : number|null = null;
-        while (remaining > 0) {
+        while (remaining > 0 && !this.canceled) {
             const current = Math.min(Math.max(0, Math.ceil(remaining / 1000)), this.seconds);
             if (current !== last) {
                 last = current;
@@ -72,8 +76,21 @@ export class Timer {
             await delay(Math.min(50, remaining));
             remaining = end - Date.now();
         }
+        if (this.canceled) {
+            return;
+        }
         this.pushToDB()
         this.current = null;
+        this.listeners.forEach(fn => fn());
+    }
+
+    /**
+     * Cancels a running timer and marks shared timer state as inactive.
+     */
+    cancel() {
+        this.canceled = true;
+        this.current = null;
+        this.pushToDB();
         this.listeners.forEach(fn => fn());
     }
 

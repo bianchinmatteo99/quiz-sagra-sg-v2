@@ -217,6 +217,19 @@ export abstract class QuestionModel extends BaseModel<QuestionModelSnapshot> {
         }
     }
 
+    /**
+     * Clears runtime question resources and removes persisted model state.
+     *
+     * This explicitly cancels any active timer to avoid stale shared timer
+     * values when a question is terminated early.
+     */
+    clear() {
+        this.timer?.cancel();
+        this.timer = null;
+        this.retryManager.clear();
+        void this.clearDatabase();
+    }
+
 }
 
 class RetryManager {
@@ -738,7 +751,7 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
      */
     clear() {
         this.view.clear();
-        this.model.clearDatabase();
+        this.model.clear();
     }
 
     /**
