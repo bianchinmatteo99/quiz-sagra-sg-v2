@@ -2,12 +2,6 @@ type Axis = 'columns' | 'rows';
 
 const MIN_TRACK_SIZE_PX = 80;
 
-type GridTemplateInfo = {
-  tokens: string[];
-  sizesPx: number[];
-  gapPx: number;
-};
-
 type ResizeState = {
   axis: Axis;
   startClient: number;
@@ -18,7 +12,17 @@ type ResizeState = {
   secondTrack: number;
 };
 
+type ResizerBinding = {
+  axis: Axis;
+  resizer: HTMLElement;
+  container: HTMLElement;
+  firstTrack: number;
+  secondTrack: number;
+};
+
 let activeResize: ResizeState | null = null;
+
+const rootContainer = document.querySelector<HTMLElement>('#main-container');
 
 function splitTrackList(value: string): string[] {
   const tracks: string[] = [];
@@ -50,7 +54,7 @@ function parsePixelTrack(token: string): number | null {
   return parseFloat(match[1]);
 }
 
-function getTemplateInfo(container: HTMLElement, axis: Axis): GridTemplateInfo | null {
+function getTrackTokens(container: HTMLElement, axis: Axis): string[] | null {
   const style = getComputedStyle(container);
   const template = axis === 'columns' ? style.gridTemplateColumns : style.gridTemplateRows;
 
@@ -59,6 +63,13 @@ function getTemplateInfo(container: HTMLElement, axis: Axis): GridTemplateInfo |
   const tokens = splitTrackList(template);
   if (tokens.length < 2) return null;
 
+  return tokens;
+}
+
+function getTrackSizesPx(container: HTMLElement, axis: Axis): number[] | null {
+  const tokens = getTrackTokens(container, axis);
+  if (!tokens) return null;
+
   const sizesPx: number[] = [];
   for (const token of tokens) {
     const size = parsePixelTrack(token);
@@ -66,99 +77,120 @@ function getTemplateInfo(container: HTMLElement, axis: Axis): GridTemplateInfo |
     sizesPx.push(size);
   }
 
-  const gapRaw = axis === 'columns' ? style.columnGap : style.rowGap;
-  const parsedGap = Number.parseFloat(gapRaw);
-  const gapPx = Number.isFinite(parsedGap) ? parsedGap : 0;
-
-  return { tokens, sizesPx, gapPx };
+  return sizesPx;
 }
 
-function findGridContainer(start: HTMLElement, axis: Axis): { container: HTMLElement; info: GridTemplateInfo } | null {
-  let current: HTMLElement | null = start.parentElement;
+function isColumnResizer(element: Element): boolean {
+  return element.classList.contains('col-resizer') || element.classList.contains('column-resizer');
+}
 
-  while (current) {
-    const display = getComputedStyle(current).display;
-    if (display.includes('grid')) {
-      const info = getTemplateInfo(current, axis);
-      if (info) return { container: current, info };
+function isRowResizer(element: Element): boolean {
+  return element.classList.contains('row-resizer');
+}
+
+function findSiblingPairIndexes(
+  container: HTMLElement,
+  resizer: HTMLElement,
+  isAxisResizer: (element: Element) => boolean,
+): [number, number] | null {
+  const children = Array.from(container.children);
+  const resizerIndex = children.indexOf(resizer);
+  if (resizerIndex < 0) return null;
+
+  let leftIndex = -1;
+  for (let i = resizerIndex - 1; i >= 0; i -= 1) {
+    const candidate = children[i];
+    if (candidate && !isAxisResizer(candidate)) {
+      leftIndex = i;
+      break;
     }
-    current = current.parentElement;
   }
 
-  return null;
-}
-
-function findTrackAtPosition(position: number, sizesPx: number[], gapPx: number): number {
-  let cursor = 0;
-
-  for (let i = 0; i < sizesPx.length; i += 1) {
-    const size = sizesPx[i];
-    if (size === undefined) break;
-
-    const start = cursor;
-    const end = start + size;
-    if (position >= start && position <= end) return i;
-    cursor = end + gapPx;
-  }
-
-  return -1;
-}
-
-function findAdjacentTrackPair(position: number, sizesPx: number[], gapPx: number): [number, number] | null {
-  if (sizesPx.length < 2) return null;
-
-  const insideTrack = findTrackAtPosition(position, sizesPx, gapPx);
-  const insideTrackSize = insideTrack >= 0 ? sizesPx[insideTrack] : undefined;
-  if (insideTrack > 0 && insideTrack < sizesPx.length - 1 && insideTrackSize !== undefined && insideTrackSize <= 16) {
-    return [insideTrack - 1, insideTrack + 1];
-  }
-
-  let bestBoundary = 0;
-  let bestDistance = Number.POSITIVE_INFINITY;
-  const firstSize = sizesPx[0];
-  if (firstSize === undefined) return null;
-  let cursor = firstSize;
-
-  for (let leftTrack = 0; leftTrack < sizesPx.length - 1; leftTrack += 1) {
-    const boundary = cursor + (gapPx / 2);
-    const distance = Math.abs(position - boundary);
-
-    if (distance < bestDistance) {
-      bestDistance = distance;
-      bestBoundary = leftTrack;
+  let rightIndex = -1;
+  for (let i = resizerIndex + 1; i < children.length; i += 1) {
+    const candidate = children[i];
+    if (candidate && !isAxisResizer(candidate)) {
+      rightIndex = i;
+      break;
     }
-
-    const nextSize = sizesPx[leftTrack + 1];
-    if (nextSize === undefined) break;
-    cursor += gapPx + nextSize;
   }
 
-  return [bestBoundary, bestBoundary + 1];
+  if (leftIndex < 0 || rightIndex < 0) return null;
+  return [leftIndex, rightIndex];
 }
 
-function beginResize(axis: Axis, resizer: HTMLElement, event: MouseEvent): void {
-  const gridData = findGridContainer(resizer, axis);
-  if (!gridData) return;
+function collectColumnBindings(root: HTMLElement): ResizerBinding[] {
+  const bindings: ResizerBinding[] = [];
+  const children = Array.from(root.children);
 
-  const { container, info } = gridData;
-  const containerRect = container.getBoundingClientRect();
-  const resizerRect = resizer.getBoundingClientRect();
+  children.forEach((node) => {
+    if (!(node instanceof HTMLElement) || !isColumnResizer(node)) return;
 
-  const position = axis === 'columns'
-    ? (resizerRect.left + (resizerRect.width / 2) - containerRect.left)
-    : (resizerRect.top + (resizerRect.height / 2) - containerRect.top);
+    const pair = findSiblingPairIndexes(root, node, isColumnResizer);
+    if (!pair) return;
 
-  const pair = findAdjacentTrackPair(position, info.sizesPx, info.gapPx);
-  if (!pair) return;
+    bindings.push({
+      axis: 'columns',
+      resizer: node,
+      container: root,
+      firstTrack: pair[0],
+      secondTrack: pair[1],
+    });
+  });
+
+  return bindings;
+}
+
+function collectRowBindings(root: HTMLElement): ResizerBinding[] {
+  const bindings: ResizerBinding[] = [];
+  const resizers = Array.from(root.querySelectorAll<HTMLElement>('.row-resizer'));
+
+  resizers.forEach((resizer) => {
+    const container = resizer.parentElement;
+    if (!(container instanceof HTMLElement)) return;
+
+    const pair = findSiblingPairIndexes(container, resizer, isRowResizer);
+    if (!pair) return;
+
+    bindings.push({
+      axis: 'rows',
+      resizer,
+      container,
+      firstTrack: pair[0],
+      secondTrack: pair[1],
+    });
+  });
+
+  return bindings;
+}
+
+function canApplyBinding(binding: ResizerBinding): boolean {
+  const tokens = getTrackTokens(binding.container, binding.axis);
+  if (!tokens) return false;
+
+  return binding.firstTrack >= 0
+    && binding.secondTrack >= 0
+    && binding.firstTrack < tokens.length
+    && binding.secondTrack < tokens.length;
+}
+
+function beginResize(binding: ResizerBinding, event: MouseEvent): void {
+  const trackTokens = getTrackTokens(binding.container, binding.axis);
+  const trackSizesPx = getTrackSizesPx(binding.container, binding.axis);
+  if (!trackTokens || !trackSizesPx) return;
+
+  const firstSize = trackSizesPx[binding.firstTrack];
+  const secondSize = trackSizesPx[binding.secondTrack];
+  if (firstSize === undefined || secondSize === undefined) return;
 
   activeResize = {
-    axis,
-    startClient: axis === 'columns' ? event.clientX : event.clientY,
-    container,
-    trackTokens: [...info.tokens],
-    trackSizesPx: [...info.sizesPx],
-    firstTrack: pair[0],
-    secondTrack: pair[1],
+    axis: binding.axis,
+    startClient: binding.axis === 'columns' ? event.clientX : event.clientY,
+    container: binding.container,
+    trackTokens,
+    trackSizesPx,
+    firstTrack: binding.firstTrack,
+    secondTrack: binding.secondTrack,
   };
 
   event.preventDefault();
@@ -196,13 +228,16 @@ function stopResize(): void {
   activeResize = null;
 }
 
-document.querySelectorAll<HTMLElement>('.col-resizer').forEach((resizer) => {
-  resizer.addEventListener('mousedown', (event) => beginResize('columns', resizer, event));
-});
+if (rootContainer) {
+  const bindings = [
+    ...collectColumnBindings(rootContainer),
+    ...collectRowBindings(rootContainer),
+  ].filter(canApplyBinding);
 
-document.querySelectorAll<HTMLElement>('.row-resizer').forEach((resizer) => {
-  resizer.addEventListener('mousedown', (event) => beginResize('rows', resizer, event));
-});
+  bindings.forEach((binding) => {
+    binding.resizer.addEventListener('mousedown', (event) => beginResize(binding, event));
+  });
+}
 
 window.addEventListener('mousemove', onPointerMove);
 window.addEventListener('mouseup', stopResize);
