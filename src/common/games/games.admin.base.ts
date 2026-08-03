@@ -66,7 +66,7 @@ import { IDatabaseAdapter } from "../database/database.types";
 import { BaseModel, BaseModelContext, ResumeCheckpoints } from "../admin.utils";
 import { toHtml } from "../general.utils";
 import { Person } from "../people/people.model";
-import { QuestionContext } from "../questions/questions.admin.base";
+import { Question, QuestionContext } from "../questions/questions.admin.base";
 import { RankingDiff } from "../people/people.controller";
 import { AnyGameDefinitionData, AnyGameStateSnapshotBase } from "./games.contracts";
 
@@ -623,6 +623,8 @@ export abstract class GameManager implements GameControllerContext, QuestionCont
 
     resumeCheckpoints : ResumeCheckpoints;
 
+    activeQuestion: Question|null = null;
+
     /** The game controller (owns model and view). Subclass must initialize. */
     abstract controller: GameController;
 
@@ -653,7 +655,22 @@ export abstract class GameManager implements GameControllerContext, QuestionCont
      * 3. Call `this.context.updateRanking(diff)` after each round
      * 4. Return `true` when idle screen should show ranking, otherwise `false`
      */
-    abstract startGame(): Promise<boolean>;
+    abstract startGame(): Promise<void>;
+
+    async runGame(): Promise<boolean>{
+        try {
+            await this.startGame();
+            return await this.endGame();
+        } finally {
+            try {
+                this.controller.clearAll();
+                this.activeQuestion?.clear();
+            } catch (e){
+                console.log("Error during game cleanup.")
+                console.error(e);
+            }
+        }
+    }
 
     /**
      * Finalize a game session with an admin choice and cleanup.
@@ -670,7 +687,6 @@ export abstract class GameManager implements GameControllerContext, QuestionCont
      */
     async endGame(): Promise<boolean> {
         const ret = await this.controller.adminInteraction({ advanceBtn: "Mostra classifica", otherBtn: "Passa a un altro gioco" });
-        this.controller.clearAll();
         return ret;
     }
 

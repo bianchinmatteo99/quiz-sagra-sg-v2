@@ -75,7 +75,7 @@ class QuizManager implements QuizControllerContext, GameManagerContext, PeopleCo
         this.activeGameManager = instantiateGameManagerFor(game, this, !this.resumeCheckpoints.reachedCheckPoint("starting-game"));
         this.quiz.setStatus(QuizStatus.RunningGame);
         try {
-            const shouldDisplayRanking = await this.activeGameManager.startGame();
+            const shouldDisplayRanking = await this.activeGameManager.runGame();
             this.quiz.gameEnded();
             this.activeGameManager = null;
         

@@ -1,5 +1,4 @@
 import { ResumeCheckpoints } from "../../admin.utils";
-import { Question } from "../../questions/questions.admin.base";
 import { TextInputQuestion } from "../../questions/text_input/text_input.question.admin";
 import { GameManager, GameManagerContext } from "../games.admin.base";
 import { PenaltyHandler } from "../games.admin.utils";
@@ -16,8 +15,6 @@ import { ZipState } from "./zip.contracts";
 export class ZipGameManager extends GameManager {
     /** Controller owning Zip model state and admin-facing rendering. */
     controller: ZipGameController;
-    /** Currently active question while the game waits for answers. */
-    currentQ: Question | null = null;
 
     constructor(ctx: GameManagerContext, def: ZipGameDefinition, restoreState: boolean = false) {
         super(ctx, restoreState);
@@ -33,7 +30,7 @@ export class ZipGameManager extends GameManager {
     /**
      * Execute the Zip game flow.
      */
-    async startGame(): Promise<boolean> {
+    async startGame(): Promise<void> {
         await this.controller.model.restoreOrSave();
 
         if (this.resumeCheckpoints.reachedCheckPoint("start-phase")) {
@@ -50,7 +47,7 @@ export class ZipGameManager extends GameManager {
             });
             this.controller.setState(ZipState.ASKINGQUESTION);
             while (await this.controller.nextLetter(1000)) {
-                this.currentQ = new TextInputQuestion(
+                this.activeQuestion = new TextInputQuestion(
                     this,
                     {
                         auto: this.currentZipExpectedAnswer(),
@@ -60,7 +57,7 @@ export class ZipGameManager extends GameManager {
                     penaltyHandler.getCurrentDenyList(),
                 );
 
-                const res = await this.currentQ.ask({
+                const res = await this.activeQuestion.ask({
                     beforeShowResults: async (res) => {
                         const correct = res.entries().filter(([id, v]) => v).map(([id, v]) => id).toArray();
 
@@ -86,8 +83,8 @@ export class ZipGameManager extends GameManager {
 
                 penaltyHandler.updateWith(res);
 
-                this.currentQ.clear();
-                this.currentQ = null;
+                this.activeQuestion.clear();
+                this.activeQuestion = null;
             }
 
             this.controller.setState(ZipState.DISPLAYCOVER);
@@ -95,7 +92,6 @@ export class ZipGameManager extends GameManager {
 
         this.resumeCheckpoints.reachedCheckPoint("end-phase");
         this.controller.setState(ZipState.ENDING);
-        return this.endGame();
     }
 
     buildResumeCheckpoints(): ResumeCheckpoints {

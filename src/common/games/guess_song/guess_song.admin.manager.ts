@@ -31,7 +31,7 @@ export class GuessSongGameManager extends GameManager {
     /**
      * Execute the Guess Song game flow.
      */
-    async startGame(): Promise<boolean> {
+    async startGame(): Promise<void> {
         await this.controller.model.restoreOrSave();
 
         if (this.resumeCheckpoints.reachedCheckPoint("start-phase")) {
@@ -47,7 +47,7 @@ export class GuessSongGameManager extends GameManager {
 
             const ender = {manual: true, ...(this.controller.model.stopWhenFirstHandIsRaised ? {stopWhen: StopWhenBuildersCollection.NumberOfSubmittedAnswersIs(1)} : {})}
             const {result, trials} = await startRepeatedRaiseHandFlow(this, ender, {limitWrongTrials: this.controller.model.limitTrialsPerSong})
-
+            throw new Error() // TODO: REMOVE, THIS IS FOR DEBUG PURPOSES
             await this.controller.adminInteraction({advanceBtn: "Mostra risposta"})
             this.controller.setState(GuessSongState.SHOWINGANSWER);
 
@@ -59,7 +59,6 @@ export class GuessSongGameManager extends GameManager {
 
         this.resumeCheckpoints.reachedCheckPoint("end-phase");
         this.controller.setState(GuessSongState.ENDING);
-        return this.endGame();
     }
 
     buildResumeCheckpoints(): ResumeCheckpoints {

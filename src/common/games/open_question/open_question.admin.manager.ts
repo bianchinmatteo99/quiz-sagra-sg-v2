@@ -14,7 +14,7 @@ export class OpenQuestionGameManager extends GameManager {
         this.controller = new OpenQuestionGameController(this, def);
     }
 
-    async startGame(): Promise<boolean> {
+    async startGame(): Promise<void> {
         await this.controller.model.restoreOrSave();
 
         if (this.resumeCheckpoints.reachedCheckPoint("start-phase")) {
@@ -42,7 +42,6 @@ export class OpenQuestionGameManager extends GameManager {
 
         this.resumeCheckpoints.reachedCheckPoint("end-phase");
         this.controller.setState(OpenQuestionState.ENDING);
-        return this.endGame();
     }
 
     buildResumeCheckpoints(): ResumeCheckpoints {

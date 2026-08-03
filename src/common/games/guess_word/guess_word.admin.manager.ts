@@ -1,6 +1,6 @@
 import { CancelHandle, delay } from "../../general.utils";
 import { ResumeCheckpoints } from "../../admin.utils";
-import { Question, StopWhenBuildersCollection } from "../../questions/questions.admin.base";
+import { StopWhenBuildersCollection } from "../../questions/questions.admin.base";
 import { TextInputQuestion } from "../../questions/text_input/text_input.question.admin";
 import { GameManager, GameManagerContext } from "../games.admin.base";
 import { GuessWordGameDefinition } from "./guess_word.admin.definition";
@@ -10,7 +10,6 @@ import { QuestionAnswers } from "../../questions/question.contract";
 
 export class GuessWordGameManager extends GameManager {
     controller: GuessWordGameController;
-    currentQ: Question | null = null;
 
     constructor(ctx: GameManagerContext, def: GuessWordGameDefinition, restoreState: boolean = false) {
         super(ctx, restoreState);
@@ -75,7 +74,7 @@ export class GuessWordGameManager extends GameManager {
         return cancel;
     }
 
-    async startGame(): Promise<boolean> {
+    async startGame(): Promise<void> {
         await this.controller.model.restoreOrSave();
 
         if (this.resumeCheckpoints.reachedCheckPoint("start-phase")) {
@@ -96,7 +95,7 @@ export class GuessWordGameManager extends GameManager {
                     : {}),
             };
 
-            this.currentQ = new TextInputQuestion(
+            this.activeQuestion = new TextInputQuestion(
                 this,
                 {
                     auto: this.controller.model.getCurrentWord()!,
@@ -106,7 +105,7 @@ export class GuessWordGameManager extends GameManager {
             );
 
             const handle = this.showRandomLetterLoop();
-            await this.currentQ.ask({
+            await this.activeQuestion.ask({
                 onAnswerClosed: handle,
                 beforeShowResults: async (result) => {
                     const correct = result.entries().filter(([_, ok]) => ok).map(([id]) => id).toArray();
@@ -120,14 +119,13 @@ export class GuessWordGameManager extends GameManager {
             });
 
             await this.controller.adminInteraction({ advanceBtn: "Concludi parola" });
-            this.currentQ.clear();
-            this.currentQ = null;
+            this.activeQuestion.clear();
+            this.activeQuestion = null;
             this.controller.setState(GuessWordState.DISPLAYCOVER);
         }
 
         this.resumeCheckpoints.reachedCheckPoint("end-phase");
         this.controller.setState(GuessWordState.ENDING);
-        return this.endGame();
     }
 
     buildResumeCheckpoints(): ResumeCheckpoints {

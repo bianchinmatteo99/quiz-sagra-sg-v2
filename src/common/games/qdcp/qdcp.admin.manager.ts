@@ -14,7 +14,7 @@ export class QDCPGameManager extends GameManager {
         this.controller = new QDCPGameController(this, def);
     }
 
-    async startGame(): Promise<boolean> {
+    async startGame(): Promise<void> {
         await this.controller.model.restoreOrSave();
 
         if (this.resumeCheckpoints.reachedCheckPoint("start-phase")) {
@@ -61,7 +61,6 @@ export class QDCPGameManager extends GameManager {
 
         this.resumeCheckpoints.reachedCheckPoint("end-phase");
         this.controller.setState(QDCPState.ENDING);
-        return this.endGame();
     }
 
     buildResumeCheckpoints(): ResumeCheckpoints {

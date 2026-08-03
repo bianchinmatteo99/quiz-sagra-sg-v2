@@ -16,8 +16,6 @@ import { PenaltyHandler } from "../games.admin.utils";
 export class CatenaGameManager extends GameManager {
     /** Controller owning Catena model state and admin-facing rendering. */
     controller: CatenaGameController;
-    /** The currently active question while the game waits for player input. */
-    currentQ: Question | null = null;
 
     /**
      * Create a Catena manager bound to host-level game context.
@@ -46,10 +44,8 @@ export class CatenaGameManager extends GameManager {
     * - creates and clears question UI/state for each ask cycle,
     * - writes ranking deltas through the host context.
     *
-    * @returns Result of {@link GameManager.endGame}, used by quiz flow to decide
-    * idle-screen behavior (for example showing ranking).
      */
-    async startGame(): Promise<boolean> {
+    async startGame(): Promise<void> {
         await this.controller.model.restoreOrSave();
         if (this.resumeCheckpoints.reachedCheckPoint("start-phase")) {
             // Show the cover screen first and wait for admin to advance.
@@ -72,10 +68,10 @@ export class CatenaGameManager extends GameManager {
             while (await this.controller.nextLetter(1000)) {
                 // Move UI to asking-question state and create a text-input question.
                 this.controller.setState(CatenaState.ASKINGQUESTION);
-                this.currentQ = new TextInputQuestion(this, { auto: w!, manual: true }, { timer: this.controller.model.definition.data.timeForAnswer }, penaltyHandler.getCurrentDenyList());
+                this.activeQuestion = new TextInputQuestion(this, { auto: w!, manual: true }, { timer: this.controller.model.definition.data.timeForAnswer }, penaltyHandler.getCurrentDenyList());
 
                 // Ask the question and run post-evaluation logic before results are shown.
-                const res = await this.currentQ.ask({
+                const res = await this.activeQuestion.ask({
                     beforeShowResults: async (res) => {
                         // Collect IDs of players who answered correctly.
                         const correct = res.entries().filter(([id, v]) => v).map(([id, v]) => id).toArray();
@@ -107,8 +103,8 @@ export class CatenaGameManager extends GameManager {
                 penaltyHandler.updateWith(res);
 
                 // Always clear question resources before moving to the next cycle.
-                this.currentQ.clear();
-                this.currentQ = null;
+                this.activeQuestion.clear();
+                this.activeQuestion = null;
             }
 
             // After the word is completed, return to chain display and wait for admin.
@@ -119,7 +115,6 @@ export class CatenaGameManager extends GameManager {
         this.resumeCheckpoints.reachedCheckPoint("end-phase");
         // No more words: set ending state and finalize the game.
         this.controller.setState(CatenaState.ENDING);
-        return this.endGame();
     }
 
     buildResumeCheckpoints(): ResumeCheckpoints {
