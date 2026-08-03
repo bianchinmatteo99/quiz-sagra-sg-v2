@@ -83,13 +83,13 @@ class QuizController implements QuizViewContext, QuizModelContext {
     /**
      * Mark the currently running game as completed.
      */
-    gameEnded() {
+    gameEnded(error: boolean = false) {
         const id = this.model.currentGame;
         if (id == null) {
             throw new Error("Ending non-started game");
         }
         this.model.currentGame = null;
-        this.model.gamesStatuses[id] = GameStatus.Completed;
+        this.model.gamesStatuses[id] = error ? GameStatus.Error : GameStatus.Completed;
         this.stateUpdated();
     }
 

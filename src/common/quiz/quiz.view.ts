@@ -118,14 +118,17 @@ class QuizView {
      * @returns Element representing the game list item.
      */
     private buildQuizListItem(id: number, name: string, status: GameStatus): HTMLElement {
-        const canStart = (status == GameStatus.NotStarted && this.context.model.status == QuizStatus.Idle);
+        const hasBeenPlayed = (status === GameStatus.Completed || status === GameStatus.Error);
+        const isActive = (status == GameStatus.InProgress);
+        const isError = (status == GameStatus.Error);
+        const canStart = (this.context.model.status == QuizStatus.Idle);
         const container = toHtml(`
-            <article class="quiz-game-list-item ${status == GameStatus.InProgress ? "active" : ""}" id="quiz-game-list-item-${id}" data-id="${id}">
+            <article class="quiz-game-list-item ${isActive ? "active" : ""} ${isError ? "error" : ""}" id="quiz-game-list-item-${id}" data-id="${id}">
                 ${name}
                 <footer>
                     <div role="group">
-                        <button class="quiz-game-list-item-viewbtn secondary" ${status == GameStatus.Completed ? "disabled" : ""}><span class='material-symbols-outlined'>info</span></button>
-                        <button class="quiz-game-list-item-startbtn ${canStart ? "active" : ""}" ${!canStart ? "disabled" : ""}><span class='material-symbols-outlined'>play_arrow</span></button>
+                        <button class="quiz-game-list-item-viewbtn secondary"><span class='material-symbols-outlined'>info</span></button>
+                        <button class="quiz-game-list-item-startbtn ${canStart&&!hasBeenPlayed ? "active" : ""}" ${!canStart ? "disabled" : ""}><span class='material-symbols-outlined'>play_arrow</span></button>
                     </div>
                 </footer>
             </article>

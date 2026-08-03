@@ -56,6 +56,14 @@ article.active {
 article.active.severe {
   border: orangered 1px solid;
 }
+.quiz-game-list-item.error, .quiz-game-list-item.error footer{
+  background: rgb(94 34 34);
+  border: none;
+}
+.quiz-game-list-item.error button.quiz-game-list-item-startbtn{
+  background: #410000;
+  border: none;
+}
 
 button.active {
   background-color: var(--active-color);

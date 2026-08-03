@@ -74,14 +74,25 @@ class QuizManager implements QuizControllerContext, GameManagerContext, PeopleCo
     async startGame(game: AnyGameDefinition): Promise<void> {
         this.activeGameManager = instantiateGameManagerFor(game, this, !this.resumeCheckpoints.reachedCheckPoint("starting-game"));
         this.quiz.setStatus(QuizStatus.RunningGame);
-        const shouldDisplayRanking = await this.activeGameManager.startGame();
-        this.quiz.gameEnded();
-        if (this.quiz.model.gamesStatuses.some((g) => g == GameStatus.NotStarted)) {
-            this.quiz.model.displayRankOnIdle = shouldDisplayRanking;
+        try {
+            const shouldDisplayRanking = await this.activeGameManager.startGame();
+            this.quiz.gameEnded();
+            this.activeGameManager = null;
+        
+            if (this.quiz.model.gamesStatuses.some((g) => g == GameStatus.NotStarted)) {
+                this.quiz.model.displayRankOnIdle = shouldDisplayRanking;
+                this.quiz.setStatus(QuizStatus.Idle);
+            } else {
+                this.endQuiz();
+            }
+        } catch (e){
+            console.error(e);
+            alert("Durante il gioco in corso è avvenuto un errore non previsto.")
+            this.quiz.gameEnded(true);
+            this.activeGameManager = null;
+            this.quiz.model.displayRankOnIdle = false;
             this.quiz.setStatus(QuizStatus.Idle);
-        } else {
-            this.endQuiz();
-        }
+        } 
     }
 
     /**
@@ -192,7 +203,7 @@ class QuizManager implements QuizControllerContext, GameManagerContext, PeopleCo
                     this.endQuiz();
                 }
                 if(s==QuizStatus.RunningGame){
-                    if(this.quiz.model.currentGame !== null && confirm("Provare a riavviare il gioco in corso?")){
+                    if(this.quiz.model.currentGame !== null && this.quiz.model.gamesStatuses[this.quiz.model.currentGame]!==GameStatus.Error && confirm("Provare a riavviare il gioco in corso?")){
                         this.quiz.startGame(this.quiz.model.currentGame)
                     } else {
                         this.quiz.model.gamesStatuses = this.quiz.model.gamesStatuses.map((st)=>(st===GameStatus.Completed?GameStatus.Completed:GameStatus.NotStarted));
