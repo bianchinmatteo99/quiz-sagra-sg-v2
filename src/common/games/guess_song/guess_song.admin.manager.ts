@@ -47,7 +47,7 @@ export class GuessSongGameManager extends GameManager {
 
             const ender = {manual: true, ...(this.controller.model.stopWhenFirstHandIsRaised ? {stopWhen: StopWhenBuildersCollection.NumberOfSubmittedAnswersIs(1)} : {})}
             const {result, trials} = await startRepeatedRaiseHandFlow(this, ender, {limitWrongTrials: this.controller.model.limitTrialsPerSong})
-            throw new Error() // TODO: REMOVE, THIS IS FOR DEBUG PURPOSES
+            
             await this.controller.adminInteraction({advanceBtn: "Mostra risposta"})
             this.controller.setState(GuessSongState.SHOWINGANSWER);
 
