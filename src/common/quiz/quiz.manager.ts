@@ -11,6 +11,7 @@ import { TextInputQuestion } from "../questions/text_input/text_input.question.a
 import { RaiseHandQuestion } from "../questions/raise_hand/raise_hand.question.admin";
 import { Ender } from "../questions/questions.admin.base";
 import type { ManualQuestionOptions } from "./quiz.view";
+import { QuestionState } from "../questions/question.contract";
 
 /**
  * Coordinates quiz lifecycle, game execution, and player management.
@@ -119,6 +120,10 @@ class QuizManager implements QuizControllerContext, GameManagerContext, PeopleCo
     async startManualQuestion(options: ManualQuestionOptions): Promise<void> {
         if (this.manualQuestionRunning) {
             throw new Error("A manual question is already running.");
+        }
+        const runningQuestionState = await this.db.get<QuestionState>("/state/question/state")
+        if(runningQuestionState!==null && !confirm("There is a running question that has not been cleared from db; this can lead to unexpected behaviour or errors; continue anyways?")){
+            return;
         }
 
         this.manualQuestionRunning = true;
