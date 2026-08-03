@@ -154,7 +154,7 @@ class GuessWordWordPage extends StaticPage {
         let index = 0;
 
         while (index < words.length) {
-            let word = words[index];
+            let word = words[index]!;
 
             if (word.length > maxLineLength) {
                 const maxChunk = maxLineLength - 1;

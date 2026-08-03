@@ -122,7 +122,7 @@ class QDCPMainPage extends StaticPage {
 
     private applyRows(): void {
         for (let i = 0; i < this.rows.length; i++) {
-            const row = this.rows[i];
+            const row = this.rows[i]!;
             const textEl = row.querySelector("span");
             const text = this.displayContents[i] ?? "";
             const hasText = text.trim().length > 0;

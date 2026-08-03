@@ -90,7 +90,7 @@ class QuizView {
         const statuses = this.context.model.gamesStatuses;
 
         games.forEach((game, index) => {
-            timeline.appendChild(this.buildQuizListItem(index, game.data.title ?? game.data.name, statuses[index]));
+            timeline.appendChild(this.buildQuizListItem(index, game.data.title ?? game.data.name, statuses[index]??GameStatus.NotStarted));
         });
     }
 

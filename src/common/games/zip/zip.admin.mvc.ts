@@ -25,7 +25,7 @@ export class ZipGameModel extends GameModel<ZipGameDefinition, ZipGameStateSnaps
 
     getZip(i: number): string[]|null {
         if(i in this.definition.data.zips){
-            return this.definition.data.zips[i]
+            return this.definition.data.zips[i]!
         } else {
             return null;
         }

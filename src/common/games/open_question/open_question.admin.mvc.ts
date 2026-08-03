@@ -38,7 +38,7 @@ export class OpenQuestionGameModel extends GameModel<OpenQuestionGameDefinition,
 
     getQuestion(i: number): string | null {
         if (i in this.definition.data.questions) {
-            return this.definition.data.questions[i];
+            return this.definition.data.questions[i]!;
         }
         return null;
     }
@@ -51,7 +51,7 @@ export class OpenQuestionGameModel extends GameModel<OpenQuestionGameDefinition,
 
     getAnswer(i: number): string | null {
         if (i in this.definition.data.correctAnswers) {
-            return this.definition.data.correctAnswers[i];
+            return this.definition.data.correctAnswers[i]!;
         }
         return null;
     }

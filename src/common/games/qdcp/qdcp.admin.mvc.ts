@@ -37,7 +37,7 @@ export class QDCPGameModel extends GameModel<QDCPGameDefinition, QDCPGameStateSn
 
     getEntry(i: number): string[] | null {
         if (i in this.definition.data.hintsAndAnswers) {
-            return this.definition.data.hintsAndAnswers[i];
+            return this.definition.data.hintsAndAnswers[i]!;
         }
         return null;
     }
@@ -129,9 +129,9 @@ export class QDCPGameView extends GameView {
             for(let i=0; i<5; i++){
                 let x = "";
                 if(i in displayedEntry){
-                    x = displayedEntry[i]
+                    x = displayedEntry[i]!
                 } else if(showSecrets) {
-                    x = currentEntry[i]
+                    x = currentEntry[i] ?? "???"
                 } else {
                     x = "***"
                 }

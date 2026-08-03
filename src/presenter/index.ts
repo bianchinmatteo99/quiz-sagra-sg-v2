@@ -9,6 +9,21 @@ import { QuestionAnswersSnapshot, QuestionResultSnapshot } from "../common/quest
 import { QuizStatus } from "../common/quiz/quiz.contract";
 import { sanifyUserAnswer } from "../common/general.utils";
 
+function getOrCreateCell(row: HTMLTableRowElement, index: number): HTMLTableCellElement {
+    while (row.cells.length <= index) {
+        row.appendChild(document.createElement("td"));
+    }
+
+    const cell = row.cells[index];
+    if (!cell) {
+        const newCell = document.createElement("td");
+        row.appendChild(newCell);
+        return newCell;
+    }
+
+    return cell;
+}
+
 class TimerView {
     private static readonly HEADER_ACTIONS_ID = "header-actions";
     private static readonly TIMER_ID = "question-timer";
@@ -228,8 +243,9 @@ class QuestionStatusAnswersEvaluationView {
             return a.time.localeCompare(b.time);
         });
 
+        const tbody = this.tbody;
         const existing = new Map<string, HTMLTableRowElement>();
-        for (const row of Array.from(this.tbody.querySelectorAll("tr"))) {
+        for (const row of Array.from(tbody.rows)) {
             const id = row.getAttribute("data-id");
             if (id) existing.set(id, row);
         }
@@ -239,13 +255,14 @@ class QuestionStatusAnswersEvaluationView {
             if (!row) {
                 row = document.createElement("tr");
                 row.setAttribute("data-id", rowData.id);
-                for (let i = 0; i < 3; i++) {
-                    row.appendChild(document.createElement("td"));
-                }
             }
-            const cells = row.cells;
-            cells[0].textContent = rowData.personName;
-            cells[1].innerHTML = rowData.answer;
+
+            const personCell = getOrCreateCell(row, 0);
+            const answerCell = getOrCreateCell(row, 1);
+            const evaluationCell = getOrCreateCell(row, 2);
+
+            personCell.textContent = rowData.personName;
+            answerCell.innerHTML = rowData.answer;
             const evaluationIcon = document.createElement("span");
             evaluationIcon.className = `material-symbols-outlined evaluation-icon evaluation-${rowData.evaluationState}`;
             evaluationIcon.textContent = rowData.evaluationState === "correct"
@@ -258,7 +275,7 @@ class QuestionStatusAnswersEvaluationView {
                 : rowData.evaluationState === "wrong"
                     ? "Errata"
                     : "In attesa");
-            cells[2].replaceChildren(evaluationIcon);
+            evaluationCell.replaceChildren(evaluationIcon);
             this.tbody.appendChild(row);
             existing.delete(rowData.id);
         }
@@ -309,8 +326,9 @@ class RankingView {
             return a.name.localeCompare(b.name);
         });
 
+        const tbody = this.tbody;
         const existing = new Map<string, HTMLTableRowElement>();
-        for (const row of Array.from(this.tbody.querySelectorAll("tr"))) {
+        for (const row of Array.from(tbody.rows)) {
             const id = row.getAttribute("data-id");
             if (id) existing.set(id, row);
         }
@@ -320,14 +338,15 @@ class RankingView {
             if (!row) {
                 row = document.createElement("tr");
                 row.setAttribute("data-id", rowData.id);
-                for (let i = 0; i < 3; i++) {
-                    row.appendChild(document.createElement("td"));
-                }
             }
-            const cells = row.cells;
-            cells[0].textContent = rowData.position === -1 ? "-" : String(rowData.position);
-            cells[1].innerHTML = ( rowData.enabledAnswers ? "" : `<span class="material-symbols-outlined">block</span>` )+rowData.name;
-            cells[2].textContent = String(rowData.points);
+
+            const positionCell = getOrCreateCell(row, 0);
+            const nameCell = getOrCreateCell(row, 1);
+            const pointsCell = getOrCreateCell(row, 2);
+
+            positionCell.textContent = rowData.position === -1 ? "-" : String(rowData.position);
+            nameCell.innerHTML = (rowData.enabledAnswers ? "" : `<span class="material-symbols-outlined">block</span>`) + rowData.name;
+            pointsCell.textContent = String(rowData.points);
             this.tbody.appendChild(row);
             existing.delete(rowData.id);
         }

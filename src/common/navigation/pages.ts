@@ -156,7 +156,7 @@ export abstract class MulticolPage extends Page{
         }
     }
     updatePage(i : number, p : Page|null){
-        if(!this.container || !this.columnDivs || !(i in this.columns)) {
+        if(!this.container || !this.columnDivs || !(i in this.columns) || !(i in this.columnDivs)) {
             throw new Error("Updating a column that has not yet been created.")
         }
         
@@ -169,7 +169,7 @@ export abstract class MulticolPage extends Page{
         const div = document.createElement("div");
         div.style.height = "100%"
         p?.create(div)
-        this.columnDivs[i].replaceWith(div)
+        this.columnDivs[i]!.replaceWith(div)
         this.columns[i] = p
         this.columnDivs[i] = div
     }

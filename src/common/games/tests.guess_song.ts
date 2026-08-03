@@ -102,7 +102,7 @@ export class GuessSongGameModel extends GameModel<
 
     getSong(i: number): string | null {
         if (i in this.definition.data.correctAnswers) {
-            return this.definition.data.correctAnswers[i];
+            return this.definition.data.correctAnswers[i]!;
         }
         return null;
     }

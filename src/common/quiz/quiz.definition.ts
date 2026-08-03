@@ -114,7 +114,7 @@ export class QuizDefinitionBuilder {
             const games = quizStructure.sections.entries().toArray().map(([id, section]) => {
                 const gameTitle = section.title.toLowerCase();
                 if (!(gameTitle in gamesDefBuilders)) throw new Error(`Unknown game type: ${gameTitle}`);
-                const gameData = gamesDefBuilders[gameTitle].parseFromMD(section.content);
+                const gameData = gamesDefBuilders[gameTitle]!.parseFromMD(section.content);
                 return new GameDefinition(id, gameTitle, gameData);
             });
 
@@ -135,7 +135,7 @@ export class QuizDefinitionBuilder {
             const games = (data.games ?? []).entries().toArray().map(([id, gameData]) => {
                 const gameKind = gameData.kind;
                 if(!(gameKind in gamesDefBuilders)) throw new Error(`Unknown game type: ${gameKind}`);
-                const parsedData = gamesDefBuilders[gameKind].parseFromJSON(gameData);
+                const parsedData = gamesDefBuilders[gameKind]!.parseFromJSON(gameData);
                 return new GameDefinition(id, gameKind, parsedData);
             });
             return new QuizDefinition(title, games, data.startTime ?? "");

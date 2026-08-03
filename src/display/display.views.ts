@@ -390,7 +390,7 @@ export class FinalRankingPage extends StaticPage {
             const el = this.container!.querySelector(`#podio-${i}`)!;
             el.innerHTML = `<span><img style="max-height: 100%; max-width: 100%;" src="/img/icons8-${["gold", "silver", "bronze"][i-1]}-medal-100.png"/></span><span>${names}</span><span>${points} punti</span>`
             await delay(20);
-            cont.style.gridTemplateRows = ["0 1fr 1fr 1fr 0",".5fr 0 1fr 1fr .5fr","1fr 0 0 1fr 1fr"][i-1]
+            cont.style.gridTemplateRows = ["0 1fr 1fr 1fr 0",".5fr 0 1fr 1fr .5fr","1fr 0 0 1fr 1fr"][i-1]!
             el.classList.add("open");
         })
     }

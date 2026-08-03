@@ -53,8 +53,10 @@ export abstract class DecisionNode<S, T> {
      * branches so they do not leak their prior decision state into later renders.
      */
     delegateDecision(child: string, state: S): T {
+        const c = this.children[child];
+        if(!c) throw new Error(`Wrong decisiontree child key: got ${child}, available [${Object.keys(this.children).join(", ")}]`)
         Object.entries(this.children).filter(([s, dt]) => s != child).forEach(([s, dt]) => dt.clearSubTree());
-        return this.children[child].decide(state);
+        return c.decide(state);
     }
 
     /**

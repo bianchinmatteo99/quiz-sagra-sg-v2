@@ -25,7 +25,7 @@ export class MDUtils {
         let activeListKey: string | null = null;
 
         for (let i = 0; i < lines.length; i++) {
-            const rawLine = lines[i];
+            const rawLine = lines[i]!;
             const trimmedLine = rawLine.trim();
             const lineNumber = i + 1;
 
@@ -42,8 +42,8 @@ export class MDUtils {
                     }
                 }
 
-                const key = keyMatch[1].trim();
-                const value = keyMatch[2].trim();
+                const key = keyMatch[1]!.trim();
+                const value = keyMatch[2]!.trim();
 
                 if (key in result) {
                     throw new Error(`Invalid section format at line ${lineNumber}: duplicate key \"${key}\"`);
@@ -64,7 +64,7 @@ export class MDUtils {
                 if (!listItemMatch) {
                     throw new Error(`Invalid section format at line ${lineNumber}: expected list item \"- value\" for key \"${activeListKey}\"`);
                 }
-                const listItemValue = listItemMatch[1].trim();
+                const listItemValue = listItemMatch[1]!.trim();
                 if (listItemValue.length === 0) {
                     throw new Error(`Invalid section format at line ${lineNumber}: list item for key \"${activeListKey}\" cannot be empty`);
                 }
@@ -219,7 +219,7 @@ export class MDUtils {
         const lines = md.split(/\r?\n/);
 
         let index = 0;
-        while (index < lines.length && lines[index].trim().length === 0) {
+        while (index < lines.length && lines[index]!.trim().length === 0) {
             index++;
         }
 
@@ -227,13 +227,13 @@ export class MDUtils {
             throw new Error("Quiz definition is empty");
         }
 
-        const titleLine = lines[index].trim();
+        const titleLine = lines[index]!.trim();
         const titleMatch = titleLine.match(/^#\s+(.+)$/);
         if (!titleMatch) {
             throw new Error("Quiz definition must start with a first level heading '# <title>'");
         }
 
-        const title = titleMatch[1].trim();
+        const title = titleMatch[1]!.trim();
         if (title.length === 0) {
             throw new Error("Quiz definition title cannot be empty");
         }
@@ -242,7 +242,7 @@ export class MDUtils {
         const optionLines: string[] = [];
 
         while (index < lines.length) {
-            const trimmed = lines[index].trim();
+            const trimmed = lines[index]!.trim();
 
             if (trimmed.startsWith("## ")) {
                 break;
@@ -252,7 +252,7 @@ export class MDUtils {
                 throw new Error(`Unexpected heading at line ${index + 1}: quiz options area only allows key/value lines or blank lines before game sections`);
             }
 
-            optionLines.push(lines[index]);
+            optionLines.push(trimmed);
             index++;
         }
 
@@ -264,7 +264,7 @@ export class MDUtils {
         let currentSectionContent: string[] = [];
 
         for (; index < lines.length; index++) {
-            const rawLine = lines[index];
+            const rawLine = lines[index]!;
             const trimmed = rawLine.trim();
 
             if (trimmed.startsWith("## ")) {
@@ -317,10 +317,10 @@ export class MDUtils {
         let start = 0;
         let end = lines.length;
 
-        while (start < end && lines[start].trim().length === 0) {
+        while (start < end && lines[start]!.trim().length === 0) {
             start++;
         }
-        while (end > start && lines[end - 1].trim().length === 0) {
+        while (end > start && lines[end - 1]!.trim().length === 0) {
             end--;
         }
 

@@ -139,10 +139,10 @@ export class CatenaPage extends StaticPage{
                 const row = this.container.querySelector(`#catena-word-${i}`)
                 const oldWord = this.pastwords[i] ?? ""
                 const oldPlain = oldWord.replaceAll("*","")
-                const newPlain = words[i].replaceAll("*","")
+                const newPlain = words[i]!.replaceAll("*","")
 
                 if(newPlain.startsWith(oldPlain) && newPlain.length > oldPlain.length){
-                    mode = Math.max(mode, words[i].endsWith("*") ? 1 : 2)
+                    mode = Math.max(mode, words[i]!.endsWith("*") ? 1 : 2)
                     const newLetters = newPlain.slice(oldPlain.length).split("")
                     row?.insertAdjacentHTML("beforeend", newLetters.map((l)=>`<span class="letter animate" data-target-letter="${l}"></span>`).join(""))
                 } else {
@@ -171,7 +171,7 @@ export class CatenaPage extends StaticPage{
         const targets = this.container!.querySelectorAll<HTMLElement>(".letter.animate")
         const int = setInterval(()=>{
             targets.forEach((v)=>{
-                v.textContent = alphabet[Math.floor(Math.random() * alphabet.length)];
+                v.textContent = alphabet[Math.floor(Math.random() * alphabet.length)]!;
             })
         }, 50)
 

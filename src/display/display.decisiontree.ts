@@ -85,7 +85,7 @@ export class GamesPageChooserDelegator extends DecisionNode<DisplayStateHandler,
         if (!(gameKind in this.children)) {
             this.children[gameKind] = instantiatePageChooserForGame(gameKind)
         }
-        return this.children[gameKind].decide(state.read?.app.game)
+        return this.children[gameKind]!.decide(state.read?.app.game)
     }
 
     clear(): void {

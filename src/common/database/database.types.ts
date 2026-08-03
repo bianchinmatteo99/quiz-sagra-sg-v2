@@ -50,6 +50,8 @@ export function createMockState(): RealtimeDatabaseRoot {
     return {
         state: {
             quiz: {
+                title: "QUIZ",
+                startTime: "",
                 status: QuizStatus.Booting,
                 currentGame: null,
                 gamesStatuses: [],

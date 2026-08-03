@@ -75,7 +75,7 @@ class QuizController implements QuizViewContext, QuizModelContext {
         this.model.currentGame = gameIndex;
         this.model.gamesStatuses[gameIndex] = GameStatus.InProgress;
         this.stateUpdated();
-        const gameToStart = this.model.definition.games[gameIndex];
+        const gameToStart = this.model.definition.games[gameIndex]!;
         this.context.startGame(gameToStart);
         this.viewGame(gameIndex);
     }
@@ -126,7 +126,7 @@ class QuizController implements QuizViewContext, QuizModelContext {
             this.context.setGameTimelineDisplaysCurrent(true);
         } else {
             this.context.setGameTimelineDisplaysCurrent(false);
-            this.gameViewer = instantiateGameViewerFor(this.model.definition.games[gameIndex]);
+            this.gameViewer = instantiateGameViewerFor(this.model.definition.games[gameIndex]!);
             this.gameViewer.setIsDisplayingTimeline(true);
         }
     }

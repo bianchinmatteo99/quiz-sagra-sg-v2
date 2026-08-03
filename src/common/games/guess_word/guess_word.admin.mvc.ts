@@ -9,7 +9,7 @@ function popRandom<T>(arr: T[]): T | undefined {
   const i = Math.floor(Math.random() * arr.length);
   const value = arr[i];
 
-  arr[i] = arr[arr.length - 1]; // Move last element into the gap
+  arr[i] = arr[arr.length - 1]!; // Move last element into the gap
   arr.pop();
 
   return value;
@@ -145,7 +145,7 @@ export class GuessWordGameModel extends GameModel<GuessWordGameDefinition, Guess
 
     getWord(i: number): string | null {
         if (i in this.definition.data.correctAnswers) {
-            return this.definition.data.correctAnswers[i];
+            return this.definition.data.correctAnswers[i]!;
         }
         return null;
     }

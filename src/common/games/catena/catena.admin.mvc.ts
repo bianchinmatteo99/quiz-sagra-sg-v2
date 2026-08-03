@@ -41,7 +41,7 @@ export class CatenaGameModel extends GameModel<CatenaGameDefinition, CatenaGameS
         super(ctx);
         this.definition = def;
         this.currentWordIndex = 0;
-        this.currentWordLetters = def.data.words[0].length;
+        this.currentWordLetters = def.data.words[0]?.length ?? 1;
         this.wordtransitiontime = -1;
         this.state = CatenaState.STARTING;
     }
@@ -53,7 +53,7 @@ export class CatenaGameModel extends GameModel<CatenaGameDefinition, CatenaGameS
      */
     getWord(i: number): string|null {
         if(i in this.definition.data.words){
-            return this.definition.data.words[i]
+            return this.definition.data.words[i]!
         } else {
             return null;
         }
@@ -98,7 +98,7 @@ export class CatenaGameModel extends GameModel<CatenaGameDefinition, CatenaGameS
     parseFromJSON(data: Partial<CatenaGameStateSnapshot>): boolean {
         this.state = data.state ?? CatenaState.STARTING;
         this.currentWordIndex = data.currentWordIndex ?? 0;
-        this.currentWordLetters = data.currentWordLetters ?? this.definition.data.words[0].length;
+        this.currentWordLetters = data.currentWordLetters ?? this.definition.data.words[0]?.length ?? 1;
         return true;
     }
 

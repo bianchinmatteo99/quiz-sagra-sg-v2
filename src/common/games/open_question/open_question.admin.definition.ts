@@ -116,8 +116,8 @@ export class OpenQuestionGameDefinitionBuilder implements GameDefinitionBuilder<
             throw new Error(`Open question key \"questions_and_answers\" item ${index + 1} must match \"question? = answer\", received \"${entry}\"`);
         }
 
-        const question = match[1].trim();
-        const answer = match[2].trim();
+        const question = match[1]!.trim();
+        const answer = match[2]!.trim();
 
         if (question.length === 0 || answer.length === 0) {
             throw new Error(`Open question key \"questions_and_answers\" item ${index + 1} cannot have empty question or answer`);

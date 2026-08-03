@@ -32,7 +32,7 @@ export class QDCPGamePresenterStateView extends GamePresenterStateView<QDCPGameD
             const value = i in displayedEntry
                 ? displayedEntry[i]
                 : (showSecrets ? currentEntry[i] : "***");
-            entry += sep[i] + value;
+            entry += sep[i]! + value;
         }
 
         return entry;
