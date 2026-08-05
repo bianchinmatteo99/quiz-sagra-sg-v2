@@ -145,7 +145,7 @@ export class NumericEstimationGameView extends GameView {
         const displayedQuestion = this.activeGameContext.model.displayQuestion || (this.activeGameContext.model
             .getQuestionAsSecret(this.activeGameContext.model.currentQuestionIndex)
             ?.read(showSecrets) ?? "?");
-        const displayedAnswer = this.activeGameContext.model.displayCorrectAnswer || (this.activeGameContext.model
+        const displayedAnswer = (this.activeGameContext.model
             .getAnswerAsSecret(this.activeGameContext.model.currentQuestionIndex)
             ?.read(showSecrets) ?? "?");
 

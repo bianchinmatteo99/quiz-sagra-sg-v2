@@ -7,14 +7,9 @@ export class NumericEstimationGamePageChooser extends GamePageChooser<NumericEst
         let title = state.title;
         let answer = null;
 
-        if (state.state === NumericEstimationState.ASKINGQUESTION) {
+        if (state.state === NumericEstimationState.ASKINGQUESTION || state.state === NumericEstimationState.SHOWINGANSWER) {
             title = state.displayQuestion || state.title;
-            answer = "???";
-        }
-
-        if (state.state === NumericEstimationState.SHOWINGANSWER) {
-            title = state.displayQuestion || state.title;
-            answer = state.displayCorrectAnswer;
+            answer = state.displayCorrectAnswer ? state.displayCorrectAnswer : "???";
         }
 
         return new NumericEstimationPage(title, answer);
