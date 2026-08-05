@@ -52,6 +52,16 @@ correct_answers:
 - Precipitevolissimevolmente
 - Alta tensione
 
+## Numeric_estimation
+title: Stima numerica di prova
+time_for_question: 20
+if_no_correct_answers: linear-decreasing-points
+points_for_correct_answer: 25
+questions_and_answers:
+- Quanti minuti dura in media una partita di calcio regolamentare? = 90 minuti
+- Quanti chilometri misura in media una maratona? = 42.195 km
+- Quanti gradi Celsius sono 1 atmosfera di ebollizione dell'acqua? = 100 gradi
+
 ## QDCP
 title: Quando Dove Come Perché
 limit_trials_per_section: 2
@@ -203,6 +213,38 @@ Policy for how repeated letters are revealed. Use `separate` to reveal repeated 
 
 #### `correct_answers`
 Ordered list of accepted answers, one entry per round. Each answer must be on its own line prefixed with `- `. Required property; at least one answer must be provided.
+
+## Game type: Numeric_estimation
+
+The `Numeric_estimation` game type implements a numeric estimation round where participants provide estimated values and scoring can apply fallback policies when nobody matches exactly. Each game section starts with `## Numeric_estimation` and contains the following properties:
+
+### Properties
+
+| Property | Type | Default | Required | Constraints |
+|----------|------|---------|----------|-------------|
+| `title` | string | "Stima numerica" | No | - |
+| `time_for_question` | number | 0 | No | Must be >= 0 |
+| `if_no_correct_answers` | string | "" | No | One of `""`, `half-points-to-closest`, `linear-decreasing-points` |
+| `points_for_correct_answer` | number | - | Yes | Must be >= 0 |
+| `questions_and_answers` | list of strings | - | Yes | At least one item required; each item must match `question? = answer` |
+
+#### `title`
+Display name for this game instance. Defaults to "Stima numerica" if not provided.
+
+#### `time_for_question`
+Time in seconds available for participants to provide each answer. Numeric value. Defaults to 0 if omitted. Must be non-negative.
+
+#### `if_no_correct_answers`
+Fallback scoring policy applied when no participant gives an exactly correct answer. Defaults to an empty string (`""`), which means no fallback policy. Accepted values are:
+- `""` no fallback policy.
+- `half-points-to-closest` awards half points to the closest answer.
+- `linear-decreasing-points` awards progressively lower points based on distance from the correct answer.
+
+#### `points_for_correct_answer`
+Points awarded to each participant for a correct answer. Numeric value. Must be non-negative.
+
+#### `questions_and_answers`
+List of entries in `question? = answer` format. The question text must end with `?`, and each list item must be on its own line prefixed with `- `. Answer must be numeric and can optionally include a unit at the end. Required property; at least one entry must be provided.
 
 ## Game type: QDCP
 

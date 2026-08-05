@@ -7,22 +7,22 @@ import { NumericEstimationGameDefinitionData, NumericEstimationGameRequiredData 
 export type NumericEstimationGameDefinition = GameDefinition<NumericEstimationGameDefinitionData>;
 
 /**
- * Parses and validates numeric estimation definition data from markdown
- * quiz sections or persisted JSON payloads.
+ * Parses and validates Numeric Estimation definition payloads from markdown
+ * quiz sections or persisted JSON objects.
  *
- * Registered in the admin game registry so quiz-definition loading can resolve
- * the `numeric_estimation` kind into this builder.
+ * Registered in `games.admin.register.ts` so the quiz-definition loader can
+ * resolve the `numeric_estimation` kind to this builder implementation.
  */
 export class NumericEstimationGameDefinitionBuilder implements GameDefinitionBuilder<NumericEstimationGameDefinitionData> {
     /**
-     * Parse a Numeric Estimation game definition from one markdown section body.
+     * Parses a Numeric Estimation game definition from a markdown section body.
      *
      * Supported keys (snake_case as authored in markdown):
      * - `title` (optional): display title shown before/after rounds.
-    * - `time_for_question` (optional): seconds available for each question;
-    *   defaults to `0`.
-    * - `if_no_correct_answers` (optional): fallback scoring policy when no
-    *   answer is exactly correct. Defaults to empty string.
+     * - `time_for_question` (optional): seconds available for each question;
+     *   defaults to `0`.
+     * - `if_no_correct_answers` (optional): fallback scoring policy when no
+     *   answer is exactly correct. Defaults to an empty string (`""`).
      * - `questions_and_answers` (required): list of entries in
      *   `question? = answer` format.
      * - `points_for_correct_answer` (required): score awarded to each correct
@@ -33,8 +33,10 @@ export class NumericEstimationGameDefinitionBuilder implements GameDefinitionBui
      *
      * @param md Raw markdown content of the game section.
      * @returns A fully populated and validated game definition payload.
-     * @throws {Error} If required keys are missing, constraints fail, or a
-     * `questions_and_answers` entry does not match `question? = answer`.
+     * @throws {Error} If an unknown key is present, required keys are missing,
+     * numeric constraints fail, `if_no_correct_answers` has an unsupported
+     * value, or a `questions_and_answers` entry does not match
+     * `question? = answer`.
      */
     parseFromMD(md: string): NumericEstimationGameDefinitionData {
         const parsed = MDUtils.parseSectionContent(md);
@@ -44,9 +46,6 @@ export class NumericEstimationGameDefinitionBuilder implements GameDefinitionBui
             "if_no_correct_answers",
             "questions_and_answers",
             "points_for_correct_answer",
-            // Backward-compat keys for old persisted markdown.
-            "limit_trials_per_question",
-            "stop_when_first_hand_raised",
         ], "Numeric estimation markdown");
 
         const title = MDUtils.parseString(parsed, "title", NumericEstimationGameRequiredData.name);
@@ -81,15 +80,15 @@ export class NumericEstimationGameDefinitionBuilder implements GameDefinitionBui
     }
 
     /**
-     * Parse a Numeric Estimation definition from persisted JSON data.
+        * Parses a Numeric Estimation definition from persisted JSON data.
      *
      * Missing fields are defaulted so older saved definitions remain readable:
-     * - `title` -> game default name
-    * - `timeForQuestion` -> `0`
-    * - `ifNoCorrectAnswers` -> `""`
-     * - `questions` -> `[]`
-     * - `correctAnswers` -> `[]`
-     * - `pointsForCorrectAnswer` -> `10`
+        * - `title` -> game default name.
+        * - `timeForQuestion` -> `0`.
+        * - `ifNoCorrectAnswers` -> `""`.
+        * - `questions` -> `[]`.
+        * - `correctAnswers` -> `[]`.
+        * - `pointsForCorrectAnswer` -> `10`.
      *
      * @param data Partial serialized definition payload.
      * @returns A complete definition payload for runtime use.
@@ -109,10 +108,11 @@ export class NumericEstimationGameDefinitionBuilder implements GameDefinitionBui
     }
 
     /**
-     * Parse one markdown list entry using the `question? = answer` contract.
+        * Parses one markdown list entry using the `question? = answer` contract.
      *
      * The first capture group keeps the trailing `?` as authored, while the
-     * second capture group stores the expected answer text.
+        * second capture group stores the expected answer text. Parsed values are
+        * trimmed before being returned.
      *
      * @param entry Raw list item text.
      * @param index Zero-based item index, used for diagnostic messages.

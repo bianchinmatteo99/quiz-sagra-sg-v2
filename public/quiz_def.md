@@ -66,7 +66,7 @@ hints_and_answers:
 ## Numeric_estimation
 title: Stima numerica di prova
 time_for_question: 20
-if_no_correct_answers: half-points-to-closest
+if_no_correct_answers: linear-decreasing-points
 points_for_correct_answer: 25
 questions_and_answers:
 - Quanti minuti dura in media una partita di calcio regolamentare? = 90 minuti

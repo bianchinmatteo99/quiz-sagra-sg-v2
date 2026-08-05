@@ -106,7 +106,7 @@ export class NumericEstimationGameManager extends GameManager {
             const ender : Ender = {manual: true, ...(this.controller.model.timeForQuestion>0 ? {timer: this.controller.model.timeForQuestion} : {})};
             this.activeQuestion = new TextInputQuestion(this, {
                 manual: true,
-                auto: (answer) => this.numericDistance(this.parseSubmittedNumber(answer), corrans) < Math.sqrt(Number.EPSILON)
+                auto: (answer) => this.numericDistance(this.parseSubmittedNumber(answer), corrans) < .1
             }, ender);
 
             await this.activeQuestion.ask({
