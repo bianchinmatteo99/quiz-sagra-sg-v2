@@ -73,7 +73,7 @@ class QuizManager implements QuizControllerContext, GameManagerContext, PeopleCo
      * Start a game and update quiz state after completion.
      * @param game Game definition to execute.
      */
-    async startGame(game: AnyGameDefinition): Promise<void> {
+    async startGame(game: AnyGameDefinition): Promise<void> { // TESTING V2 - LINE WAS     async startGame(game: AnyGameDefinition): Promise<void> {
         this.activeGameManager = instantiateGameManagerFor(game, this, !this.resumeCheckpoints.reachedCheckPoint("starting-game"));
         this.quiz.setStatus(QuizStatus.RunningGame);
         try {

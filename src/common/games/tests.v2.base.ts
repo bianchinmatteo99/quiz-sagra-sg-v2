@@ -248,7 +248,7 @@ export abstract class GameDefinition<T extends AnyFieldsObject> {
     }
 }
 export type CompleteGameDefinition<T extends AnyFieldsObject> = GameDefinition<T> & GameRequiredDataFromFields<T> & GameAdditionalDefinitionDataFromFields<T>
-
+export type AnyGameDefinition = GameDefinition<any> & GameRequiredDataFromFields
 
 export abstract class GameDefinitionBuilder<T extends AnyFieldsObject> {
     readonly fields: T;

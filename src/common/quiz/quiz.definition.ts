@@ -1,5 +1,6 @@
 import { IDatabaseAdapter } from "../database/database.types";
-import { AnyGameDefinition, GameDefinition } from "../games/games.admin.base";
+import { AnyGameDefinition, GameDefinition } from "../games/games.admin.base"; // TESTING V2 - LINE WAS import { AnyGameDefinition, GameDefinition } from "../games/games.admin.base";
+import { GameDefinition as GameDefinitionv2 } from "../games/tests.v2.base"; // TESTING V2 - LINE WAS import { AnyGameDefinition, GameDefinition } from "../games/games.admin.base";
 import { gamesDefBuilders } from "../games/games.admin.register";
 import { MDUtils } from "../md.utils";
 import { QuizDefinitionSnapshot } from "./quiz.contract";
@@ -18,6 +19,14 @@ function removeUndefinedDeep<T>(value: T): T {
     }
 
     return value;
+}
+
+function buildQuizGameDefinition(id: number, gameTitle: string, gameData: AnyGameDefinition["data"]): AnyGameDefinition {
+    if (gameTitle === "guess_song") {
+        return Object.assign(Object.create(GameDefinitionv2.prototype), { id, ...gameData, data: gameData }) as AnyGameDefinition;
+    }
+
+    return new GameDefinition(id, gameTitle, gameData) as AnyGameDefinition;
 }
 
 /**
@@ -115,7 +124,7 @@ export class QuizDefinitionBuilder {
                 const gameTitle = section.title.toLowerCase();
                 if (!(gameTitle in gamesDefBuilders)) throw new Error(`Unknown game type: ${gameTitle}`);
                 const gameData = gamesDefBuilders[gameTitle]!.parseFromMD(section.content);
-                return new GameDefinition(id, gameTitle, gameData);
+                return buildQuizGameDefinition(id, gameTitle, gameData); // TESTING V2 - LINE WAS                 return new GameDefinition(id, gameTitle, gameData);
             });
 
             return new QuizDefinition(quizStructure.title, games, MDUtils.parseString(quizStructure.options, "start_time", ""));
@@ -136,7 +145,7 @@ export class QuizDefinitionBuilder {
                 const gameKind = gameData.kind;
                 if(!(gameKind in gamesDefBuilders)) throw new Error(`Unknown game type: ${gameKind}`);
                 const parsedData = gamesDefBuilders[gameKind]!.parseFromJSON(gameData);
-                return new GameDefinition(id, gameKind, parsedData);
+                return buildQuizGameDefinition(id, gameKind, parsedData); // TESTING V2 - LINE WAS                 return new GameDefinition(id, gameKind, parsedData);
             });
             return new QuizDefinition(title, games, data.startTime ?? "");
         } catch (error) {
