@@ -42,7 +42,6 @@ class OpenQuestionPage extends StaticPage {
                     flex-direction: column;
                     justify-content: center;
                     align-items: center;
-                    gap: 50px;
                     text-align: center;
                     margin: 0 20px;
                 }

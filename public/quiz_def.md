@@ -23,11 +23,11 @@ correct_answers:
 - Perfect
 
 ## Open_question
-title: 1945 | 1956 | 1960 | 1973
+title: 1945 | 1956<br/>1960 | 1973
 time_for_answer: 20
 points_for_correct_answer: 60
 questions_and_answers:
-- 1945 | 1956 | 1960 | 1973<br/> Quando si è conclusa la seconda Guerra Mondiale? = 1945
+- 1945 | 1956<br/>1960 | 1973<br/>Quando si è conclusa la seconda Guerra Mondiale? = 1945
 
 ## Zip
 title: Zip di prova
