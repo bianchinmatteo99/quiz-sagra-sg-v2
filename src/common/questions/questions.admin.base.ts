@@ -576,7 +576,7 @@ export interface QuestionAskCallbacks {
      * - `true` → show results until the user presses the manual finish button.
      * - `false`, `0`, or any falsy value → skip the SHOWRESULTS phase entirely.
      */
-    beforeShowResults?: (res: QuestionResult) => Promise<boolean | number>;
+    beforeShowResults?: (res: QuestionResult, ans: QuestionAnswers) => Promise<boolean | number>;
 
     /**
      * Called after the SHOWRESULTS phase completes or is skipped, before the
@@ -713,7 +713,7 @@ export abstract class Question implements QuestionModelContext, QuestionViewCont
 
         this.model.state = QuestionState.IDLE;
         this.stateUpdated();
-        const showResults = await beforeShowResults(this.model.results);
+        const showResults = await beforeShowResults(this.model.results, this.model.answers);
 
         if (!!showResults) {
             this.model.state = QuestionState.SHOWRESULTS;
