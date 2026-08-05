@@ -17,8 +17,7 @@ export const OpenQuestionGameRequiredData = {kind: "open_question", name: "Doman
  * Persisted configuration for an Open Question game instance.
  */
 export interface OpenQuestionGameDefinitionData extends GameDefinitionData<typeof OpenQuestionGameRequiredData> {
-    limitTrialsPerQuestion: number;
-    stopWhenFirstHandRaised: boolean;
+    timeForAnswer: number;
     questions: string[];
     correctAnswers: string[];
     pointsForCorrectAnswer: number;
@@ -33,7 +32,6 @@ export interface OpenQuestionGameStateSnapshot extends GameStateSnapshotBase<typ
     displayQuestion: string;
     displayCorrectAnswer: string;
 
-    limitTrialsPerQuestion: number;
-    stopWhenFirstHandIsRaised: boolean;
+    timeForAnswer: number;
     pointsForCorrectAnswer: number;
 }

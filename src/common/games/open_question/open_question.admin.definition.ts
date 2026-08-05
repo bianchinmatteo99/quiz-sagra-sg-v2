@@ -18,12 +18,10 @@ export class OpenQuestionGameDefinitionBuilder implements GameDefinitionBuilder<
      *
      * Supported keys (snake_case as authored in markdown):
      * - `title` (optional): display title shown before/after rounds.
-     * - `limit_trials_per_question` (optional): maximum attempts per question;
-     *   defaults to `Number.MAX_SAFE_INTEGER`.
-     * - `stop_when_first_hand_raised` (optional): when `true`, answer
-     *   collection stops at first submitted answer.
+    * - `time_for_answer` (optional): answer collection timeout in seconds;
+    *   `0` disables the timer.
      * - `questions_and_answers` (required): list of entries in
-     *   `question? = answer` format.
+    *   `question = answer` format.
      * - `points_for_correct_answer` (required): score awarded to each correct
      *   participant answer.
      *
@@ -33,27 +31,25 @@ export class OpenQuestionGameDefinitionBuilder implements GameDefinitionBuilder<
      * @param md Raw markdown content of the game section.
      * @returns A fully populated and validated game definition payload.
      * @throws {Error} If required keys are missing, constraints fail, or a
-     * `questions_and_answers` entry does not match `question? = answer`.
+    * `questions_and_answers` entry does not match `question = answer`.
      */
     parseFromMD(md: string): OpenQuestionGameDefinitionData {
         const parsed = MDUtils.parseSectionContent(md);
         MDUtils.ensureOnlyAllowedKeys(parsed, [
             "title",
-            "limit_trials_per_question",
-            "stop_when_first_hand_raised",
+            "time_for_answer",
             "questions_and_answers",
             "points_for_correct_answer",
         ], "Open question markdown");
 
         const title = MDUtils.parseString(parsed, "title", OpenQuestionGameRequiredData.name);
-        const limitTrialsPerQuestion = MDUtils.parseNumber(parsed, "limit_trials_per_question", Number.MAX_SAFE_INTEGER);
-        const stopWhenFirstHandRaised = MDUtils.parseBoolean(parsed, "stop_when_first_hand_raised", false);
+        const timeForAnswer = MDUtils.parseNumber(parsed, "time_for_answer", 0);
         const pointsForCorrectAnswer = MDUtils.parseNumber(parsed, "points_for_correct_answer");
         const questionAndAnswerEntries = MDUtils.parseStringList(parsed, "questions_and_answers");
         const parsedPairs = questionAndAnswerEntries.map((entry, i) => this.parseQuestionAndAnswer(entry, i));
 
-        if (limitTrialsPerQuestion <= 0) {
-            throw new Error(`Open question key \"limit_trials_per_question\" must be > 0, received ${limitTrialsPerQuestion}`);
+        if (timeForAnswer < 0) {
+            throw new Error(`Open question key \"time_for_answer\" must be >= 0, received ${timeForAnswer}`);
         }
         if (pointsForCorrectAnswer < 0) {
             throw new Error(`Open question key \"points_for_correct_answer\" must be >= 0, received ${pointsForCorrectAnswer}`);
@@ -65,8 +61,7 @@ export class OpenQuestionGameDefinitionBuilder implements GameDefinitionBuilder<
         return {
             ...OpenQuestionGameRequiredData,
             title,
-            limitTrialsPerQuestion,
-            stopWhenFirstHandRaised,
+            timeForAnswer,
             questions: parsedPairs.map((pair) => pair.question),
             correctAnswers: parsedPairs.map((pair) => pair.answer),
             pointsForCorrectAnswer,
@@ -78,8 +73,7 @@ export class OpenQuestionGameDefinitionBuilder implements GameDefinitionBuilder<
      *
      * Missing fields are defaulted so older saved definitions remain readable:
      * - `title` -> game default name
-     * - `limitTrialsPerQuestion` -> `Number.MAX_SAFE_INTEGER`
-     * - `stopWhenFirstHandRaised` -> `false`
+    * - `timeForAnswer` -> `0`
      * - `questions` -> `[]`
      * - `correctAnswers` -> `[]`
      * - `pointsForCorrectAnswer` -> `10`
@@ -91,8 +85,7 @@ export class OpenQuestionGameDefinitionBuilder implements GameDefinitionBuilder<
         return {
             ...OpenQuestionGameRequiredData,
             title: data.title ?? OpenQuestionGameRequiredData.name,
-            limitTrialsPerQuestion: data.limitTrialsPerQuestion ?? Number.MAX_SAFE_INTEGER,
-            stopWhenFirstHandRaised: data.stopWhenFirstHandRaised ?? false,
+            timeForAnswer: data.timeForAnswer ?? 0,
             questions: data.questions ?? [],
             correctAnswers: data.correctAnswers ?? [],
             pointsForCorrectAnswer: data.pointsForCorrectAnswer ?? 10,
@@ -100,9 +93,10 @@ export class OpenQuestionGameDefinitionBuilder implements GameDefinitionBuilder<
     }
 
     /**
-     * Parse one markdown list entry using the `question? = answer` contract.
+     * Parse one markdown list entry using the `question = answer` contract.
      *
-     * The first capture group keeps the trailing `?` as authored, while the
+     * A trailing `?` in the question text is allowed but not required.
+     * The first capture group stores the question text as authored, while the
      * second capture group stores the expected answer text.
      *
      * @param entry Raw list item text.
@@ -111,9 +105,9 @@ export class OpenQuestionGameDefinitionBuilder implements GameDefinitionBuilder<
      * @throws {Error} If the entry format is invalid or either side is empty.
      */
     private parseQuestionAndAnswer(entry: string, index: number): { question: string; answer: string; } {
-        const match = entry.match(/^(.+\?)\s*=\s*(.+)$/);
+        const match = entry.match(/^(.+)\s*=\s*(.+)$/);
         if (!match) {
-            throw new Error(`Open question key \"questions_and_answers\" item ${index + 1} must match \"question? = answer\", received \"${entry}\"`);
+            throw new Error(`Open question key \"questions_and_answers\" item ${index + 1} must match \"question = answer\", received \"${entry}\"`);
         }
 
         const question = match[1]!.trim();

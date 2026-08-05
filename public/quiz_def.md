@@ -24,8 +24,7 @@ correct_answers:
 
 ## Open_question
 title: SFIDA FINALE
-limit_trials_per_question: 2
-stop_when_first_hand_raised: true
+time_for_answer: 20
 points_for_correct_answer: 60
 questions_and_answers:
 - Qual e la capitale d'Italia? = Roma

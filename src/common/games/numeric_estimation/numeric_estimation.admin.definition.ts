@@ -24,7 +24,7 @@ export class NumericEstimationGameDefinitionBuilder implements GameDefinitionBui
      * - `if_no_correct_answers` (optional): fallback scoring policy when no
      *   answer is exactly correct. Defaults to an empty string (`""`).
      * - `questions_and_answers` (required): list of entries in
-     *   `question? = answer` format.
+    *   `question = answer` format.
      * - `points_for_correct_answer` (required): score awarded to each correct
      *   participant answer.
      *
@@ -36,7 +36,7 @@ export class NumericEstimationGameDefinitionBuilder implements GameDefinitionBui
      * @throws {Error} If an unknown key is present, required keys are missing,
      * numeric constraints fail, `if_no_correct_answers` has an unsupported
      * value, or a `questions_and_answers` entry does not match
-     * `question? = answer`.
+    * `question = answer`.
      */
     parseFromMD(md: string): NumericEstimationGameDefinitionData {
         const parsed = MDUtils.parseSectionContent(md);
@@ -108,9 +108,10 @@ export class NumericEstimationGameDefinitionBuilder implements GameDefinitionBui
     }
 
     /**
-        * Parses one markdown list entry using the `question? = answer` contract.
+        * Parses one markdown list entry using the `question = answer` contract.
      *
-     * The first capture group keeps the trailing `?` as authored, while the
+     * A trailing `?` in the question text is allowed but not required.
+        * The first capture group stores the question text as authored, while the
         * second capture group stores the expected answer text. Parsed values are
         * trimmed before being returned.
      *
@@ -120,9 +121,9 @@ export class NumericEstimationGameDefinitionBuilder implements GameDefinitionBui
      * @throws {Error} If the entry format is invalid or either side is empty.
      */
     private parseQuestionAndAnswer(entry: string, index: number): { question: string; answer: string; } {
-        const match = entry.match(/^(.+\?)\s*=\s*(.+)$/);
+        const match = entry.match(/^(.+)\s*=\s*(.+)$/);
         if (!match) {
-            throw new Error(`Numeric estimation key \"questions_and_answers\" item ${index + 1} must match \"question? = answer\", received \"${entry}\"`);
+            throw new Error(`Numeric estimation key \"questions_and_answers\" item ${index + 1} must match \"question = answer\", received \"${entry}\"`);
         }
 
         const question = match[1]!.trim();

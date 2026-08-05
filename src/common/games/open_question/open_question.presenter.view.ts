@@ -9,8 +9,7 @@ export class OpenQuestionGamePresenterStateView extends GamePresenterStateView<O
         const settings = document.createElement("div");
         const settingsLines = [
             `Punti per risposta corretta: ${gameState?.pointsForCorrectAnswer ?? this.gameDefinition.pointsForCorrectAnswer}`,
-            `Tentativi per domanda: ${gameState?.limitTrialsPerQuestion ?? this.gameDefinition.limitTrialsPerQuestion}`,
-            `Stop alla prima mano alzata: ${(gameState?.stopWhenFirstHandIsRaised ?? this.gameDefinition.stopWhenFirstHandRaised) ? "sì" : "no"}`,
+            `Timer risposta (s): ${gameState?.timeForAnswer ?? this.gameDefinition.timeForAnswer}`,
         ];
         settings.textContent = settingsLines.join(" | ");
 

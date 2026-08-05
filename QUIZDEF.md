@@ -33,8 +33,7 @@ correct_answers:
 
 ## Open_question
 title: SFIDA FINALE
-limit_trials_per_question: 2
-stop_when_first_hand_raised: true
+time_for_answer: 20
 points_for_correct_answer: 60
 questions_and_answers:
 - Qual e la capitale d'Italia? = Roma
@@ -161,25 +160,21 @@ The `Open_question` game type implements a question-and-answer round. Each game 
 | Property | Type | Default | Required | Constraints |
 |----------|------|---------|----------|-------------|
 | `title` | string | "Domanda aperta" | No | - |
-| `limit_trials_per_question` | number | `Number.MAX_SAFE_INTEGER` | No | Must be > 0 |
-| `stop_when_first_hand_raised` | boolean | false | No | - |
+| `time_for_answer` | number | 0 | No | Must be >= 0 |
 | `points_for_correct_answer` | number | - | Yes | Must be >= 0 |
 | `questions_and_answers` | list of strings | - | Yes | At least one item required |
 
 #### `title`
 Display name for this game instance. Defaults to "Domanda aperta" if not provided.
 
-#### `limit_trials_per_question`
-Maximum number of answer attempts allowed per question before the round closes. Defaults to `Number.MAX_SAFE_INTEGER`, which is effectively unlimited for normal quiz use.
-
-#### `stop_when_first_hand_raised`
-Boolean flag controlling whether answer collection stops as soon as the first participant raises their hand. Defaults to `false` if omitted.
+#### `time_for_answer`
+Time in seconds available for participants to submit an answer for each question. Defaults to `0`, which disables the timer and requires manual stop.
 
 #### `points_for_correct_answer`
 Points awarded to each participant for a correct answer. Numeric value. Must be non-negative.
 
 #### `questions_and_answers`
-List of entries in `question? = answer` format. The question text must end with `?`, and each list item must be on its own line prefixed with `- `. The parser splits each entry into matching question and answer arrays.
+List of entries in `question = answer` format. A trailing `?` in the question text is optional, and each list item must be on its own line prefixed with `- `. The parser splits each entry into matching question and answer arrays.
 
 ## Game type: Guess_word
 
@@ -226,7 +221,7 @@ The `Numeric_estimation` game type implements a numeric estimation round where p
 | `time_for_question` | number | 0 | No | Must be >= 0 |
 | `if_no_correct_answers` | string | "" | No | One of `""`, `half-points-to-closest`, `linear-decreasing-points` |
 | `points_for_correct_answer` | number | - | Yes | Must be >= 0 |
-| `questions_and_answers` | list of strings | - | Yes | At least one item required; each item must match `question? = answer` |
+| `questions_and_answers` | list of strings | - | Yes | At least one item required; each item must match `question = answer` |
 
 #### `title`
 Display name for this game instance. Defaults to "Stima numerica" if not provided.
@@ -244,7 +239,7 @@ Fallback scoring policy applied when no participant gives an exactly correct ans
 Points awarded to each participant for a correct answer. Numeric value. Must be non-negative.
 
 #### `questions_and_answers`
-List of entries in `question? = answer` format. The question text must end with `?`, and each list item must be on its own line prefixed with `- `. Answer must be numeric and can optionally include a unit at the end. Required property; at least one entry must be provided.
+List of entries in `question = answer` format. A trailing `?` in the question text is optional, and each list item must be on its own line prefixed with `- `. Answer must be numeric and can optionally include a unit at the end. Required property; at least one entry must be provided.
 
 ## Game type: QDCP
 

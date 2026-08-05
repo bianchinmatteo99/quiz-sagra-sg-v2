@@ -9,8 +9,7 @@ export class OpenQuestionGameModel extends GameModel<OpenQuestionGameDefinition,
     currentQuestionIndex: number;
     displayQuestion: string;
     displayCorrectAnswer: string;
-    limitTrialsPerQuestion: number;
-    stopWhenFirstHandIsRaised: boolean;
+    timeForAnswer: number;
     pointsForCorrectAnswer: number;
 
     constructor(ctx: GameModelContext, def: OpenQuestionGameDefinition) {
@@ -20,8 +19,7 @@ export class OpenQuestionGameModel extends GameModel<OpenQuestionGameDefinition,
         this.currentQuestionIndex = -1;
         this.displayQuestion = "";
         this.displayCorrectAnswer = "";
-        this.limitTrialsPerQuestion = def.data.limitTrialsPerQuestion;
-        this.stopWhenFirstHandIsRaised = def.data.stopWhenFirstHandRaised;
+        this.timeForAnswer = def.data.timeForAnswer;
         this.pointsForCorrectAnswer = def.data.pointsForCorrectAnswer;
     }
 
@@ -30,8 +28,7 @@ export class OpenQuestionGameModel extends GameModel<OpenQuestionGameDefinition,
         this.currentQuestionIndex = data.currentQuestionIndex ?? -1;
         this.displayQuestion = data.displayQuestion ?? "";
         this.displayCorrectAnswer = data.displayCorrectAnswer ?? "";
-        this.limitTrialsPerQuestion = data.limitTrialsPerQuestion ?? this.definition.data.limitTrialsPerQuestion;
-        this.stopWhenFirstHandIsRaised = data.stopWhenFirstHandIsRaised ?? this.definition.data.stopWhenFirstHandRaised;
+        this.timeForAnswer = data.timeForAnswer ?? this.definition.data.timeForAnswer;
         this.pointsForCorrectAnswer = data.pointsForCorrectAnswer ?? this.definition.data.pointsForCorrectAnswer;
         return true;
     }
@@ -78,8 +75,7 @@ export class OpenQuestionGameModel extends GameModel<OpenQuestionGameDefinition,
             currentQuestionIndex: this.currentQuestionIndex,
             displayQuestion: this.displayQuestion,
             displayCorrectAnswer: this.displayCorrectAnswer,
-            limitTrialsPerQuestion: this.limitTrialsPerQuestion,
-            stopWhenFirstHandIsRaised: this.stopWhenFirstHandIsRaised,
+            timeForAnswer: this.timeForAnswer,
             pointsForCorrectAnswer: this.pointsForCorrectAnswer,
         };
     }
@@ -139,6 +135,7 @@ export class OpenQuestionGameView extends GameView {
             Titolo: ${this.activeGameContext.model.definition.data.title}<br/>
             Stato: ${this.activeGameContext.model.state}<br/>
             Domanda corrente: ${this.activeGameContext.model.currentQuestionIndex + 1}<br/>
+            Timer risposta (s): ${this.activeGameContext.model.timeForAnswer}<br/>
             Testo domanda: ${displayedQuestion}<br/>
             Risposta corretta: ${displayedAnswer}
         `;
