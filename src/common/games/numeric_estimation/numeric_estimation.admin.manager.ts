@@ -6,6 +6,7 @@ import { NumericEstimationGameController } from "./numeric_estimation.admin.mvc"
 import { NumericEstimationState } from "./numeric_estimation.contracts";
 import { TextInputQuestion } from "../../questions/text_input/text_input.question.admin";
 import { RankingDiff } from "../../people/people.controller";
+import { QuestionAnswers, QuestionResult } from "../../questions/question.contract";
 
 export class NumericEstimationGameManager extends GameManager {
     controller: NumericEstimationGameController;
@@ -33,14 +34,14 @@ export class NumericEstimationGameManager extends GameManager {
     }
 
     private computeScoringDiff(
-        res: any,
-        ans: any,
+        res: QuestionResult,
+        ans: QuestionAnswers,
         correctAnswer: number | null,
         policy: "" | "half-points-to-closest" | "linear-decreasing-points",
         pointsForCorrectAnswer: number,
     ): RankingDiff {
         const diff: RankingDiff = new Map();
-        const resultEntries = res.entries().toArray() as Array<[string, boolean]>;
+        const resultEntries = res.entries().toArray();
         const correct = resultEntries.filter((entry) => entry[1]).map((entry) => entry[0]);
 
         if (correct.length > 0) {
@@ -48,7 +49,7 @@ export class NumericEstimationGameManager extends GameManager {
             return diff;
         }
 
-        const answerEntries = ans.entries().toArray() as Array<[string, { answer: string }]>;
+        const answerEntries = ans.entries().toArray();
         const distances: Array<[string, number]> = answerEntries.map((entry) => [
             entry[0],
             this.numericDistance(this.parseSubmittedNumber(entry[1].answer), correctAnswer),
@@ -61,9 +62,13 @@ export class NumericEstimationGameManager extends GameManager {
                 return diff;
             }
 
-            // Deterministic tie-breaking: shortest distance, then lexicographically smallest player id.
-            const [closestId] = finiteDistances.sort((a, b) => a[1] - b[1] || a[0].localeCompare(b[0]))[0]!;
-            diff.set(closestId, pointsForCorrectAnswer / 2);
+            const minDistance = finiteDistances.reduce((min, [, d]) => Math.min(min, d), Number.POSITIVE_INFINITY);
+            const tiedClosest = finiteDistances
+                .filter(([, d]) => d === minDistance);
+
+            tiedClosest.forEach(([id]) => {
+                diff.set(id, Math.ceil(pointsForCorrectAnswer / 2));
+            });
             return diff;
         }
 
@@ -75,7 +80,7 @@ export class NumericEstimationGameManager extends GameManager {
             const denominator = Math.max(Math.abs(correctAnswer), 1);
             finiteDistances.forEach(([id, distance]) => {
                 const relativeDistance = distance / denominator;
-                const rawScore = (1 - relativeDistance) * pointsForCorrectAnswer;
+                const rawScore = Math.ceil((1 - relativeDistance) * pointsForCorrectAnswer);
                 const score = Math.max(0, Math.min(pointsForCorrectAnswer, rawScore));
                 diff.set(id, score);
             });
