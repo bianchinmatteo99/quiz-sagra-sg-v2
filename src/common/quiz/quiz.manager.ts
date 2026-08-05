@@ -9,6 +9,7 @@ import { ResumeCheckpoints } from "../admin.utils";
 import { delay } from "../general.utils";
 import { TextInputQuestion } from "../questions/text_input/text_input.question.admin";
 import { RaiseHandQuestion } from "../questions/raise_hand/raise_hand.question.admin";
+import { MultipleChoiceQuestion } from "../questions/multiple_choice/multiple_choice.question.admin";
 import { Ender } from "../questions/questions.admin.base";
 import type { ManualQuestionOptions } from "./quiz.view";
 import { QuestionState } from "../questions/question.contract";
@@ -133,12 +134,20 @@ class QuizManager implements QuizControllerContext, GameManagerContext, PeopleCo
             ...(options.timer !== undefined ? { timer: options.timer } : {}),
         };
 
-        const question = options.kind === "raise-hand"
-            ? new RaiseHandQuestion(this, ender)
-            : new TextInputQuestion(this, {
+        let question: RaiseHandQuestion | MultipleChoiceQuestion | TextInputQuestion;
+        if (options.kind === "raise-hand") {
+            question = new RaiseHandQuestion(this, ender);
+        } else if (options.kind === "multiple-choice") {
+            question = new MultipleChoiceQuestion(this, {
                 ...(options.autoCorrectAnswer !== undefined ? { auto: options.autoCorrectAnswer } : {}),
                 manual: true,
             }, ender);
+        } else {
+            question = new TextInputQuestion(this, {
+                ...(options.autoCorrectAnswer !== undefined ? { auto: options.autoCorrectAnswer } : {}),
+                manual: true,
+            }, ender);
+        }
 
         try {
             await question.ask({

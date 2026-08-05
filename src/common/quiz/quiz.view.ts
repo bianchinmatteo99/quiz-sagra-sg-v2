@@ -14,7 +14,7 @@ interface QuizViewContext {
     stateUpdated(): void;
 }
 
-type ManualQuestionKind = 'text-input' | 'raise-hand';
+type ManualQuestionKind = 'text-input' | 'raise-hand' | 'multiple-choice';
 
 interface ManualQuestionOptions {
     kind: ManualQuestionKind;
@@ -265,7 +265,7 @@ class QuizView {
             startButton.replaceWith(newStartButton);
 
             const syncAutoAnswerState = () => {
-                const needsAutoAnswer = newKindSelect.value === 'text-input';
+                const needsAutoAnswer = ['text-input', 'multiple-choice'].includes(newKindSelect.value);
                 autoCorrectAnswerInput.disabled = !needsAutoAnswer;
                 if (!needsAutoAnswer) {
                     autoCorrectAnswerInput.value = '';
@@ -328,7 +328,12 @@ class QuizView {
                     return;
                 }
 
-                const kind = newKindSelect.value === 'raise-hand' ? 'raise-hand' : 'text-input';
+                let kind: ManualQuestionKind = 'text-input';
+                if (newKindSelect.value === 'raise-hand') {
+                    kind = 'raise-hand';
+                } else if (newKindSelect.value === 'multiple-choice') {
+                    kind = 'multiple-choice';
+                }
                 const autoAnswer = autoCorrectAnswerInput.value.trim();
 
                 const options: ManualQuestionOptions = {

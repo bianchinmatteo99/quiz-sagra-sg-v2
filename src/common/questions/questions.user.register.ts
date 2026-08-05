@@ -2,6 +2,7 @@ import { UserStateHandler } from "../../user/user.state";
 import { QuestionUserPageProvider } from "./questions.user.base";
 import { RaiseHandQuestionPageProvider } from "./raise_hand/raise_hand.question.user";
 import { TextInputQuestionPageProvider } from "./text_input/text_input.question.user";
+import { MultipleChoiceQuestionPageProvider } from "./multiple_choice/multiple_choice.question.user";
 
 /**
  * Factory used to instantiate the user question page provider for a question kind.
@@ -24,6 +25,8 @@ export function instantiatePageProviderForQuestion(kind: string, state: UserStat
             return new TextInputQuestionPageProvider();
         case "raise-hand":
             return new RaiseHandQuestionPageProvider();
+        case "multiple-choice":
+            return new MultipleChoiceQuestionPageProvider();
         default:
             throw new Error("Page provider for question kind " + kind + " not registered.")
     }
