@@ -14,6 +14,10 @@ import { GuessWordGameRequiredData } from "./guess_word/guess_word.contract";
 import { GuessWordGameDefinition, GuessWordGameDefinitionBuilder } from "./guess_word/guess_word.admin.definition";
 import { GuessWordGameManager } from "./guess_word/guess_word.admin.manager";
 import { GuessWordGameView } from "./guess_word/guess_word.admin.mvc";
+import { NumericEstimationGameRequiredData } from "./numeric_estimation/numeric_estimation.contracts";
+import { NumericEstimationGameDefinition, NumericEstimationGameDefinitionBuilder } from "./numeric_estimation/numeric_estimation.admin.definition";
+import { NumericEstimationGameManager } from "./numeric_estimation/numeric_estimation.admin.manager";
+import { NumericEstimationGameView } from "./numeric_estimation/numeric_estimation.admin.mvc";
 import { QDCPGameRequiredData } from "./qdcp/qdcp.contracts";
 import { QDCPGameDefinition, QDCPGameDefinitionBuilder } from "./qdcp/qdcp.admin.definition";
 import { QDCPGameManager } from "./qdcp/qdcp.admin.manager";
@@ -40,6 +44,7 @@ export const gamesDefBuilders: { [key: string]: GameDefinitionBuilder<AnyGameDef
     [GuessSongGameRequiredData.kind]: new GuessSongGameDefinitionBuilder(),
     [OpenQuestionGameRequiredData.kind]: new OpenQuestionGameDefinitionBuilder(),
     [GuessWordGameRequiredData.kind]: new GuessWordGameDefinitionBuilder(),
+    [NumericEstimationGameRequiredData.kind]: new NumericEstimationGameDefinitionBuilder(),
     [QDCPGameRequiredData.kind]: new QDCPGameDefinitionBuilder(),
     [ZipGameRequiredData.kind]: new ZipGameDefinitionBuilder(),
 };
@@ -68,6 +73,8 @@ export function instantiateGameManagerFor(def: AnyGameDefinition, ctx: GameManag
             return new OpenQuestionGameManager(ctx, def as OpenQuestionGameDefinition, restoreState);
         case GuessWordGameRequiredData.kind:
             return new GuessWordGameManager(ctx, def as GuessWordGameDefinition, restoreState);
+        case NumericEstimationGameRequiredData.kind:
+            return new NumericEstimationGameManager(ctx, def as NumericEstimationGameDefinition, restoreState);
         case QDCPGameRequiredData.kind:
             return new QDCPGameManager(ctx, def as QDCPGameDefinition, restoreState);
         case ZipGameRequiredData.kind:
@@ -99,6 +106,8 @@ export function instantiateGameViewerFor(def: AnyGameDefinition): GameView{
             return new OpenQuestionGameView(null, def as OpenQuestionGameDefinition);
         case GuessWordGameRequiredData.kind:
             return new GuessWordGameView(null, def as GuessWordGameDefinition);
+        case NumericEstimationGameRequiredData.kind:
+            return new NumericEstimationGameView(null, def as NumericEstimationGameDefinition);
         case QDCPGameRequiredData.kind:
             return new QDCPGameView(null, def as QDCPGameDefinition);
         case ZipGameRequiredData.kind:

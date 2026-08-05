@@ -62,3 +62,13 @@ points_for_correct_answer: 40
 hints_and_answers:
 - Quando il tuo vicino sbadiglia | In aereo | Facendo facce strane | Perché vuole stapparle dopo ore di volo = Orecchie
 - Quando fa la matta | Sul tavolo | In crisi d'identità | Perché a "7 e mezzo" può avere qualunque valore = Re di Denari
+
+## Numeric_estimation
+title: Stima numerica di prova
+time_for_question: 20
+if_no_correct_answers: half-points-to-closest
+points_for_correct_answer: 25
+questions_and_answers:
+- Quanti minuti dura in media una partita di calcio regolamentare? = 90 minuti
+- Quanti chilometri misura in media una maratona? = 42.195 km
+- Quanti gradi Celsius sono 1 atmosfera di ebollizione dell'acqua? = 100 gradi
