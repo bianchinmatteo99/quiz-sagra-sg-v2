@@ -21,8 +21,13 @@ import {
     GameController,
     GameControllerContext,
     GamePresenterStateView,
+    GameManager,
+    GameManagerContext,
 } from "./tests.v2.base";
 import { Secret } from "../general.utils";
+import { startRepeatedRaiseHandFlow } from "./games.admin.utils";
+import { ResumeCheckpoints } from "../admin.utils";
+import { StopWhenBuildersCollection } from "../questions/questions.admin.base";
 
 export enum GuessSongState {
     /** Game has been started but no content is visible to participants yet. */
@@ -45,14 +50,16 @@ export const guessSongFields = defineFields({
         mdkey: "limit_trials_per_song",
         parser: Parsers.number,
         default: Number.MAX_SAFE_INTEGER,
-        validator: (unsafe) => unsafe > 0 ? null : new ValidationError("limit_trials_per_song must be > 0")
+        validator: (unsafe) => unsafe > 0 ? null : new ValidationError("limit_trials_per_song must be > 0"),
+        views: {showin: "both", descr: "Numero di tentativi per ogni canzone", translate: (v)=>v===Number.MAX_SAFE_INTEGER?"infiniti":String(v)}
     }),
 
     stopWhenFirstHandIsRaised: definition({
         visibility: "public",
         mdkey: "stop_when_first_hand_raised",
         parser: Parsers.boolean,
-        default: false
+        default: false,
+        views: {showin: "both", descr: "Blocca le risposte", translate: (v)=>v?"alla prima prenotazione":"manuale"}
     }),
 
     correctAnswers: definition({
@@ -65,7 +72,8 @@ export const guessSongFields = defineFields({
         visibility: "public",
         mdkey: "points_for_correct_answer",
         parser: Parsers.number,
-        validator: (unsafe) => unsafe >= 0 ? null : new ValidationError("points_for_correct_answer must be >= 0")
+        validator: (unsafe) => unsafe >= 0 ? null : new ValidationError("points_for_correct_answer must be >= 0"),
+        views: {showin: "both", descr: "Punti per ogni risposta corretta"}
     }),
 
     state: model({
@@ -227,6 +235,74 @@ export class GuessSongGameController extends GameController<typeof guessSongFiel
         this.stateUpdated();
     }
 }
+
+export class GuessSongGameManager extends GameManager {
+    /** Controller owning Guess Song model state and admin-facing rendering. */
+    controller: GuessSongGameController;
+
+    /**
+     * Create a Guess Song manager bound to host-level game context.
+     *
+     * @param ctx Manager context provided by the quiz runtime.
+     * @param def Parsed Guess Song game definition for this session.
+     * @param restoreState When true, controller/model attempt state restoration.
+     */
+    constructor(ctx: GameManagerContext, def: GuessSongGameDefinition, restoreState: boolean = false) {
+        super(ctx, restoreState);
+        this.controller = new GuessSongGameController(this, def);
+    }
+
+    /**
+     * Execute the Guess Song game flow.
+     */
+    async startGame(): Promise<void> {
+        await this.controller.model.restoreOrSave();
+
+        if (this.resumeCheckpoints.reachedCheckPoint("start-phase")) {
+            this.controller.setState(GuessSongState.DISPLAYCOVER);
+        }
+
+        while (this.controller.nextSong()) {
+            if(! await this.controller.adminInteraction({advanceBtn: "Avvia la canzone", otherBtn: "Salta questa canzone"})){
+                continue;
+            }
+
+            this.controller.setState(GuessSongState.ASKINGQUESTION);
+
+            const ender = {manual: true, ...(this.controller.model.stopWhenFirstHandIsRaised ? {stopWhen: StopWhenBuildersCollection.NumberOfSubmittedAnswersIs(1)} : {})}
+            const {result, trials} = await startRepeatedRaiseHandFlow(this, ender, {limitWrongTrials: this.controller.model.limitTrialsPerSong})
+            
+            await this.controller.adminInteraction({advanceBtn: "Mostra risposta"})
+            this.controller.setState(GuessSongState.SHOWINGANSWER);
+
+            this.context.updateRanking(new Map(result.entries().filter(([id, v]) => v).map(([id, v]) => [id, this.controller.model.pointsForCorrectAnswer])))
+
+            await this.controller.adminInteraction({advanceBtn: "Continua"})
+            this.controller.setState(GuessSongState.DISPLAYCOVER);
+        }
+
+        this.resumeCheckpoints.reachedCheckPoint("end-phase");
+        this.controller.setState(GuessSongState.ENDING);
+    }
+
+    buildResumeCheckpoints(): ResumeCheckpoints {
+        return new ResumeCheckpoints({
+            "start-phase": (endResume) => {
+                if (this.controller.model.state == GuessSongState.ENDING) {
+                    return false;
+                } else {
+                    endResume();
+                    return true;
+                }
+            },
+            "end-phase": (endResume) => {
+                endResume();
+                return true;
+            }
+        });
+    }
+}
+
 
 
 export class GuessSongGamePresenterStateView extends GamePresenterStateView<typeof guessSongFields> {

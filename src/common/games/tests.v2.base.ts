@@ -884,7 +884,7 @@ export abstract class GameManager implements GameControllerContext, QuestionCont
     activeQuestion: Question|null = null;
 
     /** The game controller (owns model and view). Subclass must initialize. */
-    abstract controller: GameController<any>;
+    abstract controller: GameController<AnyFieldsObject>;
 
     constructor(ctx: GameManagerContext, restoreState : boolean) {
         this.context = ctx;

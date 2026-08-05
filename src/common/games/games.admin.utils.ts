@@ -2,9 +2,9 @@ import { QuestionAnswers, QuestionResult } from "../questions/question.contract"
 import { Ender } from "../questions/questions.admin.base";
 import { RaiseHandQuestion } from "../questions/raise_hand/raise_hand.question.admin";
 import { GameManager } from "./games.admin.base";
+import { GameManager as GameManagerv2 } from "./tests.v2.base";
 
-
-export async function startRepeatedRaiseHandFlow(context: GameManager, enderPerTurn?:Ender, penalties?: PenaltyPolicy): Promise<{result: QuestionResult, trials: Record<string, number>}>{
+export async function startRepeatedRaiseHandFlow(context: GameManager|GameManagerv2, enderPerTurn?:Ender, penalties?: PenaltyPolicy): Promise<{result: QuestionResult, trials: Record<string, number>}>{
     let ender = enderPerTurn ?? {}
     ender = {...ender, manual: true}
     

@@ -3,9 +3,10 @@ import { CatenaGameDefinition, CatenaGameDefinitionBuilder } from "./catena/cate
 import { CatenaGameManager } from "./catena/catena.admin.manager";
 import { CatenaGameView } from "./catena/catena.admin.mvc";
 import { GuessSongGameRequiredData } from "./guess_song/guess_song.contracts";
-import { GuessSongGameDefinition, GuessSongGameDefinitionBuilder } from "./guess_song/guess_song.admin.definition";
-import { GuessSongGameManager } from "./guess_song/guess_song.admin.manager";
-import { GuessSongGameView } from "./guess_song/guess_song.admin.mvc";
+import { GuessSongGameDefinition as GuessSongGameDefinitionv2 } from "./tests.v2.guess_song"; // TESTING V2 - LINE WAS import { GuessSongGameDefinition, GuessSongGameDefinitionBuilder } from "./guess_song/guess_song.admin.definition";
+import { GuessSongDefinitionBuilder as GuessSongDefinitionBuilderv2 } from "./tests.v2.guess_song"; // TESTING V2 - LINE WAS import { GuessSongGameDefinition, GuessSongGameDefinitionBuilder } from "./guess_song/guess_song.admin.definition";
+import { GuessSongGameManager as GuessSongGameManagerv2 } from "./tests.v2.guess_song"; // TESTING V2 - LINE WAS import { GuessSongGameManager } from "./guess_song/guess_song.admin.manager";
+import { GuessSongGameView as GuessSongGameViewv2 } from "./tests.v2.guess_song"; // TESTING V2 - LINE WAS import { GuessSongGameView } from "./guess_song/guess_song.admin.mvc";
 import { OpenQuestionGameRequiredData } from "./open_question/open_question.contracts";
 import { OpenQuestionGameDefinition, OpenQuestionGameDefinitionBuilder } from "./open_question/open_question.admin.definition";
 import { OpenQuestionGameManager } from "./open_question/open_question.admin.manager";
@@ -41,7 +42,7 @@ import { AnyGameDefinitionData } from "./games.contracts";
  */
 export const gamesDefBuilders: { [key: string]: GameDefinitionBuilder<AnyGameDefinitionData>; } = {
     [CatenaGameRequiredData.kind]: new CatenaGameDefinitionBuilder(),
-    [GuessSongGameRequiredData.kind]: new GuessSongGameDefinitionBuilder(),
+    [GuessSongGameRequiredData.kind]: new GuessSongDefinitionBuilderv2() as unknown as GameDefinitionBuilder<AnyGameDefinitionData>, // TESTING V2 - LINE WAS     [GuessSongGameRequiredData.kind]: new GuessSongGameDefinitionBuilder(),
     [OpenQuestionGameRequiredData.kind]: new OpenQuestionGameDefinitionBuilder(),
     [GuessWordGameRequiredData.kind]: new GuessWordGameDefinitionBuilder(),
     [NumericEstimationGameRequiredData.kind]: new NumericEstimationGameDefinitionBuilder(),
@@ -68,7 +69,7 @@ export function instantiateGameManagerFor(def: AnyGameDefinition, ctx: GameManag
         case CatenaGameRequiredData.kind:
             return new CatenaGameManager(ctx, def as CatenaGameDefinition, restoreState);
         case GuessSongGameRequiredData.kind:
-            return new GuessSongGameManager(ctx, def as GuessSongGameDefinition, restoreState);
+            return new GuessSongGameManagerv2(ctx, def as unknown as GuessSongGameDefinitionv2, restoreState) as unknown as GameManager; // TESTING V2 - LINE WAS             return new GuessSongGameManager(ctx, def as GuessSongGameDefinition, restoreState);
         case OpenQuestionGameRequiredData.kind:
             return new OpenQuestionGameManager(ctx, def as OpenQuestionGameDefinition, restoreState);
         case GuessWordGameRequiredData.kind:
@@ -101,7 +102,7 @@ export function instantiateGameViewerFor(def: AnyGameDefinition): GameView{
         case CatenaGameRequiredData.kind:
             return new CatenaGameView(null, def as CatenaGameDefinition);
         case GuessSongGameRequiredData.kind:
-            return new GuessSongGameView(null, def as GuessSongGameDefinition);
+            return new GuessSongGameViewv2(null, def as unknown as GuessSongGameDefinitionv2) as unknown as GameView; // TESTING V2 - LINE WAS             return new GuessSongGameView(null, def as GuessSongGameDefinition);
         case OpenQuestionGameRequiredData.kind:
             return new OpenQuestionGameView(null, def as OpenQuestionGameDefinition);
         case GuessWordGameRequiredData.kind:
