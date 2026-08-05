@@ -55,7 +55,7 @@ export class NumericEstimationGameManager extends GameManager {
                         const relativeDistance = ans.entries().toArray().map<[string,number]>((a)=>[a[0], this.numericDistance(Number.parseFloat(a[1].answer), corrans)/(corrans??1)])
                         relativeDistance.forEach(([id,d])=>diff.set(id,Math.max(0, (1-d)*this.controller.model.pointsForCorrectAnswer)))
                     }
-                    await this.controller.adminInteraction({advanceBtn: "Mostra risposta"});
+                    
                     this.controller.setState(NumericEstimationState.SHOWINGANSWER);
                     setTimeout(() => {
                         this.context.updateRanking(diff);

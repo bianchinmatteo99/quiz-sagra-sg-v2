@@ -185,16 +185,15 @@ export class NumericEstimationGameController extends GameController implements N
 
     displayCurrentQuestion(b: boolean): void {
         this.model.displayQuestion = b ? (this.model.getCurrentQuestion() ?? "") : "";
-        this.model.displayCorrectAnswer = b ? "??? " + (this.model.getNumericAnswerAndUnit()?.[1] ?? "") : "";
     }
 
-    displayCorrectAnswer(b: boolean): void {
-        this.model.displayCorrectAnswer = b ? (this.model.getCurrentAnswer() ?? "") : "";
+    displayCorrectAnswer(unit: boolean, answer: boolean): void {
+        this.model.displayCorrectAnswer = answer ? (this.model.getCurrentAnswer() ?? "") : unit ? "??? " + (this.model.getNumericAnswerAndUnit()?.[1] ?? "") : "";
     }
 
     setState(s: NumericEstimationState): void {
         this.displayCurrentQuestion(s === NumericEstimationState.ASKINGQUESTION || s === NumericEstimationState.SHOWINGANSWER);
-        this.displayCorrectAnswer(s === NumericEstimationState.SHOWINGANSWER);
+        this.displayCorrectAnswer(s === NumericEstimationState.ASKINGQUESTION || s === NumericEstimationState.SHOWINGANSWER, s === NumericEstimationState.SHOWINGANSWER);
         this.model.state = s;
         this.stateUpdated();
     }
