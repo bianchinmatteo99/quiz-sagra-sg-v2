@@ -23,13 +23,11 @@ correct_answers:
 - Perfect
 
 ## Open_question
-title: SFIDA FINALE
+title: 1945 | 1956 | 1960 | 1973
 time_for_answer: 20
 points_for_correct_answer: 60
 questions_and_answers:
-- Qual e la capitale d'Italia? = Roma
-- In che anno è iniziata la Seconda Guerra Mondiale? = 1939
-- Quale pianeta è conosciuto come Pianeta Rosso? = Marte
+- 1945 | 1956 | 1960 | 1973<br/> Quando si è conclusa la seconda Guerra Mondiale? = 1945
 
 ## Zip
 title: Zip di prova

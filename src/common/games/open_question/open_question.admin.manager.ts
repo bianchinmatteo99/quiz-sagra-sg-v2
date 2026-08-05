@@ -34,17 +34,17 @@ export class OpenQuestionGameManager extends GameManager {
             
             this.activeQuestion = new TextInputQuestion(
                 this,
-                { auto: answer },
+                { auto: answer, manual: true },
                 {
                     manual: true,
                     ...(this.controller.model.timeForAnswer > 0 ? { timer: this.controller.model.timeForAnswer } : {}),
                 },
             );
-            let result = await this.activeQuestion.ask({
+            await this.activeQuestion.ask({
                 beforeShowResults: async (res) => {
                     this.controller.setState(OpenQuestionState.SHOWINGANSWER);
                     setTimeout(() => {
-                        this.context.updateRanking(new Map(result.entries().filter(([id, v]) => v).map(([id, v]) => [id, this.controller.model.pointsForCorrectAnswer])));
+                        this.context.updateRanking(new Map(res.entries().filter(([id, v]) => v).map(([id, v]) => [id, this.controller.model.pointsForCorrectAnswer])));
                     }, 1000);
                     return 4000;
                 }
