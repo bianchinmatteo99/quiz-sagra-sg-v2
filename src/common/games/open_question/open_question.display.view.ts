@@ -21,7 +21,7 @@ export class OpenQuestionGamePageChooser extends GamePageChooser<OpenQuestionGam
     }
 }
 
-class OpenQuestionPage extends StaticPage {
+export class OpenQuestionPage extends StaticPage {
     templateColumnWidth = "75%";
     private readonly title: string;
     private readonly subtitle: string | null;

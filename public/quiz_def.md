@@ -68,4 +68,3 @@ points_for_correct_answer: 25
 questions_and_answers:
 - Quanti minuti dura in media una partita di calcio regolamentare? = 90 minuti
 - Quanti chilometri misura in media una maratona? = 42.195 km
-- Quanti gradi Celsius sono 1 atmosfera di ebollizione dell'acqua? = 100 gradi
