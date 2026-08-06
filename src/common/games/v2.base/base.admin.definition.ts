@@ -64,7 +64,7 @@ export abstract class GameDefinitionBuilder<T extends FieldSchema> {
             kind,
             name,
             title: MDUtils.parseString(parsed, "title", name),
-        } as Record<string, unknown>;
+        } as Record<keyof T, unknown>;
 
         const allowedKeys = ["title"];
         for (const field of Object.values(this.fields)) {
@@ -78,7 +78,7 @@ export abstract class GameDefinitionBuilder<T extends FieldSchema> {
             if (field.flavour !== "definition") {
                 continue;
             }
-
+            
             const raw = parsed[field.mdkey];
             let value: unknown;
             if (raw === undefined) {
@@ -90,12 +90,12 @@ export abstract class GameDefinitionBuilder<T extends FieldSchema> {
                 value = field.parser(raw, `${kind}.${field.mdkey}`);
             }
 
-            const validation = field.validator?.(value as never);
+            const validation = field.validator?.(value);
             if (validation) {
                 throw validation;
             }
 
-            result[fieldKey as string] = value;
+            result[fieldKey] = value;
         }
 
         return result as GameDefinitionDataFromFields<T>;
