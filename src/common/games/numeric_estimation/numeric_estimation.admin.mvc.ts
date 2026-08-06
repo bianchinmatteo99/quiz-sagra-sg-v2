@@ -53,10 +53,10 @@ export class NumericEstimationGameModel extends GameModel<NumericEstimationGameD
         const currentAnswer = this.getCurrentAnswer();
         if (!currentAnswer) return null;
 
-        const match = currentAnswer.match(/^\s*([+-]?(?:\d+(?:[.,]\d+)?|[.,]\d+))\s*(.*?)\s*$/);
+        const match = currentAnswer.match(/^\s*([+-]?[\d.]+(?:[,]\d+)?)\s*(.*?)\s*$/);
         if (!match) return null;
 
-        const numericRaw = match[1]!.replace(",", ".");
+        const numericRaw = match[1]!.replaceAll(".", "").replaceAll(",",".");
         const parsedValue = Number.parseFloat(numericRaw);
         if (Number.isNaN(parsedValue)) return null;
 

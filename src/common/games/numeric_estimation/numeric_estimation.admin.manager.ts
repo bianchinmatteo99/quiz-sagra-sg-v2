@@ -24,12 +24,12 @@ export class NumericEstimationGameManager extends GameManager {
     }
 
     private parseSubmittedNumber(answer: string): number | null {
-        const match = answer.match(/^\s*([+-]?(?:\d+(?:[.,]\d+)?|[.,]\d+))/);
+        const match = answer.match(/^\s*([+-]?[\d.]+(?:[,]\d+)?)/);
         if (!match) {
             return null;
         }
 
-        const parsed = Number.parseFloat(match[1]!.replace(",", "."));
+        const parsed = Number.parseFloat(match[1]!.replaceAll(".", "").replaceAll(",","."));
         return Number.isNaN(parsed) ? null : parsed;
     }
 
