@@ -149,13 +149,16 @@ interface CustomDbField<T> {
 }
 
 type RequiredField<T> = RequiredKindField<T> | RequiredNameField<T> | OptionalTitleField<string>;
-type Field<T> = RequiredField<T> | DefinitionField<T, any> | ModelSimpleField<T, any, any> | CustomDbField<T>;
-
+type Field<T> = RequiredField<T> | DefinitionField<T> | ModelSimpleField<T, unknown> | CustomDbField<T>;
+type AnyField = Field<any>;
+type FieldMap = Record<string, AnyField>
 export interface RequiredFieldsObject<T, N> {
     kind: RequiredKindField<T>;
     name: RequiredNameField<N>;
     title: OptionalTitleField<string>;
 }
+export type FieldSchema<K extends string = string, N extends string = string, F extends FieldMap = FieldMap> = RequiredFieldsObject<K, N> & F
+
 
 /**
  * Create the mandatory identity fields for a game schema.
@@ -186,20 +189,19 @@ export function customDbKey<T>(): CustomDbField<T> {
 /**
  * Helper used to preserve literal inference and field-map typing.
  */
-export function defineFields<const T extends RequiredFieldsObject<string, string>>(fields: T): T { return fields; }
+export function defineFields<const T extends FieldSchema>(fields: T): T { return fields; }
 
-/** Union-friendly field-schema map containing required, definition, model, and custom field metadata. */
-export type AnyFieldsObject = RequiredFieldsObject<string, string> & { [K: string]: Field<any> };
+
 
 type KeysMatching<T, C> = {
     [K in keyof T]-?: T[K] extends C ? K : never;
 }[keyof T];
 
 type RequiredKeys<TFields extends RequiredFieldsObject<string, string>> = KeysMatching<TFields, RequiredField<string>>;
-type DefinitionKeys<TFields extends AnyFieldsObject> = KeysMatching<TFields, DefinitionField<any, any>>;
-type ModelKeys<TFields extends AnyFieldsObject> = KeysMatching<TFields, ModelSimpleField<any, any, any>>;
-type CustomDbKeys<TFields extends AnyFieldsObject> = KeysMatching<TFields, CustomDbField<any>>;
-type PublicBaseFieldKeys<TFields extends AnyFieldsObject> = {
+type DefinitionKeys<TFields extends FieldSchema> = KeysMatching<TFields, DefinitionField<any, any>>;
+type ModelKeys<TFields extends FieldSchema> = KeysMatching<TFields, ModelSimpleField<any, any, any>>;
+type CustomDbKeys<TFields extends FieldSchema> = KeysMatching<TFields, CustomDbField<any>>;
+type PublicBaseFieldKeys<TFields extends FieldSchema> = {
     [K in keyof TFields]-?: TFields[K] extends BaseField<any, any>
         ? TFields[K]["visibility"] extends "public" ? K : never
         : never;
@@ -224,12 +226,12 @@ export type GameRequiredDataFromFields<TFields extends RequiredFieldsObject<stri
 };
 
 /** Additional parsed definition payload derived from all definition fields. */
-export type GameAdditionalDefinitionDataFromFields<TFields extends AnyFieldsObject> = {
+export type GameAdditionalDefinitionDataFromFields<TFields extends FieldSchema> = {
     [K in DefinitionKeys<TFields>]: DefinitionValue<TFields[K]>;
 };
 
 /** Complete serialized definition payload (required identity + definition fields). */
-export type GameDefinitionDataFromFields<TFields extends AnyFieldsObject> = {
+export type GameDefinitionDataFromFields<TFields extends FieldSchema> = {
     [K in RequiredKeys<TFields> | DefinitionKeys<TFields>]:
         TFields[K] extends DefinitionField<any, any>
             ? DefinitionValue<TFields[K]>
@@ -237,7 +239,7 @@ export type GameDefinitionDataFromFields<TFields extends AnyFieldsObject> = {
 };
 
 /** In-memory model payload (definition payload plus model fields). */
-export type GameModelDataFromFields<TFields extends AnyFieldsObject> = {
+export type GameModelDataFromFields<TFields extends FieldSchema> = {
     [K in RequiredKeys<TFields> | DefinitionKeys<TFields> | ModelKeys<TFields>]:
         TFields[K] extends ModelSimpleField<any, any, any>
             ? ModelValue<TFields[K]>
@@ -247,7 +249,7 @@ export type GameModelDataFromFields<TFields extends AnyFieldsObject> = {
 };
 
 /** Publicly persisted game-state payload written to the realtime database. */
-export type GameDbDataFromFields<TFields extends AnyFieldsObject> = {
+export type GameDbDataFromFields<TFields extends FieldSchema> = {
     [K in RequiredKeys<TFields> | PublicBaseFieldKeys<TFields>]:
         TFields[K] extends ModelSimpleField<any, any>
             ? ModelDbValue<TFields[K]>
@@ -259,7 +261,7 @@ export type GameDbDataFromFields<TFields extends AnyFieldsObject> = {
 };
 
 /** Persisted game-state payload excluding custom DB fields managed manually by subclasses. */
-export type GameNoncustomDbDataFromFields<TFields extends AnyFieldsObject> = {
+export type GameNoncustomDbDataFromFields<TFields extends FieldSchema> = {
     [K in Exclude<RequiredKeys<TFields> | PublicBaseFieldKeys<TFields>, CustomDbKeys<TFields>>]:
         TFields[K] extends ModelSimpleField<any, any>
             ? ModelDbValue<TFields[K]>

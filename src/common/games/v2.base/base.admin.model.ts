@@ -1,5 +1,6 @@
 import { BaseModel, BaseModelContext } from "../../admin.utils";
-import { AnyFieldsObject, CompleteGameDefinition, GameDbDataFromFields, GameModelDataFromFields, GameNoncustomDbDataFromFields } from "./base.admin.contracts";
+import { FieldSchema, GameDbDataFromFields, GameModelDataFromFields, GameNoncustomDbDataFromFields } from "./base.admin.contracts";
+import { CompleteGameDefinition } from "./base.admin.definition";
 
 /** Runtime services required by game models for database persistence and update notifications. */
 export interface GameModelContext extends BaseModelContext {}
@@ -10,7 +11,7 @@ export interface GameModelContext extends BaseModelContext {}
  * This class handles default initialization and bidirectional mapping between
  * in-memory field values and the public database payload.
  */
-export abstract class GameModel<T extends AnyFieldsObject> extends BaseModel<GameDbDataFromFields<T>> {
+export abstract class GameModel<T extends FieldSchema> extends BaseModel<GameDbDataFromFields<T>> {
     /** Realtime Database location used for active game state snapshots. */
     readonly DBPATH = "/state/game";
 
@@ -108,4 +109,4 @@ export abstract class GameModel<T extends AnyFieldsObject> extends BaseModel<Gam
 }
 
 /** Concrete model instance including generated definition and model field properties. */
-export type CompleteGameModel<T extends AnyFieldsObject> = GameModel<T> & GameModelDataFromFields<T>;
+export type CompleteGameModel<T extends FieldSchema> = GameModel<T> & GameModelDataFromFields<T>;

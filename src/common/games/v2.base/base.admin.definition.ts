@@ -1,5 +1,5 @@
 import { MDUtils } from "../../md.utils";
-import { AnyFieldsObject, Default, GameAdditionalDefinitionDataFromFields, GameDefinitionDataFromFields, GameRequiredDataFromFields, RequiredFieldError, ValidationError } from "./base.admin.contracts";
+import { FieldSchema, Default, GameAdditionalDefinitionDataFromFields, GameDefinitionDataFromFields, GameRequiredDataFromFields, RequiredFieldError, ValidationError } from "./base.admin.contracts";
 
 
 /**
@@ -8,7 +8,7 @@ import { AnyFieldsObject, Default, GameAdditionalDefinitionDataFromFields, GameD
  * Subclasses typically only provide a concrete generic argument and are merged
  * with their generated definition-data interface.
  */
-export abstract class GameDefinition<T extends AnyFieldsObject> {
+export abstract class GameDefinition<T extends FieldSchema> {
     readonly id: number;
 
     /**
@@ -22,7 +22,7 @@ export abstract class GameDefinition<T extends AnyFieldsObject> {
 }
 
 /** Concrete definition instance including required identity and additional definition fields. */
-export type CompleteGameDefinition<T extends AnyFieldsObject> = GameDefinition<T> & GameRequiredDataFromFields<T> & GameAdditionalDefinitionDataFromFields<T>;
+export type CompleteGameDefinition<T extends FieldSchema> = GameDefinition<T> & GameRequiredDataFromFields<T> & GameAdditionalDefinitionDataFromFields<T>;
 /** Broad definition type used by generic managers/controllers in field-based v2 games. */
 export type AnyGameDefinition = GameDefinition<any> & GameRequiredDataFromFields;
 
@@ -32,7 +32,7 @@ export type AnyGameDefinition = GameDefinition<any> & GameRequiredDataFromFields
  * It consumes a field schema and produces validated, typed definition payloads
  * from either markdown sections or persisted JSON snapshots.
  */
-export abstract class GameDefinitionBuilder<T extends AnyFieldsObject> {
+export abstract class GameDefinitionBuilder<T extends FieldSchema> {
     /** Field schema used to parse and validate this game definition. */
     readonly fields: T;
 

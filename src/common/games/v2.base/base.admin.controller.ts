@@ -1,5 +1,5 @@
 import { IDatabaseAdapter } from "../../database/database.types";
-import { AnyFieldsObject } from "./base.admin.contracts";
+import { FieldSchema } from "./base.admin.contracts";
 import { CompleteGameModel } from "./base.admin.model";
 import { GameView, GameViewContext } from "./base.admin.view";
 import { GameModelContext } from "./base.admin.model";
@@ -15,7 +15,7 @@ export interface GameControllerContext {
  * Owns model/view wiring, publishes state updates, and provides common admin
  * interaction helpers used by concrete game controllers.
  */
-export abstract class GameController<T extends AnyFieldsObject> implements GameViewContext<T>, GameModelContext {
+export abstract class GameController<T extends FieldSchema> implements GameViewContext<T>, GameModelContext {
     /** Host context provided by the active game manager. */
     context: GameControllerContext;
     /** Concrete game model instance. */

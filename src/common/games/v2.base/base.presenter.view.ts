@@ -1,4 +1,4 @@
-import { AnyFieldsObject, GameDbDataFromFields, GameDefinitionDataFromFields } from "./base.admin.contracts";
+import { FieldSchema, GameDbDataFromFields, GameDefinitionDataFromFields } from "./base.admin.contracts";
 
 /**
  * Base presenter-side renderer for field-based games.
@@ -6,7 +6,7 @@ import { AnyFieldsObject, GameDbDataFromFields, GameDefinitionDataFromFields } f
  * Presenter views consume immutable game definition data plus optional runtime
  * game state from /state/game to render operator-facing summaries.
  */
-export abstract class GamePresenterStateView<T extends AnyFieldsObject> {
+export abstract class GamePresenterStateView<T extends FieldSchema> {
     /** Field schema associated with this presenter implementation. */
     abstract readonly fields: T;
     /** Parsed game definition payload used as fallback/static metadata source. */

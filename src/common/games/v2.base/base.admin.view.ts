@@ -1,10 +1,10 @@
 import { toHtml } from "../../general.utils";
-import { AnyFieldsObject } from "./base.admin.contracts";
+import { FieldSchema } from "./base.admin.contracts";
 import { CompleteGameDefinition } from "./base.admin.definition";
 import { CompleteGameModel } from "./base.admin.model";
 
 /** Active-game view context exposing the concrete game model. */
-export interface GameViewContext<T extends AnyFieldsObject> {
+export interface GameViewContext<T extends FieldSchema> {
     model: CompleteGameModel<T>;
 }
 
@@ -14,7 +14,7 @@ export interface GameViewContext<T extends AnyFieldsObject> {
  * Supports both active mode (live controller/model attached) and static mode
  * (definition-only rendering for previews).
  */
-export abstract class GameView<T extends AnyFieldsObject> {
+export abstract class GameView<T extends FieldSchema> {
     abstract fields: T;
 
     /** Timeline root element id. */

@@ -3,7 +3,7 @@ import { Person } from "../../people/people.model";
 import { RankingDiff } from "../../people/people.controller";
 import { Question, QuestionContext } from "../../questions/questions.admin.base";
 import { ResumeCheckpoints } from "../../admin.utils";
-import { AnyFieldsObject } from "./base.admin.contracts";
+import { FieldSchema } from "./base.admin.contracts";
 import { GameController, GameControllerContext } from "./base.admin.controller";
 
 /** Services exposed by the quiz host layer to concrete game managers. */
@@ -30,7 +30,7 @@ export abstract class GameManager implements GameControllerContext, QuestionCont
     /** Currently active question instance, when one is running. */
     activeQuestion: Question | null = null;
     /** Concrete game controller implementation for this manager. */
-    abstract controller: GameController<AnyFieldsObject>;
+    abstract controller: GameController<FieldSchema>;
 
     constructor(ctx: GameManagerContext, restoreState: boolean) {
         this.context = ctx;
