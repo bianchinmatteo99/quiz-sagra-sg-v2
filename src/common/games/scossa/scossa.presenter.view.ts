@@ -17,7 +17,7 @@ export class ScossaGamePresenterStateView extends GamePresenterStateView<ScossaG
         const wrongWords = new Set(this.gameDefinition.wrongWords.map((w) => w.toUpperCase()));
 
         const list = document.createElement("div");
-        list.textContent = words.map((word, index) => {
+        list.innerHTML = words.map((word, index) => {
             const status = statuses[index] ?? "available";
             const marker = status === "wrong"
                 ? "SCOSSA"

@@ -75,7 +75,12 @@ export class ScossaGameManager extends GameManager {
                     return 3000;
                 },
             });
-
+            if(!await this.controller.adminInteraction({advanceBtn: "Avvia prossima domanda", otherBtn: "Concludi la scossa"})){
+                for(let i=0; i<this.controller.model.words.length; i++){
+                    this.controller.setSelectionCorrectness(i);
+                }
+            }
+            
             this.activeQuestion.clear();
             this.activeQuestion = null;
         }

@@ -30,7 +30,6 @@ class SelectQuestionModel extends QuestionModel {
     toJSON(): SelectQuestionModelSnapshot {
         const base = super.toJSON();
         return {
-            answers: base.answers,
             results: base.results,
             question: {
                 kind: this.kind,

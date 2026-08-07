@@ -48,13 +48,16 @@ class ScossaWordsPage extends StaticPage {
                     gap: 24px;
                     text-align: center;
                 }
+                #scossa-grid-page h2 {
+                    font-size: 1.4rem;
+                    margin: 0;
+                }
 
                 #scossa-grid-page .scossa-grid {
                     width: 100%;
                     flex: 1;
                     display: grid;
                     grid-template-columns: repeat(3, minmax(auto, 1fr));
-                    gap: 12px;
                     overflow-y: auto;
                 }
 
