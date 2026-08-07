@@ -27,7 +27,7 @@ import { Person } from "../people/people.model";
 import { QuestionAnswers, QuestionAnswersSnapshot, QuestionResult, QuestionResultSnapshot, QuestionState, QuestionStateSnapshot } from "./question.contract";
 import { Timer } from "./questions.admin.timer";
 
-interface QuestionModelSnapshot {
+export interface QuestionModelSnapshot {
     question?: QuestionStateSnapshot;
     answers?: QuestionAnswersSnapshot;
     results?: QuestionResultSnapshot;

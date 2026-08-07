@@ -14,6 +14,8 @@ import { QDCPGameDefinitionData, QDCPGameRequiredData } from "./qdcp/qdcp.contra
 import { QDCPGamePresenterStateView } from "./qdcp/qdcp.presenter.view";
 import { ZipGameDefinitionData, ZipGameRequiredData } from "./zip/zip.contracts";
 import { ZipGamePresenterStateView } from "./zip/zip.presenter.view";
+import { ScossaGameDefinitionData, ScossaGameRequiredData } from "./scossa/scossa.contracts";
+import { ScossaGamePresenterStateView } from "./scossa/scossa.presenter.view";
 
 export function instantiatePresenterStateViewForGame(definition: AnyGameDefinitionData): GamePresenterStateView {
     switch (definition.kind) {
@@ -31,6 +33,8 @@ export function instantiatePresenterStateViewForGame(definition: AnyGameDefiniti
             return new QDCPGamePresenterStateView(definition as QDCPGameDefinitionData);
         case ZipGameRequiredData.kind:
             return new ZipGamePresenterStateView(definition as ZipGameDefinitionData);
+        case ScossaGameRequiredData.kind:
+            return new ScossaGamePresenterStateView(definition as ScossaGameDefinitionData);
         default:
             throw new Error("Presenter state view for game " + definition.kind + " not registered.");
     }

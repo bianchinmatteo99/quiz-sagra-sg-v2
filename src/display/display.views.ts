@@ -28,7 +28,8 @@ export class GameQuestionColPage extends MulticolPage {
         this.columns = [gameP, questionP]
         this.defaultTemplateColumns = this.getTemplateColumns(gameP, questionP)
     }
-    updateWith(gameP: Page, questionP: Page | null) {
+    updateWith(gameP: Page & {disableQuestionView?: boolean}, questionP: Page | null) {
+        questionP = gameP.disableQuestionView ? null : questionP
         this.updatePage(0, gameP)
         this.updatePage(1, questionP)
         this.gridTemplateColumns = this.getTemplateColumns(gameP, questionP)

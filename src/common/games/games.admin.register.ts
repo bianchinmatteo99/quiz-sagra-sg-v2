@@ -26,6 +26,10 @@ import { ZipGameRequiredData } from "./zip/zip.contracts";
 import { ZipGameDefinition, ZipGameDefinitionBuilder } from "./zip/zip.admin.definition";
 import { ZipGameManager } from "./zip/zip.admin.manager";
 import { ZipGameView } from "./zip/zip.admin.mvc";
+import { ScossaGameRequiredData } from "./scossa/scossa.contracts";
+import { ScossaGameDefinition, ScossaGameDefinitionBuilder } from "./scossa/scossa.admin.definition";
+import { ScossaGameManager } from "./scossa/scossa.admin.manager";
+import { ScossaGameView } from "./scossa/scossa.admin.mvc";
 import { AnyGameDefinition, GameDefinitionBuilder, GameManager, GameManagerContext, GameView } from "./games.admin.base";
 import { AnyGameDefinitionData } from "./games.contracts";
 
@@ -47,6 +51,7 @@ export const gamesDefBuilders: { [key: string]: GameDefinitionBuilder<AnyGameDef
     [NumericEstimationGameRequiredData.kind]: new NumericEstimationGameDefinitionBuilder(),
     [QDCPGameRequiredData.kind]: new QDCPGameDefinitionBuilder(),
     [ZipGameRequiredData.kind]: new ZipGameDefinitionBuilder(),
+    [ScossaGameRequiredData.kind]: new ScossaGameDefinitionBuilder(),
 };
 
 
@@ -79,6 +84,8 @@ export function instantiateGameManagerFor(def: AnyGameDefinition, ctx: GameManag
             return new QDCPGameManager(ctx, def as QDCPGameDefinition, restoreState);
         case ZipGameRequiredData.kind:
             return new ZipGameManager(ctx, def as ZipGameDefinition, restoreState);
+        case ScossaGameRequiredData.kind:
+            return new ScossaGameManager(ctx, def as ScossaGameDefinition, restoreState);
         
         default:
             throw new Error("Game type " + def.kind + " not registered.")
@@ -112,6 +119,8 @@ export function instantiateGameViewerFor(def: AnyGameDefinition): GameView{
             return new QDCPGameView(null, def as QDCPGameDefinition);
         case ZipGameRequiredData.kind:
             return new ZipGameView(null, def as ZipGameDefinition);
+        case ScossaGameRequiredData.kind:
+            return new ScossaGameView(null, def as ScossaGameDefinition);
         
         default:
             throw new Error("Game type " + def.kind + " not registered.")

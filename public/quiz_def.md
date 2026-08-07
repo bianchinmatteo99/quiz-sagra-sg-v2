@@ -67,4 +67,19 @@ if_no_correct_answers: linear-decreasing-points
 points_for_correct_answer: 25
 questions_and_answers:
 - Quanti minuti dura in media una partita di calcio regolamentare? = 90 minuti
-- Quanti chilometri misura in media una maratona? = 42.195 km
+- Quanti chilometri misura in media una maratona? = 42,195 km
+
+## Scossa
+title: Scossa<br/>Pianeti del sistema solare
+points_for_correct_answer: 10
+points_lost_for_wrong_answer: 5
+values:
+- Terra
+- Giove
+- *Sole
+- Marte
+- Saturno
+- Venere
+- Mercurio
+- Urano
+- Nettuno

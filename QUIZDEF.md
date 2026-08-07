@@ -78,6 +78,17 @@ points_for_correct_answer: 30
 zips:
 - notte,stella,polare,freddo
 - mare,onda,cresta,gallo
+
+## Scossa
+title: Scossa di prova
+points_for_correct_answer: 10
+points_lost_for_wrong_answer: 5
+values:
+- sole
+- luna
+- *pioggia
+- mare
+- montagna
 ```
 
 ## Quiz options
@@ -298,3 +309,32 @@ Boolean flag controlling whether a participant can retry the same zip after an i
 
 #### `zips`
 List of zip chains to play in order. Each list item must contain one or more comma-separated words, and each word must be non-empty. Each zip must be on its own line prefixed with `- `.
+
+## Game type: Scossa
+
+The `Scossa` game type implements a select-from-list round where one or more values are marked as wrong using an `*` prefix. Each game section starts with `## Scossa` and contains the following properties:
+
+### Properties
+
+| Property | Type | Default | Required | Constraints |
+|----------|------|---------|----------|-------------|
+| `title` | string | "Scossa" | No | - |
+| `points_for_correct_answer` | number | - | Yes | Must be >= 0 |
+| `points_lost_for_wrong_answer` | number | - | Yes | Must be >= 0 |
+| `values` | list of strings | - | Yes | At least 2 items; at least one item must start with `*` |
+
+#### `title`
+Display name for this game instance. Defaults to "Scossa" if not provided.
+
+#### `points_for_correct_answer`
+Points awarded to each participant for a correct answer. Numeric value. Must be non-negative.
+
+#### `points_lost_for_wrong_answer`
+Points removed from each participant for a wrong answer. Numeric value. Must be non-negative.
+
+#### `values`
+List of selectable values. Each item must be on its own line prefixed with `- `. Prefix a value with `*` to mark it as wrong (for example `- *pioggia`).
+
+The parser strips the `*` marker from persisted words, and builds:
+- `words`: all listed values, without `*`.
+- `wrongWords`: only values that were prefixed with `*`.

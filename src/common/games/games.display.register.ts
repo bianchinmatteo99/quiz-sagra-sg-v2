@@ -13,6 +13,8 @@ import { QDCPGameRequiredData } from "./qdcp/qdcp.contracts";
 import { QDCPGamePageChooser } from "./qdcp/qdcp.display.view";
 import { ZipGameRequiredData } from "./zip/zip.contracts";
 import { ZipGamePageChooser } from "./zip/zip.display.view";
+import { ScossaGameRequiredData } from "./scossa/scossa.contracts";
+import { ScossaGamePageChooser } from "./scossa/scossa.display.view";
 
 /**
  * Create the display-side page chooser registered for a game kind.
@@ -40,6 +42,8 @@ export function instantiatePageChooserForGame(kind: string): GamePageChooser<any
             return new QDCPGamePageChooser();
         case ZipGameRequiredData.kind:
             return new ZipGamePageChooser();
+        case ScossaGameRequiredData.kind:
+            return new ScossaGamePageChooser();
         default:
             throw new Error("Page provider for game " + kind + " not registered.")
     }
