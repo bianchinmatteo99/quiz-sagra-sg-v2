@@ -38,7 +38,52 @@ export class ScossaGameManager extends GameManager {
         }
 
         this.controller.setState(ScossaState.ASKINGQUESTION);
-        
+        while (this.controller.model.countRemainingWrongWords() > 0 && this.controller.model.countRemainingWrongWords()<this.controller.model.countAvailableWords()) {
+            const availableWords = this.controller.model.getAvailableWords();
+    
+            let selectedIndex = -1;
+
+            this.activeQuestion = new SelectQuestion(
+                this,
+                {
+                    auto: (answer) => !this.controller.model.isWrongWord(answer),
+                    manual: true,
+                },
+                {
+                    stopWhen: StopWhenBuildersCollection.NumberOfSubmittedAnswersIs(1),
+                },
+                availableWords,
+            );
+
+            const result = await this.activeQuestion.ask({
+                onAnswerClosed: (ans) => {
+                    const selected = this.getFirstSubmittedAnswer(ans);
+                    if (selected !== null) {
+                        selectedIndex = this.controller.selectWord(selected);
+                    }
+                },
+                beforeShowResults: async (res) => {
+                    if (selectedIndex >= 0) {
+                        this.controller.setSelectionCorrectness(selectedIndex);
+                    }
+
+                    const diff = this.buildRankingDiff(res);
+                    if (diff.size > 0) {
+                        setTimeout(() => this.context.updateRanking(diff), 1000);
+                    }
+
+                    return 3000;
+                },
+            });
+            if(!await this.controller.adminInteraction({advanceBtn: "Avvia prossima domanda", otherBtn: "Concludi la scossa"})){
+                for(let i=0; i<this.controller.model.words.length; i++){
+                    this.controller.setSelectionCorrectness(i);
+                }
+            }
+            
+            this.activeQuestion.clear();
+            this.activeQuestion = null;
+        }
 
         this.resumeCheckpoints.reachedCheckPoint("end-phase");
         this.controller.setState(ScossaState.ENDING);
